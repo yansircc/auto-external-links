@@ -5,9 +5,7 @@ import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { keywordSchema } from "./schema";
 import { searchGoogle } from "@/lib/serper";
-import { findKeywordsInText } from "./utils";
-import { type KeywordAnalysis, type KeywordInfo } from "./schema";
-import { filterBlacklistedLinks } from "@/lib/blacklist";
+import { type BlacklistEntry, filterBlacklistedLinks } from "@/lib/blacklist";
 
 // 包装成对象类型的模式
 const wrapperSchema = z.object({
@@ -52,13 +50,16 @@ export async function getKeywords(text: string) {
  */
 export async function fetchLinksForKeywords(
   keywords: { keyword: string; query: string }[],
+  blacklist: BlacklistEntry[],
 ) {
   const results = await Promise.all(
     keywords.map(async ({ keyword, query }) => {
       try {
         const searchResults = await searchGoogle(query);
-        // Filter out blacklisted links before selecting the best one
-        const filteredResults = filterBlacklistedLinks(searchResults);
+        const filteredResults = filterBlacklistedLinks(
+          searchResults,
+          blacklist,
+        );
         const bestResult = filteredResults[0];
 
         return {

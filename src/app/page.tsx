@@ -20,6 +20,7 @@ import {
 import { Settings } from "lucide-react";
 import { BlacklistManager } from "@/components/blacklist-manager";
 import { Button } from "@/components/ui/button";
+import { loadBlacklist } from "@/lib/blacklist";
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -99,8 +100,9 @@ export default function Home() {
         throw new Error("No valid keywords selected");
       }
 
-      // 获取链接
-      const linkMap = await fetchLinksForKeywords(keywordsForSearch);
+      // 获取黑名单和链接
+      const blacklist = loadBlacklist();
+      const linkMap = await fetchLinksForKeywords(keywordsForSearch, blacklist);
 
       // 更新元数据
       setKeywordMetadata((prev) => {
