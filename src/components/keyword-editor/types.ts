@@ -16,5 +16,4 @@ export interface KeywordEditorProps {
   onToggleKeyword: (id: string) => void;
   onConfirm: () => Promise<void>;
   onEditClick: () => void;
-  onNewAnalysis: () => void;
 }

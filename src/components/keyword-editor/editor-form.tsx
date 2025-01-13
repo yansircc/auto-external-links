@@ -1,89 +1,74 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema, type FormData } from "@/app/schema";
-import { useState } from "react";
+import type { FormData } from "@/app/schema";
+import { formSchema } from "@/app/schema";
 
 interface EditorFormProps {
-  text: string;
-  isLoading: boolean;
   onSubmit: (data: FormData) => Promise<void>;
+  isLoading: boolean;
 }
 
 const MAX_CHARS = 2000;
 
-export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
-  const [charCount, setCharCount] = useState(0);
-
+export function EditorForm({ onSubmit, isLoading }: EditorFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      text,
+      text: "",
     },
   });
 
-  // 处理文本变化
-  function handleTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    const text = e.target.value;
-    setCharCount(text.length);
-    // 如果超出字符限制，截断文本
-    if (text.length > MAX_CHARS) {
-      e.target.value = text.slice(0, MAX_CHARS);
-      return;
-    }
-  }
+  const text = form.watch("text");
+  const charCount = text?.length ?? 0;
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <motion.form
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="space-y-6 p-6"
+      onSubmit={form.handleSubmit(onSubmit)}
+    >
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">输入文本</span>
-          <span
-            className={`text-sm ${
-              charCount > MAX_CHARS
-                ? "text-destructive"
-                : "text-muted-foreground"
-            }`}
-          >
-            {charCount} / {MAX_CHARS}
-          </span>
-        </div>
         <Textarea
-          {...form.register("text")}
+          className="min-h-[200px] resize-none bg-background/50 transition-colors focus-visible:bg-background"
           placeholder="请输入要分析的英文文本..."
-          className="min-h-[200px]"
+          {...form.register("text")}
           disabled={isLoading}
-          onChange={(e) => {
-            handleTextChange(e);
-            void form.register("text").onChange(e);
-          }}
         />
-        {form.formState.errors.text && (
-          <p className="text-sm text-destructive">
-            {form.formState.errors.text.message}
-          </p>
-        )}
+        <motion.div
+          className="flex justify-between text-sm text-muted-foreground"
+          layout
+        >
+          <span>{form.formState.errors.text?.message}</span>
+          <span>
+            {charCount}/{MAX_CHARS}
+          </span>
+        </motion.div>
       </div>
-      <div className="flex justify-end">
+
+      <motion.div className="flex justify-end" layout>
         <Button
           type="submit"
-          disabled={isLoading || charCount > MAX_CHARS}
-          size="sm"
+          disabled={isLoading}
+          className="shadow-sm transition-all hover:shadow-md"
         >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              分析中...
+              分析关键词
             </>
           ) : (
             "分析关键词"
           )}
         </Button>
-      </div>
-    </form>
+      </motion.div>
+    </motion.form>
   );
 }
