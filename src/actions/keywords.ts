@@ -1,7 +1,7 @@
 "use server";
 
 import { generateObject } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { deepseek } from "@ai-sdk/deepseek";
 import { z } from "zod";
 import { keywordSchema } from "./schema";
 import { searchGoogle } from "@/lib/serper";
@@ -23,7 +23,7 @@ const wrapperSchema = z.object({
  */
 export async function getKeywords(text: string) {
   const { object, finishReason, usage } = await generateObject({
-    model: openai("gpt-4o"),
+    model: deepseek("deepseek-chat"),
     system: `
     You are a SEO expert, you need to:
     1. Select 1~3 most valuable keywords/phrases from the text

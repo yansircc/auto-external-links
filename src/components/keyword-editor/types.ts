@@ -1,4 +1,4 @@
-import { type KeywordMatch, type KeywordMetadata } from "@/app/schema";
+import { type KeywordMatch, type KeywordMetadata } from "./schema";
 
 export interface KeywordEditorProps {
   text: string;

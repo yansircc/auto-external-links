@@ -5,8 +5,8 @@ import {
   type FormData,
   type KeywordMatch,
   type KeywordMetadata,
-} from "./schema";
-import { getKeywords, fetchLinksForKeywords } from "./actions";
+} from "@/components/keyword-editor/schema";
+import { getKeywords, fetchLinksForKeywords } from "@/actions/keywords";
 import { KeywordEditor } from "@/components/keyword-editor/editor";
 import { findKeywordsInText } from "@/lib/keywords";
 import { getUniqueSelectedKeywords } from "@/lib/keywords";

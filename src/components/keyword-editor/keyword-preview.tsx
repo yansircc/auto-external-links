@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import { type KeywordMatch, type KeywordMetadata } from "@/app/schema";
+import { type KeywordMatch, type KeywordMetadata } from "./schema";
 import { createKeywordId } from "@/lib/keywords";
 import { EditorLayout, EditorActions } from "./editor-layout";
 

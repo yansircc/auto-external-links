@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { type FormData, formSchema } from "@/app/schema";
+import { type FormData, formSchema } from "./schema";
 import { EditorLayout, EditorActions } from "./editor-layout";
 import { cn } from "@/lib/utils";
 
