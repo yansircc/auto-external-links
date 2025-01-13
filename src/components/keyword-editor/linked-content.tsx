@@ -1,11 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
-import { useState } from "react";
-import type { KeywordMatch, KeywordMetadata } from "@/app/schema";
+import { type KeywordMatch, type KeywordMetadata } from "@/app/schema";
 import { createKeywordId } from "@/lib/keywords";
+import { EditorLayout, EditorActions } from "./editor-layout";
 
 interface LinkedContentProps {
   text: string;
@@ -22,77 +22,119 @@ export function LinkedContent({
 }: LinkedContentProps) {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async () => {
-    const markdown = generateMarkdown(
-      text,
-      matches,
-      keywordMetadata,
-      selectedKeywordIds,
-    );
+  // 渲染带链接的文本
+  function renderLinkedText() {
+    let lastIndex = 0;
+    const elements: JSX.Element[] = [];
+
+    matches.forEach((match, matchIndex) => {
+      const id = createKeywordId(match.keyword, matchIndex);
+      // 只处理选中的关键词
+      if (!selectedKeywordIds.has(id)) {
+        if (match.index > lastIndex) {
+          elements.push(
+            <span key={`text-${matchIndex}`}>
+              {text.slice(lastIndex, match.index + match.keyword.length)}
+            </span>,
+          );
+          lastIndex = match.index + match.keyword.length;
+        }
+        return;
+      }
+
+      // 添加普通文本
+      if (match.index > lastIndex) {
+        elements.push(
+          <span key={`text-${matchIndex}`}>
+            {text.slice(lastIndex, match.index)}
+          </span>,
+        );
+      }
+
+      // 添加带链接的关键词
+      const metadata = keywordMetadata[match.keyword];
+      if (!metadata) return;
+
+      if (metadata.link) {
+        elements.push(
+          <a
+            key={`link-${id}`}
+            href={metadata.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline hover:text-primary/80"
+            title={metadata.title ?? undefined}
+          >
+            {text.slice(match.index, match.index + match.keyword.length)}
+          </a>,
+        );
+      } else {
+        elements.push(
+          <span key={`text-${id}`}>
+            {text.slice(match.index, match.index + match.keyword.length)}
+          </span>,
+        );
+      }
+
+      lastIndex = match.index + match.keyword.length;
+    });
+
+    // 添加剩余文本
+    if (lastIndex < text.length) {
+      elements.push(
+        <span key="text-end">{text.slice(lastIndex, text.length)}</span>,
+      );
+    }
+
+    return elements;
+  }
+
+  // 生成 Markdown 格式的文本
+  function generateMarkdown() {
+    let result = text;
+    const sortedMatches = [...matches]
+      .filter((match, index) =>
+        selectedKeywordIds.has(createKeywordId(match.keyword, index)),
+      )
+      .sort((a, b) => b.index - a.index); // 从后向前处理，避免位置变化
+
+    sortedMatches.forEach((match) => {
+      const metadata = keywordMetadata[match.keyword];
+      if (!metadata?.link) return;
+
+      const linkText = text.slice(
+        match.index,
+        match.index + match.keyword.length,
+      );
+      const markdown = `[${linkText}](${metadata.link})`;
+      result =
+        result.slice(0, match.index) +
+        markdown +
+        result.slice(match.index + match.keyword.length);
+    });
+
+    return result;
+  }
+
+  // 复制 Markdown 文本
+  async function copyToClipboard() {
+    const markdown = generateMarkdown();
     await navigator.clipboard.writeText(markdown);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  // Filter matches to only include selected keywords
-  const selectedMatches = matches.filter((match) => {
-    const id = createKeywordId(match.keyword, match.index);
-    return selectedKeywordIds.has(id);
-  });
-
-  // Calculate offset for each paragraph
-  const paragraphs = text.split("\n");
-  let currentOffset = 0;
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="space-y-6 p-6"
-    >
-      <motion.div
-        className="prose prose-sm dark:prose-invert max-w-none"
-        layout
-      >
-        {paragraphs.map((paragraph, i) => {
-          // Filter matches that belong to this paragraph
-          const paragraphMatches = selectedMatches
-            .filter((match) => {
-              const matchPosition = match.index;
-              const paragraphStart = currentOffset;
-              const paragraphEnd = currentOffset + paragraph.length;
-              return (
-                matchPosition >= paragraphStart && matchPosition < paragraphEnd
-              );
-            })
-            .map((match) => ({
-              ...match,
-              // Adjust index relative to paragraph
-              index: match.index - currentOffset,
-            }));
+    <div className="space-y-4">
+      <EditorLayout>
+        <div className="whitespace-pre-wrap text-sm">{renderLinkedText()}</div>
+      </EditorLayout>
 
-          // Update offset for next paragraph
-          currentOffset += paragraph.length + 1; // +1 for the newline
-
-          return (
-            <motion.p
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="whitespace-pre-wrap"
-            >
-              {renderLinkedText(paragraph, paragraphMatches, keywordMetadata)}
-            </motion.p>
-          );
-        })}
-      </motion.div>
-
-      <motion.div className="flex justify-end" layout>
+      <EditorActions>
         <Button
-          onClick={handleCopy}
-          className="shadow-sm transition-all hover:shadow-md"
+          variant="default"
+          onClick={() => void copyToClipboard()}
+          disabled={copied}
         >
           {copied ? (
             <>
@@ -106,83 +148,7 @@ export function LinkedContent({
             </>
           )}
         </Button>
-      </motion.div>
-    </motion.div>
+      </EditorActions>
+    </div>
   );
-}
-
-function renderLinkedText(
-  text: string,
-  matches: KeywordMatch[],
-  metadata: Record<string, KeywordMetadata>,
-) {
-  const segments: JSX.Element[] = [];
-  let lastIndex = 0;
-
-  // Sort matches by index to process them in order
-  const sortedMatches = [...matches].sort((a, b) => a.index - b.index);
-
-  sortedMatches.forEach((match, matchIndex) => {
-    const { link, title } = metadata[match.keyword] ?? {};
-
-    // Add text before the keyword
-    if (match.index > lastIndex) {
-      segments.push(
-        <span key={`text-${matchIndex}`}>
-          {text.slice(lastIndex, match.index)}
-        </span>,
-      );
-    }
-
-    // Add the linked keyword
-    segments.push(
-      <motion.a
-        key={`link-${matchIndex}`}
-        href={link ?? "#"}
-        target="_blank"
-        rel="noopener noreferrer"
-        whileHover={{ scale: 1.05 }}
-        className="text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary"
-        title={title ?? undefined}
-      >
-        {match.keyword}
-      </motion.a>,
-    );
-
-    lastIndex = match.index + match.keyword.length;
-  });
-
-  // Add remaining text
-  if (lastIndex < text.length) {
-    segments.push(<span key="text-end">{text.slice(lastIndex)}</span>);
-  }
-
-  return segments;
-}
-
-function generateMarkdown(
-  text: string,
-  matches: KeywordMatch[],
-  metadata: Record<string, KeywordMetadata>,
-  selectedKeywordIds: Set<string>,
-): string {
-  // Filter matches to only include selected keywords
-  const selectedMatches = matches.filter((match) => {
-    const id = createKeywordId(match.keyword, match.index);
-    return selectedKeywordIds.has(id);
-  });
-
-  let markdown = text;
-  const sortedMatches = [...selectedMatches].sort((a, b) => b.index - a.index);
-
-  sortedMatches.forEach((match) => {
-    const { link, title } = metadata[match.keyword] ?? {};
-    if (!link) return;
-
-    const before = markdown.slice(0, match.index);
-    const after = markdown.slice(match.index + match.keyword.length);
-    markdown = `${before}[${match.keyword}](${link}${title ? ` "${title}"` : ""})${after}`;
-  });
-
-  return markdown;
 }

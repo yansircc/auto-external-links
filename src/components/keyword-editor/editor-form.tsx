@@ -1,74 +1,67 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import type { FormData } from "@/app/schema";
-import { formSchema } from "@/app/schema";
+import { type FormData, formSchema } from "@/app/schema";
+import { EditorLayout, EditorActions } from "./editor-layout";
+import { cn } from "@/lib/utils";
 
 interface EditorFormProps {
-  onSubmit: (data: FormData) => Promise<void>;
+  text: string;
   isLoading: boolean;
+  onSubmit: (data: FormData) => Promise<void>;
 }
 
-const MAX_CHARS = 2000;
-
-export function EditorForm({ onSubmit, isLoading }: EditorFormProps) {
+export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      text: "",
+      text,
     },
   });
 
-  const text = form.watch("text");
-  const charCount = text?.length ?? 0;
+  const count = form.watch("text")?.length ?? 0;
+  const isOverLimit = count > 2000;
 
   return (
-    <motion.form
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="space-y-6 p-6"
+    <form
       onSubmit={form.handleSubmit(onSubmit)}
+      className="flex flex-1 flex-col"
     >
-      <div className="space-y-2">
-        <Textarea
-          className="min-h-[200px] resize-none bg-background/50 transition-colors focus-visible:bg-background"
-          placeholder="请输入要分析的英文文本..."
-          {...form.register("text")}
-          disabled={isLoading}
-        />
-        <motion.div
-          className="flex justify-between text-sm text-muted-foreground"
-          layout
-        >
-          <span>{form.formState.errors.text?.message}</span>
-          <span>
-            {charCount}/{MAX_CHARS}
-          </span>
-        </motion.div>
-      </div>
-
-      <motion.div className="flex justify-end" layout>
-        <Button
-          type="submit"
-          disabled={isLoading}
-          className="shadow-sm transition-all hover:shadow-md"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              分析关键词
-            </>
-          ) : (
-            "分析关键词"
-          )}
-        </Button>
-      </motion.div>
-    </motion.form>
+      <EditorLayout>
+        <div className="flex-1">
+          <Textarea
+            placeholder="请输入要分析的英文文本..."
+            className="min-h-[160px] resize-none bg-transparent"
+            {...form.register("text")}
+          />
+          <div className="mt-4 flex items-center justify-between text-sm">
+            <div
+              className={cn(
+                "tabular-nums",
+                isOverLimit ? "text-destructive" : "text-muted-foreground",
+              )}
+            >
+              {count} / 2000
+            </div>
+            <EditorActions>
+              <Button type="submit" disabled={isLoading || isOverLimit}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    分析中...
+                  </>
+                ) : (
+                  "分析关键词"
+                )}
+              </Button>
+            </EditorActions>
+          </div>
+        </div>
+      </EditorLayout>
+    </form>
   );
 }
