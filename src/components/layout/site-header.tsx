@@ -4,6 +4,7 @@ import BlacklistDialog from "@/components/blacklist/dialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { FeedbackDialog } from "@/components/feedback/dialog";
+import SiteLogo from "@/images/site-logo.png";
 
 interface SiteHeaderProps {
   onLogoClick?: () => void;
@@ -22,7 +23,7 @@ export function SiteHeader({ onLogoClick }: SiteHeaderProps) {
             onClick={onLogoClick}
           >
             <Image
-              src="/site-logo.png"
+              src={SiteLogo}
               alt="Logo"
               width={36}
               height={36}

@@ -20,8 +20,9 @@ export function createKeywordId(keyword: string, index: number) {
  * @returns 关键词
  */
 export function extractKeywordFromId(id: string): string {
-  const [keyword = ""] = id.split("-");
-  return keyword;
+  const lastHyphenIndex = id.lastIndexOf("-");
+  if (lastHyphenIndex === -1) return id;
+  return id.slice(0, lastHyphenIndex);
 }
 
 /**

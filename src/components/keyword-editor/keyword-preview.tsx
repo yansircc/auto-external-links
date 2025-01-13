@@ -60,8 +60,8 @@ export function KeywordPreview({
               onClick={() => onToggleKeyword(id)}
               className={`rounded px-0.5 hover:bg-accent ${
                 selectedKeywordIds.has(id)
-                  ? "bg-primary/20 text-primary hover:bg-primary/30"
-                  : "bg-muted"
+                  ? "bg-green-200 text-green-700 hover:bg-green-300"
+                  : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
               }`}
             >
               {text.slice(match.index, match.index + match.keyword.length)}

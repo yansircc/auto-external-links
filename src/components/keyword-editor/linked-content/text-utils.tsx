@@ -52,7 +52,7 @@ export function renderLinkedText({
           href={metadata.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary underline hover:text-primary/80"
+          className="text-blue-700 underline hover:text-blue-900"
           title={metadata.title ?? undefined}
         >
           {text.slice(match.index, match.index + match.keyword.length)}

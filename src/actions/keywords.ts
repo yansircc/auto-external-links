@@ -37,8 +37,6 @@ export async function getKeywords(text: string) {
     schema: wrapperSchema,
   });
 
-  console.log(object);
-
   // 初始化时设置链接为 null
   const keywordsWithoutLinks = object.keywords.map((item) => ({
     ...item,
