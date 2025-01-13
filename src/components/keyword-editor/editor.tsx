@@ -1,6 +1,6 @@
 "use client";
 
-import { type KeywordEditorProps } from "./types";
+import { type KeywordEditorProps } from "./core/types";
 import { EditorForm } from "./editor-form";
 import { KeywordPreview } from "./keyword-preview";
 import { LinkedContent } from "./linked-content";

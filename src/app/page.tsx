@@ -5,15 +5,18 @@ import {
   type FormData,
   type KeywordMatch,
   type KeywordMetadata,
-} from "@/components/keyword-editor/schema";
+} from "@/components/keyword-editor/core/schema";
 import { getKeywords, fetchLinksForKeywords } from "@/actions/keywords";
 import { KeywordEditor } from "@/components/keyword-editor/editor";
 import { findKeywordsInText } from "@/lib/keywords";
 import { getUniqueSelectedKeywords } from "@/lib/keywords";
 import { loadBlacklist } from "@/lib/blacklist";
 import { SiteHeader } from "@/components/layout/site-header";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 export default function Home() {
+  const { toast } = useToast();
   const [text, setText] = useState("");
   const [matches, setMatches] = useState<KeywordMatch[]>([]);
   const [keywordMetadata, setKeywordMetadata] = useState<
@@ -31,7 +34,9 @@ export default function Home() {
     try {
       setIsLoading(true);
       const result = await getKeywords(data.text);
-      if (!result.object) return;
+      if (!result.object) {
+        throw new Error("Failed to analyze keywords");
+      }
 
       // 创建关键词到元数据的映射
       const metadata: Record<string, KeywordMetadata> = {};
@@ -51,6 +56,16 @@ export default function Home() {
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to analyze text:", error);
+      toast({
+        variant: "destructive",
+        title: "分析失败",
+        description: "大语言模型通病，可以多试几次",
+        action: (
+          <ToastAction altText="重试" onClick={() => handleSubmit(data)}>
+            重试
+          </ToastAction>
+        ),
+      });
     } finally {
       setIsLoading(false);
     }

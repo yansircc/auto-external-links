@@ -1,6 +1,7 @@
 "use server";
 
 import { generateObject } from "ai";
+// import { openai } from "@ai-sdk/openai";
 import { deepseek } from "@ai-sdk/deepseek";
 import { z } from "zod";
 import { keywordSchema } from "./schema";
@@ -23,10 +24,11 @@ const wrapperSchema = z.object({
  */
 export async function getKeywords(text: string) {
   const { object, finishReason, usage } = await generateObject({
+    // model: openai("gpt-4o"),
     model: deepseek("deepseek-chat"),
     system: `
     You are a SEO expert, you need to:
-    1. Select 1~3 most valuable keywords/phrases from the text
+    1. Select 1~3 most valuable keywords/phrases from the text(never select from the heading or title)
     2. For each keyword:
       - Extract the exact keyword or phrase from the text (maintain original case and format). Each should be unique, never repeat.
       - Generate a search query in question form to find the best external link
@@ -34,6 +36,8 @@ export async function getKeywords(text: string) {
     prompt: text,
     schema: wrapperSchema,
   });
+
+  console.log(object);
 
   // 初始化时设置链接为 null
   const keywordsWithoutLinks = object.keywords.map((item) => ({

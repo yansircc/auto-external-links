@@ -1,5 +1,5 @@
 import { createKeywordId } from "@/lib/keywords";
-import { type Footnote, type RenderOptions } from "./types";
+import { type Footnote, type RenderOptions } from "../core/types";
 
 export function renderLinkedText({
   text,

@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
-import { EditorLayout, EditorActions } from "./editor-layout";
+import { EditorLayout, EditorActions } from "../core/editor-layout";
 import { Footnotes } from "./footnotes";
-import { type LinkedContentProps } from "./types";
+import { type LinkedContentProps } from "../core/types";
 import { useFootnotes } from "./use-footnotes";
 import { renderLinkedText } from "./text-utils";
 import { useCopy } from "./use-copy";

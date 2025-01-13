@@ -1,6 +1,6 @@
-import { type KeywordMatch, type KeywordMetadata } from "./schema";
+import { type KeywordMatch, type KeywordMetadata } from "../core/schema";
 import { createKeywordId } from "@/lib/keywords";
-import { type Footnote } from "./types";
+import { type Footnote } from "../core/types";
 
 interface FootnotesResult {
   footnotes: Footnote[];

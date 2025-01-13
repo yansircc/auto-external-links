@@ -5,8 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { type FormData, formSchema } from "./schema";
-import { EditorLayout, EditorActions } from "./editor-layout";
+import { type FormData, formSchema } from "./core/schema";
+import { EditorLayout, EditorActions } from "./core/editor-layout";
+import { MAX_LENGTH } from "./core/config";
 import { cn } from "@/lib/utils";
 
 interface EditorFormProps {
@@ -24,7 +25,7 @@ export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
   });
 
   const count = form.watch("text")?.length ?? 0;
-  const isOverLimit = count > 2000;
+  const isOverLimit = count > MAX_LENGTH;
 
   return (
     <form
@@ -37,6 +38,7 @@ export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
             placeholder="请输入要分析的英文文本..."
             className="min-h-[160px] resize-none bg-transparent"
             {...form.register("text")}
+            maxLength={MAX_LENGTH}
           />
           <div className="mt-4 flex items-center justify-between text-sm">
             <div
@@ -45,7 +47,7 @@ export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
                 isOverLimit ? "text-destructive" : "text-muted-foreground",
               )}
             >
-              {count} / 2000
+              {count} / {MAX_LENGTH}
             </div>
             <EditorActions>
               <Button type="submit" disabled={isLoading || isOverLimit}>

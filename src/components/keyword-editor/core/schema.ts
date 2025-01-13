@@ -4,13 +4,14 @@
  */
 
 import { z } from "zod";
+import { MAX_LENGTH } from "./config";
 
 // 表单模式
 export const formSchema = z.object({
   text: z
     .string()
     .min(1, "请输入要分析的文本")
-    .max(2000, "文本长度不能超过 2000 个字符")
+    .max(MAX_LENGTH, `文本长度不能超过 ${MAX_LENGTH} 个字符`)
     .refine((text) => !/[\u4e00-\u9fa5]/.test(text), {
       message: "暂不支持中文文本分析",
     }),

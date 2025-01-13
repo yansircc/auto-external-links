@@ -1,6 +1,6 @@
 "use client";
 
-import { type Footnote } from "./types";
+import { type Footnote } from "../core/types";
 
 interface FootnotesProps {
   footnotes: Footnote[];

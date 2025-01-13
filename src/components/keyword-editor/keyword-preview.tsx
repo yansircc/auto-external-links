@@ -8,9 +8,9 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import { type KeywordMatch, type KeywordMetadata } from "./schema";
+import { type KeywordMatch, type KeywordMetadata } from "./core/schema";
 import { createKeywordId } from "@/lib/keywords";
-import { EditorLayout, EditorActions } from "./editor-layout";
+import { EditorLayout, EditorActions } from "./core/editor-layout";
 
 interface KeywordPreviewProps {
   text: string;

@@ -21,9 +21,8 @@ export const keywordSchema = z.object({
     ),
   reason: z
     .string()
-    .max(150)
     .describe(
-      "Explain why the reader should click this link, tell the recommendation reason.",
+      "Explain why the reader should click this link, tell the recommendation reason, around 150 characters.",
     ),
   link: z.string().url().nullable(),
   title: z.string().nullable(),
@@ -32,4 +31,10 @@ export const keywordSchema = z.object({
 export type KeywordInfo = z.infer<typeof keywordSchema>;
 
 // 关键词列表模式
-export const keywordsSchema = z.array(keywordSchema);
+export const keywordsSchema = z
+  .array(keywordSchema)
+  .min(1)
+  .max(3)
+  .describe(
+    "The most important keywords or phrases information extracted from the original text, including keywords, search queries, and recommendations.",
+  );

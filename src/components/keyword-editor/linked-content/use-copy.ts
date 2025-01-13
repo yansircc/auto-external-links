@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { type Footnote } from "./types";
+import { type Footnote } from "../core/types";
 import {
   generateMarkdown,
   generateMarkdownWithFootnotes,
   generateFootnotesSection,
 } from "./text-utils";
-import { type RenderOptions } from "./types";
+import { type RenderOptions } from "../core/types";
 
 interface CopyState {
   copiedSimple: boolean;
