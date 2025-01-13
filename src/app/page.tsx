@@ -1,37 +1,177 @@
-import Link from "next/link";
+"use client";
 
-export default function HomePage() {
+import { useState } from "react";
+import {
+  type FormData,
+  type KeywordMatch,
+  type KeywordMetadata,
+} from "./schema";
+import { getKeywords, fetchLinksForKeywords } from "./actions";
+import { KeywordEditor } from "@/components/keyword-editor/editor";
+import { findKeywordsInText } from "./utils";
+import { getUniqueSelectedKeywords } from "@/lib/keywords";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Settings } from "lucide-react";
+import { BlacklistManager } from "@/components/blacklist-manager";
+import { Button } from "@/components/ui/button";
+
+export default function Home() {
+  const [text, setText] = useState("");
+  const [matches, setMatches] = useState<KeywordMatch[]>([]);
+  const [keywordMetadata, setKeywordMetadata] = useState<
+    Record<string, KeywordMetadata>
+  >({});
+  const [selectedKeywordIds, setSelectedKeywordIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
+  const [hasLinks, setHasLinks] = useState(false);
+
+  // 处理表单提交
+  async function handleSubmit(data: FormData) {
+    try {
+      setIsLoading(true);
+      const result = await getKeywords(data.text);
+      if (!result.object) return;
+
+      // 创建关键词到元数据的映射
+      const metadata: Record<string, KeywordMetadata> = {};
+      const keywords = result.object.map((item) => {
+        const { keyword, ...rest } = item;
+        metadata[keyword] = rest;
+        return keyword;
+      });
+
+      // 查找关键词在文本中的位置
+      const matches = findKeywordsInText(data.text, keywords);
+
+      // 更新状态
+      setText(data.text);
+      setMatches(matches);
+      setKeywordMetadata(metadata);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to analyze text:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // 处理关键词切换
+  function handleToggleKeyword(id: string) {
+    setSelectedKeywordIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  // 处理确认选择
+  async function handleConfirm() {
+    try {
+      setIsLoading(true);
+
+      // 获取选中的关键词和查询数据
+      const selectedKeywords = getUniqueSelectedKeywords(selectedKeywordIds);
+      const keywordsForSearch = selectedKeywords
+        .map((keyword) => {
+          const metadata = keywordMetadata[keyword];
+          if (!metadata?.query) return null;
+          return {
+            keyword,
+            query: metadata.query,
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null);
+
+      if (keywordsForSearch.length === 0) {
+        throw new Error("No valid keywords selected");
+      }
+
+      // 获取链接
+      const linkMap = await fetchLinksForKeywords(keywordsForSearch);
+
+      // 更新元数据
+      setKeywordMetadata((prev) => {
+        const next = { ...prev };
+        Object.entries(linkMap).forEach(([keyword, { link, title }]) => {
+          if (next[keyword]) {
+            next[keyword] = { ...next[keyword], link, title };
+          }
+        });
+        return next;
+      });
+
+      // 设置为有链接状态
+      setHasLinks(true);
+    } catch (error) {
+      console.error("Failed to fetch links:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // 处理编辑点击
+  function handleEditClick() {
+    setIsEditing(true);
+    setHasLinks(false);
+  }
+
+  // 处理新建分析
+  function handleNewAnalysis() {
+    setText("");
+    setMatches([]);
+    setKeywordMetadata({});
+    setSelectedKeywordIds(new Set());
+    setIsEditing(true);
+    setHasLinks(false);
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-          Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-        </h1>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="https://create.t3.gg/en/usage/first-steps"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">First Steps →</h3>
-            <div className="text-lg">
-              Just the basics - Everything you need to know to set up your
-              database and authentication.
-            </div>
-          </Link>
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="https://create.t3.gg/en/introduction"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">Documentation →</h3>
-            <div className="text-lg">
-              Learn more about Create T3 App, the libraries it uses, and how to
-              deploy it.
-            </div>
-          </Link>
-        </div>
+    <main className="container mx-auto space-y-4 p-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">外链自动化</h1>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Settings className="h-4 w-4" />
+              <span className="sr-only">设置</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>网址黑名单</DialogTitle>
+            </DialogHeader>
+            <BlacklistManager />
+          </DialogContent>
+        </Dialog>
       </div>
+
+      <KeywordEditor
+        text={text}
+        matches={matches}
+        keywordMetadata={keywordMetadata}
+        selectedKeywordIds={selectedKeywordIds}
+        isLoading={isLoading}
+        isEditing={isEditing}
+        hasLinks={hasLinks}
+        onSubmit={handleSubmit}
+        onToggleKeyword={handleToggleKeyword}
+        onConfirm={handleConfirm}
+        onEditClick={handleEditClick}
+        onNewAnalysis={handleNewAnalysis}
+      />
     </main>
   );
 }
