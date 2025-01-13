@@ -1,10 +1,9 @@
-"use client";
-
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 import BlacklistDialog from "@/components/blacklist/dialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import { FeedbackDialog } from "@/components/feedback/dialog";
 
 interface SiteHeaderProps {
   onLogoClick?: () => void;
@@ -27,13 +26,14 @@ export function SiteHeader({ onLogoClick }: SiteHeaderProps) {
               alt="Logo"
               width={36}
               height={36}
-              className="rounded-full"
+              className="rounded-full transition-transform hover:rotate-12"
               priority
             />
           </Button>
 
           {/* Navigation */}
           <nav className="flex items-center gap-2">
+            <FeedbackDialog />
             <BlacklistDialog />
             <ThemeToggle />
           </nav>
