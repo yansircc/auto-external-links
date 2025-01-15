@@ -120,13 +120,11 @@ export default function Home() {
       }
 
       const blacklist = loadBlacklist();
-      console.log("Fetching links for keywords:", keywordsForSearch);
       const linkMap = await fetchLinksForKeywords(
         keywordsForSearch,
         blacklist,
         preferredSites,
       );
-      console.log("Received link map:", linkMap);
 
       setKeywordMetadata((prev) => {
         const next = { ...prev };
@@ -142,7 +140,6 @@ export default function Home() {
             }
           },
         );
-        console.log("Updated keyword metadata:", next);
         return next;
       });
 

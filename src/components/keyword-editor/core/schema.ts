@@ -35,6 +35,5 @@ export interface KeywordMetadata {
   alternatives: {
     preferred: SerperResponse["organic"];
     regular: SerperResponse["organic"];
-    blacklisted: SerperResponse["organic"];
   };
 }

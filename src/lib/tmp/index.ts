@@ -38,7 +38,6 @@ async function main() {
     });
 
     if (!object.messages) {
-      console.log("没有找到问题");
       return;
     }
 
@@ -52,8 +51,6 @@ async function main() {
       });
       answers.push(answer.answer);
     }
-
-    console.log(JSON.stringify(answers, null, 2));
   } catch (error) {
     console.error("错误：", error);
     process.exit(1);

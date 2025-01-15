@@ -6,9 +6,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type SerperResponse } from "@/lib/serper/schema";
 import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 
 interface LinkSwitcherProps {
   link: string;
@@ -16,7 +16,6 @@ interface LinkSwitcherProps {
   alternatives: {
     preferred: SerperResponse["organic"];
     regular: SerperResponse["organic"];
-    blacklisted: SerperResponse["organic"];
   };
   onLinkChange: (link: string, title: string) => void;
   children: React.ReactNode;
@@ -31,30 +30,29 @@ export function LinkSwitcher({
 }: LinkSwitcherProps) {
   const [open, setOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    console.log("LinkSwitcher alternatives:", {
-      link,
-      title,
-      alternatives: {
-        preferred: alternatives.preferred,
-        regular: alternatives.regular,
-        blacklisted: alternatives.blacklisted,
-      },
-      hasPreferred: alternatives.preferred.length,
-      hasRegular: alternatives.regular.length,
-      hasBlacklisted: alternatives.blacklisted.length,
-    });
-  }, [alternatives, link, title]);
+  // Get one link per preferred site
+  const preferredLinks = alternatives.preferred.reduce<
+    SerperResponse["organic"]
+  >((acc, link) => {
+    const domain = new URL(link.link).hostname;
+    const existingLink = acc.find(
+      (item) => new URL(item.link).hostname === domain,
+    );
+    if (!existingLink) {
+      acc.push(link);
+    }
+    return acc;
+  }, []);
 
-  const hasAlternatives =
-    alternatives.preferred.length > 0 ||
-    alternatives.regular.length > 0 ||
-    alternatives.blacklisted.length > 0;
+  // Get top 3 regular links
+  const regularLinks = alternatives.regular.slice(0, 3);
 
-  console.log("hasAlternatives:", hasAlternatives);
+  // Combine all alternative links
+  const allAlternatives = [...preferredLinks, ...regularLinks];
+
+  const hasAlternatives = allAlternatives.length > 0;
 
   if (!hasAlternatives) {
-    console.log("No alternatives available, rendering simple link");
     return (
       <a
         href={link}
@@ -68,7 +66,6 @@ export function LinkSwitcher({
     );
   }
 
-  console.log("Rendering Popover with alternatives");
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -79,7 +76,6 @@ export function LinkSwitcher({
             e.stopPropagation();
             e.preventDefault();
             setOpen(true);
-            console.log("PopoverTrigger clicked");
           }}
         >
           <a
@@ -91,11 +87,16 @@ export function LinkSwitcher({
           >
             {children}
           </a>
-          <span className="ml-1 inline-flex h-2 w-2 rounded-full bg-blue-500" />
+          <ChevronDown
+            className={cn(
+              "ml-1 h-3 w-3 transition-transform duration-200",
+              open && "rotate-180",
+            )}
+          />
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[400px] p-0"
+        className="w-[400px] p-2"
         align="start"
         sideOffset={5}
         onInteractOutside={(e) => {
@@ -103,112 +104,42 @@ export function LinkSwitcher({
           setOpen(false);
         }}
       >
-        <Tabs defaultValue="preferred" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="preferred">
-              首选网站
-              {alternatives.preferred.length > 0 && (
-                <span className="ml-1 text-xs">
-                  ({alternatives.preferred.length})
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="regular">
-              其他网站
-              {alternatives.regular.length > 0 && (
-                <span className="ml-1 text-xs">
-                  ({alternatives.regular.length})
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="blacklisted">
-              已屏蔽
-              {alternatives.blacklisted.length > 0 && (
-                <span className="ml-1 text-xs">
-                  ({alternatives.blacklisted.length})
-                </span>
-              )}
-            </TabsTrigger>
-          </TabsList>
-          <div className="p-4">
-            <TabsContent value="preferred" className="mt-0">
-              <div className="space-y-2">
-                {alternatives.preferred.map((result) => (
-                  <button
-                    key={result.link}
-                    type="button"
-                    onClick={() => {
-                      onLinkChange(result.link, result.title);
-                      setOpen(false);
-                    }}
-                    className={cn(
-                      "block w-full rounded-lg border p-2 text-left text-sm hover:bg-accent",
-                      link === result.link && "border-primary",
-                    )}
-                  >
+        <div className="space-y-2">
+          {allAlternatives.map((result) => {
+            const isPreferred = alternatives.preferred.some(
+              (p) => p.link === result.link,
+            );
+            return (
+              <button
+                key={result.link}
+                type="button"
+                onClick={() => {
+                  onLinkChange(result.link, result.title);
+                  setOpen(false);
+                }}
+                className={cn(
+                  "block w-full rounded-lg border p-2 text-left text-sm hover:bg-accent",
+                  link === result.link && "border-primary",
+                  isPreferred && "bg-primary/5",
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0 flex-1">
                     <p className="line-clamp-1 font-medium">{result.title}</p>
                     <p className="line-clamp-1 text-xs text-muted-foreground">
-                      {result.link}
-                    </p>
-                  </button>
-                ))}
-                {alternatives.preferred.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    暂无首选网站结果
-                  </p>
-                )}
-              </div>
-            </TabsContent>
-            <TabsContent value="regular" className="mt-0">
-              <div className="space-y-2">
-                {alternatives.regular.map((result) => (
-                  <button
-                    key={result.link}
-                    type="button"
-                    onClick={() => {
-                      onLinkChange(result.link, result.title);
-                      setOpen(false);
-                    }}
-                    className={cn(
-                      "block w-full rounded-lg border p-2 text-left text-sm hover:bg-accent",
-                      link === result.link && "border-primary",
-                    )}
-                  >
-                    <p className="line-clamp-1 font-medium">{result.title}</p>
-                    <p className="line-clamp-1 text-xs text-muted-foreground">
-                      {result.link}
-                    </p>
-                  </button>
-                ))}
-                {alternatives.regular.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    暂无其他网站结果
-                  </p>
-                )}
-              </div>
-            </TabsContent>
-            <TabsContent value="blacklisted" className="mt-0">
-              <div className="space-y-2">
-                {alternatives.blacklisted.map((result) => (
-                  <div
-                    key={result.link}
-                    className="block w-full rounded-lg border border-destructive/50 bg-destructive/10 p-2 text-left text-sm"
-                  >
-                    <p className="line-clamp-1 font-medium line-through">
-                      {result.title}
-                    </p>
-                    <p className="line-clamp-1 text-xs text-muted-foreground line-through">
                       {result.link}
                     </p>
                   </div>
-                ))}
-                {alternatives.blacklisted.length === 0 && (
-                  <p className="text-sm text-muted-foreground">暂无屏蔽网站</p>
-                )}
-              </div>
-            </TabsContent>
-          </div>
-        </Tabs>
+                  {isPreferred && (
+                    <span className="ml-2 shrink-0 text-xs text-primary">
+                      首选
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </PopoverContent>
     </Popover>
   );
