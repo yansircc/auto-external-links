@@ -8,6 +8,7 @@ export interface KeywordEditorProps {
   isLoading: boolean;
   isEditing: boolean;
   hasLinks: boolean;
+  preferredSites: string[];
   onSubmit: (data: { text: string }) => Promise<void>;
   onToggleKeyword: (id: string) => void;
   onConfirm: () => Promise<void>;

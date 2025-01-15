@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   type FormData,
   type KeywordMatch,
@@ -8,9 +8,9 @@ import {
 } from "@/components/keyword-editor/core/schema";
 import { getKeywords, fetchLinksForKeywords } from "@/actions/keywords";
 import { KeywordEditor } from "@/components/keyword-editor/editor";
-import { findKeywordsInText } from "@/lib/keywords";
-import { getUniqueSelectedKeywords } from "@/lib/keywords";
+import { findKeywordsInText, getUniqueSelectedKeywords } from "@/lib/keywords";
 import { loadBlacklist } from "@/lib/blacklist";
+import { loadPreferredSites } from "@/lib/preferred-sites";
 import { SiteHeader } from "@/components/layout/site-header";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
@@ -28,6 +28,20 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
   const [hasLinks, setHasLinks] = useState(false);
+  const [preferredSites, setPreferredSites] = useState<string[]>([]);
+
+  // Load preferred sites on mount and when localStorage changes
+  useEffect(() => {
+    setPreferredSites(loadPreferredSites().map((site) => site.domain));
+
+    // Listen for storage changes
+    const handleStorageChange = () => {
+      setPreferredSites(loadPreferredSites().map((site) => site.domain));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   // 处理表单提交
   async function handleSubmit(data: FormData) {
@@ -89,7 +103,6 @@ export default function Home() {
     try {
       setIsLoading(true);
 
-      // 获取选中的关键词和查询数据
       const selectedKeywords = getUniqueSelectedKeywords(selectedKeywordIds);
       const keywordsForSearch = selectedKeywords
         .map((keyword) => {
@@ -106,11 +119,13 @@ export default function Home() {
         throw new Error("No valid keywords selected");
       }
 
-      // 获取黑名单和链接
       const blacklist = loadBlacklist();
-      const linkMap = await fetchLinksForKeywords(keywordsForSearch, blacklist);
+      const linkMap = await fetchLinksForKeywords(
+        keywordsForSearch,
+        blacklist,
+        preferredSites,
+      );
 
-      // 更新元数据
       setKeywordMetadata((prev) => {
         const next = { ...prev };
         Object.entries(linkMap).forEach(([keyword, { link, title }]) => {
@@ -121,10 +136,14 @@ export default function Home() {
         return next;
       });
 
-      // 设置为有链接状态
       setHasLinks(true);
     } catch (error) {
       console.error("Failed to fetch links:", error);
+      toast({
+        variant: "destructive",
+        title: "获取链接失败",
+        description: "请稍后重试",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -160,6 +179,7 @@ export default function Home() {
               isLoading={isLoading}
               isEditing={isEditing}
               hasLinks={hasLinks}
+              preferredSites={preferredSites}
               onSubmit={handleSubmit}
               onToggleKeyword={handleToggleKeyword}
               onConfirm={handleConfirm}

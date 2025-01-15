@@ -53,29 +53,41 @@ export async function getKeywords(text: string) {
 export async function fetchLinksForKeywords(
   keywords: { keyword: string; query: string }[],
   blacklist: BlacklistEntry[],
+  preferredSites: string[],
 ) {
-  const results = await Promise.all(
-    keywords.map(async ({ keyword, query }) => {
-      try {
-        const searchResults = await searchGoogle(query);
-        const filteredResults = filterBlacklistedLinks(
-          searchResults,
-          blacklist,
-        );
-        const bestResult = filteredResults[0];
+  // Track used links to prevent duplicates
+  const usedLinks = new Set<string>();
 
-        return {
+  // Process keywords sequentially to respect priority
+  const results = [];
+
+  for (const { keyword, query } of keywords) {
+    try {
+      const searchResults = await searchGoogle(query, preferredSites);
+      const filteredResults = filterBlacklistedLinks(searchResults, blacklist);
+
+      // Find the first unused link
+      const bestResult = filteredResults.find(
+        (result) => !usedLinks.has(result.link),
+      );
+
+      if (bestResult) {
+        usedLinks.add(bestResult.link);
+        results.push({
           keyword,
-          link: bestResult?.link ?? null,
-          title: bestResult?.title ?? null,
-        };
-      } catch (error) {
-        console.error(`Failed to fetch link for keyword: ${keyword}`, error);
-        return { keyword, link: null, title: null };
+          link: bestResult.link,
+          title: bestResult.title,
+        });
+      } else {
+        results.push({ keyword, link: null, title: null });
       }
-    }),
-  );
+    } catch (error) {
+      console.error(`Failed to fetch link for keyword: ${keyword}`, error);
+      results.push({ keyword, link: null, title: null });
+    }
+  }
 
+  // Convert array to record
   return results.reduce(
     (acc, { keyword, link, title }) => ({
       ...acc,

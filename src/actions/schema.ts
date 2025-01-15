@@ -22,7 +22,7 @@ export const keywordSchema = z.object({
   reason: z
     .string()
     .describe(
-      "Explain why the reader should click this link, tell the recommendation reason, around 150 characters.",
+      "Convince the reader to explore this link behind the keyword or phrase, around 150 characters.",
     ),
   link: z.string().url().nullable(),
   title: z.string().nullable(),
@@ -36,5 +36,5 @@ export const keywordsSchema = z
   .min(1)
   .max(3)
   .describe(
-    "The most important keywords or phrases information extracted from the original text, including keywords, search queries, and recommendations.",
+    "The most important keywords or phrases information extracted from the original text, including keywords, search queries, and recommendations for clicking.",
   );

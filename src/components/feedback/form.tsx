@@ -13,12 +13,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { FormDataBadge } from "./form-data-badge";
 
 const formSchema = z.object({
   message: z
     .string()
     .min(10, "反馈内容至少需要 10 个字符")
     .max(1000, "反馈内容不能超过 1000 个字符"),
+  email: z.string().email("请输入有效的邮箱地址").optional().or(z.literal("")), // 允许空字符串
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -29,6 +31,7 @@ export function FeedbackForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       message: "",
+      email: "",
     },
   });
 
@@ -88,6 +91,31 @@ export function FeedbackForm() {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                邮箱{" "}
+                <span className="text-sm text-muted-foreground">
+                  (选填，如果你想收到我的反馈回复)
+                </span>
+              </FormLabel>
+              <FormControl>
+                <input
+                  type="email"
+                  placeholder="your@email.com"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
@@ -98,6 +126,8 @@ export function FeedbackForm() {
             "提交反馈"
           )}
         </Button>
+
+        <FormDataBadge />
       </form>
     </Form>
   );

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
-import BlacklistDialog from "@/components/blacklist/dialog";
+import BlacklistDialog from "@/components/settings/dialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { FeedbackDialog } from "@/components/feedback/dialog";
