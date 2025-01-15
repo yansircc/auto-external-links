@@ -176,7 +176,7 @@ export default function Home() {
     <>
       <SiteHeader onLogoClick={handleNewAnalysis} />
       <main className="flex-1">
-        <div className="mt-14 w-full">
+        <div className="my-14 w-full">
           <div className="mx-auto max-w-5xl px-4">
             <KeywordEditor
               text={text}
