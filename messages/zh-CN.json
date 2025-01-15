@@ -1,0 +1,55 @@
+{
+  "keyword-editor": {
+    "header": {
+      "title": "外链优化",
+      "description": "AI驱动的文章外链优化工具"
+    },
+    "form": {
+      "title": "文本编辑器",
+      "description": "请输入要分析的英文文本",
+      "placeholder": "请输入要分析的英文文本...",
+      "characterCount": "{count} / {max}",
+      "analyze": "分析关键词",
+      "analyzing": "分析中..."
+    },
+    "preview": {
+      "description": "点击关键词可以选择是否添加外链",
+      "confirm": "确认选择",
+      "gettingLinks": "获取链接中..."
+    },
+    "linked-content": {
+      "description": "点击链接可以预览，复制后可直接使用",
+      "copyMarkdown": "复制 Markdown",
+      "copyMarkdownWithFootnotes": "复制 Markdown+脚注",
+      "copied": "已复制",
+      "footnotes": "推荐理由"
+    },
+    "features": {
+      "ai": {
+        "title": "智能分析",
+        "description": "AI驱动的关键词识别，准确把握文章重点"
+      },
+      "links": {
+        "title": "优质外链",
+        "description": "自动匹配高质量相关链接，提升文章价值"
+      },
+      "optimization": {
+        "title": "一键优化",
+        "description": "快速生成优化后的Markdown文本，随时复制使用"
+      }
+    },
+    "errors": {
+      "analyzeFailed": "分析失败",
+      "fetchLinksFailed": "获取链接失败",
+      "tryAgain": "请稍后重试"
+    },
+    "actions": {
+      "retry": "重试"
+    }
+  },
+  "locale-switcher": {
+    "en": "EN",
+    "zh-CN": "中文",
+    "label": "语言"
+  }
+}

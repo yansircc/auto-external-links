@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 
 export function KeywordEditor({
   text,
@@ -26,29 +27,30 @@ export function KeywordEditor({
   onToggleKeyword,
   onConfirm,
 }: KeywordEditorProps) {
+  const t = useTranslations('keyword-editor');
   return (
     <div className="space-y-6">
       {/* Marketing Header */}
       <div className="space-y-2 text-center">
         <div className="flex items-center justify-center gap-2 text-primary">
           <Sparkles className="h-5 w-5" />
-          <h2 className="text-lg font-semibold">智能外链优化</h2>
+          <h2 className="text-lg font-semibold">{t('header.title')}</h2>
         </div>
         <p className="text-sm text-muted-foreground">
-          自动分析文本中的关键词，为您推荐最相关的外部链接，提升SEO效果
+          {t('header.description')}
         </p>
       </div>
 
       {/* Editor Container */}
       <Card>
         <CardHeader>
-          <CardTitle>文本编辑器</CardTitle>
+          <CardTitle>{t('form.title')}</CardTitle>
           <CardDescription>
             {isEditing
-              ? "请输入要分析的英文文本"
+              ? t('form.description')
               : hasLinks
-                ? "点击链接可以预览，复制后可直接使用"
-                : "点击关键词可以选择是否添加外链"}
+                ? t('linked-content.description')
+                : t('preview.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -92,11 +94,11 @@ export function KeywordEditor({
               <div className="rounded-md bg-primary/10 p-1">
                 <Brain className="h-4 w-4 text-primary" />
               </div>
-              <CardTitle className="text-sm font-medium">智能分析</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('features.ai.title')}</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-2 text-xs text-muted-foreground">
-            <p>AI驱动的关键词识别，准确把握文章重点</p>
+            <p>{t('features.ai.description')}</p>
           </CardContent>
         </Card>
 
@@ -106,11 +108,11 @@ export function KeywordEditor({
               <div className="rounded-md bg-primary/10 p-1">
                 <Link2 className="h-4 w-4 text-primary" />
               </div>
-              <CardTitle className="text-sm font-medium">优质外链</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('features.links.title')}</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-2 text-xs text-muted-foreground">
-            <p>自动匹配高质量相关链接，提升文章价值</p>
+            <p>{t('features.links.description')}</p>
           </CardContent>
         </Card>
 
@@ -120,11 +122,11 @@ export function KeywordEditor({
               <div className="rounded-md bg-primary/10 p-1">
                 <Wand2 className="h-4 w-4 text-primary" />
               </div>
-              <CardTitle className="text-sm font-medium">一键优化</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('features.optimization.title')}</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-2 text-xs text-muted-foreground">
-            <p>快速生成优化后的Markdown文本，随时复制使用</p>
+            <p>{t('features.optimization.description')}</p>
           </CardContent>
         </Card>
       </div>

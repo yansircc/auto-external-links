@@ -9,6 +9,7 @@ import { type FormData, formSchema } from "./core/schema";
 import { EditorLayout, EditorActions } from "./core/editor-layout";
 import { MAX_LENGTH } from "./core/config";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface EditorFormProps {
   text: string;
@@ -24,6 +25,8 @@ export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
     },
   });
 
+  const t = useTranslations('keyword-editor.form');
+
   const count = form.watch("text")?.length ?? 0;
   const isOverLimit = count > MAX_LENGTH;
 
@@ -35,7 +38,7 @@ export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
       <EditorLayout>
         <div className="flex-1">
           <Textarea
-            placeholder="请输入要分析的英文文本..."
+            placeholder={t('placeholder')}
             className="min-h-[160px] resize-none bg-transparent"
             {...form.register("text")}
             maxLength={MAX_LENGTH}
@@ -47,17 +50,17 @@ export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
                 isOverLimit ? "text-destructive" : "text-muted-foreground",
               )}
             >
-              {count} / {MAX_LENGTH}
+              {t('characterCount', { count, max: MAX_LENGTH })}
             </div>
             <EditorActions>
               <Button type="submit" disabled={isLoading || isOverLimit}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    分析中...
+                    {t('analyzing')}
                   </>
                 ) : (
-                  "分析关键词"
+                  t('analyze')
                 )}
               </Button>
             </EditorActions>

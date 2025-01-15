@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { Link2 } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -11,6 +12,7 @@ import {
 import { type KeywordMatch, type KeywordMetadata } from "./core/schema";
 import { createKeywordId } from "@/lib/keywords";
 import { EditorLayout, EditorActions } from "./core/editor-layout";
+import { useTranslations } from "next-intl";
 
 interface KeywordPreviewProps {
   text: string;
@@ -31,6 +33,8 @@ export function KeywordPreview({
   onToggleKeyword,
   onConfirm,
 }: KeywordPreviewProps) {
+  const t = useTranslations('keyword-editor.preview');
+
   // 渲染高亮文本
   function renderHighlightedText() {
     let lastIndex = 0;
@@ -102,16 +106,20 @@ export function KeywordPreview({
       <EditorActions>
         <Button
           type="button"
-          disabled={isLoading || selectedKeywordIds.size === 0}
-          onClick={() => void onConfirm()}
+          disabled={isLoading}
+          onClick={() => onConfirm()}
+          className="gap-2"
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              获取链接中...
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {t('gettingLinks')}
             </>
           ) : (
-            "确认选择"
+            <>
+              <Link2 className="h-4 w-4" />
+              {t('confirm')}
+            </>
           )}
         </Button>
       </EditorActions>

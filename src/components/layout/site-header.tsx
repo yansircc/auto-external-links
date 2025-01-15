@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { FeedbackDialog } from "@/components/feedback/dialog";
 import SiteLogo from "@/images/site-logo.png";
+import LocaleSwitcher from "@/components/locale/swither";
 
 interface SiteHeaderProps {
   onLogoClick?: () => void;
@@ -37,6 +38,7 @@ export function SiteHeader({ onLogoClick }: SiteHeaderProps) {
             <FeedbackDialog />
             <BlacklistDialog />
             <ThemeToggle />
+            <LocaleSwitcher />
           </nav>
         </div>
       </header>

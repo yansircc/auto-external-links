@@ -9,6 +9,7 @@ import { type LinkedContentProps } from "../core/types";
 import { useFootnotes } from "./use-footnotes";
 import { renderLinkedText } from "./text-utils";
 import { useCopy } from "./use-copy";
+import { useTranslations } from "next-intl";
 
 export function LinkedContent({
   text,
@@ -16,6 +17,7 @@ export function LinkedContent({
   keywordMetadata: initialKeywordMetadata,
   selectedKeywordIds,
 }: LinkedContentProps) {
+  const t = useTranslations("keyword-editor.linked-content");
   const [keywordMetadata, setKeywordMetadata] = useState(
     initialKeywordMetadata,
   );
@@ -80,12 +82,12 @@ export function LinkedContent({
             {copiedSimple ? (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                已复制
+                {t('copied')}
               </>
             ) : (
               <>
                 <Copy className="mr-2 h-4 w-4" />
-                复制 Markdown
+                {t('copyMarkdown')}
               </>
             )}
           </Button>
@@ -97,12 +99,12 @@ export function LinkedContent({
             {copiedWithFootnotes ? (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                已复制
+                {t('copied')}
               </>
             ) : (
               <>
                 <Copy className="mr-2 h-4 w-4" />
-                复制 Markdown+脚注
+                {t('copyMarkdownWithFootnotes')}
               </>
             )}
           </Button>

@@ -1,0 +1,55 @@
+{
+  "keyword-editor": {
+    "header": {
+      "title": "External Link Optimization",
+      "description": "AI-powered article external link optimization tool"
+    },
+    "form": {
+      "title": "Text Editor",
+      "description": "Please enter the English text to analyze",
+      "placeholder": "Please enter the English text to analyze...",
+      "characterCount": "{count} / {max}",
+      "analyze": "Analyze Keywords",
+      "analyzing": "Analyzing..."
+    },
+    "preview": {
+      "description": "Click on keywords to choose whether to add external links",
+      "confirm": "Confirm Selection",
+      "gettingLinks": "Getting links..."
+    },
+    "linked-content": {
+      "description": "Click the link to preview, copy to use directly",
+      "copyMarkdown": "Copy Markdown",
+      "copyMarkdownWithFootnotes": "Copy Markdown+Footnotes",
+      "copied": "Copied",
+      "footnotes": "Recommendations"
+    },
+    "features": {
+      "ai": {
+        "title": "AI Analysis",
+        "description": "AI-driven keyword recognition, accurately grasping article focus"
+      },
+      "links": {
+        "title": "Quality Links",
+        "description": "Automatically match high-quality related links to enhance article value"
+      },
+      "optimization": {
+        "title": "One-click Optimization",
+        "description": "Quickly generate optimized Markdown text, ready to use anytime"
+      }
+    },
+    "errors": {
+      "analyzeFailed": "Analysis Failed",
+      "fetchLinksFailed": "Failed to Fetch Links",
+      "tryAgain": "Please try again"
+    },
+    "actions": {
+      "retry": "Retry"
+    }
+  },
+  "locale-switcher": {
+    "en": "EN",
+    "zh-CN": "中文",
+    "label": "Language"
+  }
+}

@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import Script from "next/script";
+import {NextIntlClientProvider} from 'next-intl';
+import {getLocale, getMessages} from 'next-intl/server';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,13 +15,16 @@ export const metadata: Metadata = {
   description: "AI驱动的文章外链优化工具",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+ 
+  const messages = await getMessages();
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <Script src="https://static.form-data.com/js/form-data-tools.v1.min.js" />
       </head>
@@ -29,6 +34,7 @@ export default function RootLayout({
           "min-h-screen bg-background antialiased",
         )}
       >
+        <NextIntlClientProvider messages={messages}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -40,6 +46,7 @@ export default function RootLayout({
             <Toaster />
           </div>
         </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
