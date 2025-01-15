@@ -10,12 +10,14 @@ import {
   addToBlacklist,
   removeFromBlacklist,
 } from "@/lib/blacklist";
+import { useTranslations } from "next-intl";
 
 export function BlacklistManager() {
   const [url, setUrl] = useState("");
   const [entries, setEntries] = useState<BlacklistEntry[]>(() =>
     loadBlacklist(),
   );
+  const t = useTranslations('settings.blacklist');
 
   // 添加域名到黑名单
   function handleAdd(e: React.FormEvent) {
@@ -40,10 +42,10 @@ export function BlacklistManager() {
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="输入要屏蔽的网址"
+          placeholder={t('input.placeholder')}
           className="flex-1"
         />
-        <Button type="submit">添加</Button>
+        <Button type="submit">{t('input.add')}</Button>
       </form>
 
       {entries.length > 0 ? (
@@ -59,15 +61,18 @@ export function BlacklistManager() {
                 variant="ghost"
                 size="icon"
                 onClick={() => handleRemove(entry.domain)}
+                aria-label={t('list.remove')}
               >
                 <Trash2 className="h-4 w-4" />
-                <span className="sr-only">删除</span>
+                <span className="sr-only">{t('list.remove')}</span>
               </Button>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">暂无屏蔽网址</p>
+        <p className="text-sm text-muted-foreground">
+          {t('list.empty')}
+        </p>
       )}
     </div>
   );

@@ -11,26 +11,28 @@ import { Settings } from "lucide-react";
 import { BlacklistManager } from "./blacklist-manager";
 import { PreferredSitesManager } from "./preferred-manager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslations } from "next-intl";
 
 export default function SettingsDialog() {
+  const t = useTranslations("settings.dialog");
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Settings className="h-4 w-4" />
-          <span className="sr-only">设置</span>
+          <span className="sr-only">{t("title")}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>搜索设置</DialogTitle>
-          <DialogDescription>管理搜索偏好和过滤规则</DialogDescription>
+          <DialogTitle>{t("searchTitle")}</DialogTitle>
+          <DialogDescription>{t("searchDescription")}</DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="preferred">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="preferred">偏好网站</TabsTrigger>
-            <TabsTrigger value="blacklist">黑名单</TabsTrigger>
+            <TabsTrigger value="preferred">{t("preferredTitle")}</TabsTrigger>
+            <TabsTrigger value="blacklist">{t("blacklistTitle")}</TabsTrigger>
           </TabsList>
           <TabsContent value="preferred">
             <PreferredSitesManager />

@@ -51,5 +51,64 @@
     "en": "EN",
     "zh-CN": "中文",
     "label": "Language"
+  },
+  "feedback": {
+    "title": "Submit Feedback",
+    "description": "Your feedback is important to us, and we will carefully consider every suggestion.",
+    "form": {
+      "message": {
+        "label": "Message",
+        "placeholder": "Share your thoughts, suggestions, or report issues...",
+        "min": "Feedback must be at least 10 characters",
+        "max": "Feedback cannot exceed 1000 characters"
+      },
+      "email": {
+        "label": "Email (Optional)",
+        "placeholder": "Leave your email for follow-up",
+        "invalid": "Please enter a valid email address"
+      },
+      "submit": "Submit Feedback",
+      "submitting": "Submitting...",
+      "errors": {
+        "config": "System configuration error, please contact administrator",
+        "submit": "Failed to submit feedback, please try again later",
+        "unknown": "An unknown error occurred"
+      }
+    }
+  },
+  "thanks": {
+    "title": "Thank You!",
+    "description": "Your feedback is important to us, and we will carefully consider every suggestion.",
+    "backHome": "Back to Home"
+  },
+  "settings": {
+    "dialog": {
+      "title": "Settings",
+      "searchTitle": "Search Settings",
+      "searchDescription": "Manage search preferences and filters",
+      "preferredTitle": "Preferred Sites",
+      "blacklistTitle": "Blacklist"
+    },
+    "blacklist": {
+      "input": {
+        "placeholder": "Enter URL to block",
+        "add": "Add"
+      },
+      "list": {
+        "empty": "No blocked URLs yet",
+        "remove": "Remove from blacklist"
+      }
+    },
+    "preferred": {
+      "input": {
+        "placeholder": "Enter preferred URL",
+        "add": "Add"
+      },
+      "list": {
+        "empty": "No preferred URLs yet",
+        "remove": "Remove from preferred list"
+      },
+      "message": "Display search results from these sites first"
+    }
   }
 }

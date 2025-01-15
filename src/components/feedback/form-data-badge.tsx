@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Script from "next/script";
 import { useTheme } from "next-themes";
+import { useLocale } from "next-intl";
 
 // 为 Form-Data 工具定义接口
 interface FormDataTools {
@@ -18,6 +19,7 @@ declare global {
 
 export function FormDataBadge() {
   const { theme } = useTheme();
+  const locale = useLocale();
 
   useEffect(() => {
     // 确保 _fd 已经加载
@@ -38,11 +40,11 @@ export function FormDataBadge() {
           href="https://form-data.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground transition-colors hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400"
+          className="inline-block"
         >
           <div
             className="form-data-powered-by scale-90"
-            data-formdata-lang="zh_CN"
+            data-formdata-lang={locale === 'zh-CN' ? 'zh_CN' : 'en'}
             data-formdata-theme={theme === "dark" ? "dark" : "light"}
           />
         </a>

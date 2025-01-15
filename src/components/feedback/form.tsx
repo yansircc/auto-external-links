@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -10,25 +12,46 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { FormDataBadge } from "./form-data-badge";
-
-const formSchema = z.object({
-  message: z
-    .string()
-    .min(10, "反馈内容至少需要 10 个字符")
-    .max(1000, "反馈内容不能超过 1000 个字符"),
-  email: z.string().email("请输入有效的邮箱地址").optional().or(z.literal("")), // 允许空字符串
-});
-
-type FormData = z.infer<typeof formSchema>;
+import { isEqual } from 'lodash';
 
 export function FeedbackForm() {
   const router = useRouter();
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const t = useTranslations('feedback.form');
+
+  const formSchema = z.object({
+    message: z
+      .string()
+      .min(10)
+      .max(1000),
+    email: z.string().email().optional().or(z.literal("")),
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema, {
+      errorMap: (issue, ctx) => {
+        let message: string | undefined;
+
+        if (isEqual(issue.path, ['message'])) {
+          if (issue.code === 'too_small') {
+            message = t('message.min');
+          } else if (issue.code === 'too_big') {
+            message = t('message.max');
+          }
+        } else if (isEqual(issue.path, ['email'])) {
+          if (issue.code === 'invalid_string') {
+            message = t('email.invalid');
+          }
+        }
+
+        return { message: message ?? ctx.defaultError };
+      }
+    }),
     defaultValues: {
       message: "",
       email: "",
@@ -37,12 +60,12 @@ export function FeedbackForm() {
 
   const isSubmitting = form.formState.isSubmitting;
 
-  async function onSubmit(data: FormData) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     const formDataUrl = process.env.NEXT_PUBLIC_FORM_DATA_URL;
     if (!formDataUrl) {
       form.setError("message", {
         type: "manual",
-        message: "系统配置错误，请联系管理员",
+        message: t('errors.config'),
       });
       return;
     }
@@ -57,33 +80,32 @@ export function FeedbackForm() {
       });
 
       if (!response.ok) {
-        throw new Error("提交失败");
+        throw new Error("Failed to submit feedback");
       }
 
-      // 提交成功后跳转到感谢页
       router.push("/thanks");
     } catch (error) {
       console.error("提交反馈时出错:", error);
       form.setError("message", {
         type: "manual",
-        message: "提交失败，请稍后重试",
+        message: t('errors.submit'),
       });
     }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="message"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>反馈内容</FormLabel>
+              <FormLabel>{t('message.label')}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="请描述您遇到的问题或建议..."
-                  className="min-h-[160px] resize-none"
+                  placeholder={t('message.placeholder')}
+                  className="min-h-[120px] resize-none"
                   {...field}
                 />
               </FormControl>
@@ -97,17 +119,11 @@ export function FeedbackForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                邮箱{" "}
-                <span className="text-sm text-muted-foreground">
-                  (选填，如果你想收到我的反馈回复)
-                </span>
-              </FormLabel>
+              <FormLabel>{t('email.label')}</FormLabel>
               <FormControl>
-                <input
+                <Input
                   type="email"
-                  placeholder="your@email.com"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder={t('email.placeholder')}
                   {...field}
                 />
               </FormControl>
@@ -116,14 +132,14 @@ export function FeedbackForm() {
           )}
         />
 
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              提交中...
+              {t('submitting')}
             </>
           ) : (
-            "提交反馈"
+            t('submit')
           )}
         </Button>
 

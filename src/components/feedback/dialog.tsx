@@ -9,8 +9,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { MessageSquarePlus } from "lucide-react";
 import { FeedbackForm } from "./form";
+import { useTranslations } from "next-intl";
 
 export function FeedbackDialog() {
+  const t = useTranslations("feedback");
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -20,10 +22,8 @@ export function FeedbackDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>提交反馈</DialogTitle>
-          <DialogDescription>
-            欢迎提供使用过程中遇到的问题或改进建议，我来把这个工具改得更好用。
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <FeedbackForm />
       </DialogContent>

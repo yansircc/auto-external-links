@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { type SerperResponse } from "@/lib/serper/schema";
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 
 interface LinkSwitcherProps {
   link: string;
@@ -29,6 +29,7 @@ export function LinkSwitcher({
   children,
 }: LinkSwitcherProps) {
   const [open, setOpen] = React.useState(false);
+  const [showSuccess, setShowSuccess] = React.useState(false);
 
   // Get one link per preferred site
   const preferredLinks = alternatives.preferred.reduce<
@@ -87,12 +88,18 @@ export function LinkSwitcher({
           >
             {children}
           </a>
-          <ChevronDown
-            className={cn(
-              "ml-1 h-3 w-3 transition-transform duration-200",
-              open && "rotate-180",
-            )}
-          />
+          {showSuccess ? (
+            <Check
+              className="ml-1 h-3 w-3 text-green-500 animate-in fade-in-0 zoom-in-0 duration-300"
+            />
+          ) : (
+            <ChevronDown
+              className={cn(
+                "ml-1 h-3 w-3 transition-transform duration-200",
+                open && "rotate-180",
+              )}
+            />
+          )}
         </button>
       </PopoverTrigger>
       <PopoverContent
@@ -116,6 +123,10 @@ export function LinkSwitcher({
                 onClick={() => {
                   onLinkChange(result.link, result.title);
                   setOpen(false);
+                  setShowSuccess(true);
+                  setTimeout(() => {
+                    setShowSuccess(false);
+                  }, 1000);
                 }}
                 className={cn(
                   "block w-full rounded-lg border p-2 text-left text-sm hover:bg-accent",

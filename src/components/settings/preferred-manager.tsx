@@ -10,19 +10,21 @@ import {
   addToPreferredSites,
   removeFromPreferredSites,
 } from "@/lib/preferred-sites";
+import { useTranslations } from "next-intl";
 
 export function PreferredSitesManager() {
   const [url, setUrl] = useState("");
   const [entries, setEntries] = useState<PreferredSite[]>(() =>
     loadPreferredSites(),
   );
+  const t = useTranslations('settings.preferred');
 
   // 添加域名到偏好网站
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     if (!url.trim()) return;
     if (entries.length >= 3) {
-      alert("最多只能添加3个偏好网站");
+      alert(t("maxLimit"));
       return;
     }
 
@@ -44,11 +46,11 @@ export function PreferredSitesManager() {
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="输入偏好的网址 (例如: arxiv.org)"
+          placeholder={t('input.placeholder')}
           className="flex-1"
         />
         <Button type="submit" disabled={entries.length >= 3}>
-          添加
+          {t('input.add')}
         </Button>
       </form>
 
@@ -65,20 +67,23 @@ export function PreferredSitesManager() {
                 variant="ghost"
                 size="icon"
                 onClick={() => handleRemove(entry.domain)}
+                aria-label={t('list.remove')}
               >
                 <Trash2 className="h-4 w-4" />
-                <span className="sr-only">删除</span>
+                <span className="sr-only">{t('list.remove')}</span>
               </Button>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">暂无偏好网站</p>
+        <p className="text-sm text-muted-foreground">
+          {t('list.empty')}
+        </p>
       )}
 
       {entries.length > 0 && (
         <p className="text-xs text-muted-foreground">
-          搜索时会优先展示来自这些网站的结果
+          {t('message')}
         </p>
       )}
     </div>

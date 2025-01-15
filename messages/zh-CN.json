@@ -51,5 +51,64 @@
     "en": "EN",
     "zh-CN": "中文",
     "label": "语言"
+  },
+  "feedback": {
+    "title": "提交反馈",
+    "description": "你的反馈对改进这个工具非常重要，我们认真考虑每一条建议。",
+    "form": {
+      "message": {
+        "label": "反馈内容",
+        "placeholder": "分享你的想法、建议或反馈问题...",
+        "min": "反馈内容至少需要 10 个字符",
+        "max": "反馈内容不能超过 1000 个字符"
+      },
+      "email": {
+        "label": "邮箱（选填）",
+        "placeholder": "留下邮箱以便后续跟进",
+        "invalid": "请输入有效的邮箱地址"
+      },
+      "submit": "提交反馈",
+      "submitting": "提交中...",
+      "errors": {
+        "config": "系统配置错误，请联系管理员",
+        "submit": "提交反馈失败，请稍后重试",
+        "unknown": "发生未知错误"
+      }
+    }
+  },
+  "thanks": {
+    "title": "感谢反馈！",
+    "description": "你的反馈对这个工具非常重要，我会认真考虑每一条建议。",
+    "backHome": "返回首页"
+  },
+  "settings": {
+    "dialog": {
+      "title": "设置",
+      "searchTitle": "搜索设置",
+      "searchDescription": "管理搜索偏好和过滤器",
+      "preferredTitle": "偏好网址",
+      "blacklistTitle": "黑名单"
+    },
+    "blacklist": {
+      "input": {
+        "placeholder": "输入要屏蔽的网址",
+        "add": "添加"
+      },
+      "list": {
+        "empty": "暂无屏蔽网址",
+        "remove": "从黑名单移除"
+      }
+    },
+    "preferred": {
+      "input": {
+        "placeholder": "输入偏好网址",
+        "add": "添加"
+      },
+      "list": {
+        "empty": "暂无偏好网址",
+        "remove": "从偏好列表移除"
+      },
+      "message": "搜索时会优先展示来自这些网站的结果"
+    }
   }
 }
