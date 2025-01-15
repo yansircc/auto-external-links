@@ -2,10 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-export default function ThanksPage() {
-  const t = useTranslations('thanks');
+export default async function ThanksPage() {
+  const t = await getTranslations('thanks');
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center">
