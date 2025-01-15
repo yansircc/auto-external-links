@@ -5,6 +5,7 @@
 
 import { z } from "zod";
 import { MAX_LENGTH } from "./config";
+import type { SerperResponse } from "@/lib/serper/schema";
 
 // 表单模式
 export const formSchema = z.object({
@@ -31,4 +32,9 @@ export interface KeywordMetadata {
   reason: string;
   link: string | null;
   title: string | null;
+  alternatives: {
+    preferred: SerperResponse["organic"];
+    regular: SerperResponse["organic"];
+    blacklisted: SerperResponse["organic"];
+  };
 }

@@ -1,5 +1,6 @@
 import { createKeywordId } from "@/lib/keywords";
 import { type Footnote, type RenderOptions } from "../core/types";
+import { LinkSwitcher } from "./link-switcher";
 
 export function renderLinkedText({
   text,
@@ -7,7 +8,10 @@ export function renderLinkedText({
   keywordMetadata,
   selectedKeywordIds,
   footnoteIndexMap,
-}: RenderOptions) {
+  onLinkChange,
+}: RenderOptions & {
+  onLinkChange: (id: string, link: string, title: string) => void;
+}) {
   let lastIndex = 0;
   const elements: JSX.Element[] = [];
 
@@ -48,15 +52,14 @@ export function renderLinkedText({
         id={`link-${id}`}
         className="group inline-flex items-start"
       >
-        <a
-          href={metadata.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-700 underline hover:text-blue-900"
-          title={metadata.title ?? undefined}
+        <LinkSwitcher
+          link={metadata.link}
+          title={metadata.title}
+          alternatives={metadata.alternatives}
+          onLinkChange={(link, title) => onLinkChange(id, link, title)}
         >
           {text.slice(match.index, match.index + match.keyword.length)}
-        </a>
+        </LinkSwitcher>
         <a
           href={`#footnote-${footnoteIndex}`}
           className="ml-0.5 text-xs text-muted-foreground no-underline group-hover:text-primary"

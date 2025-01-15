@@ -19,14 +19,14 @@ const SERPER_API_URL = "https://google.serper.dev/search";
 export async function searchGoogle(
   query: string,
   preferredSites?: string[],
-): Promise<SerperResponse["organic"]> {
+): Promise<SerperResponse["organic"][]> {
   if (!SERPER_API_KEY) {
     throw new Error("Missing SERPER_API_KEY");
   }
 
   // 如果没有偏好网站，直接执行普通搜索
   if (!preferredSites?.length) {
-    return await performSearch(query);
+    return [await performSearch(query)];
   }
 
   // 构建所有搜索请求：偏好网站搜索 + 普通搜索
@@ -40,17 +40,8 @@ export async function searchGoogle(
   // 并行执行所有搜索请求
   const allResults = await Promise.all(searchPromises);
 
-  // 按优先级返回第一个有结果的搜索
-  // allResults[0] 到 allResults[n-2] 是偏好网站的结果
-  // allResults[n-1] 是普通搜索结果
-  for (const results of allResults) {
-    if (results.length > 0) {
-      return results;
-    }
-  }
-
-  // 如果所有搜索都没有结果，返回空数组
-  return [];
+  // 返回所有有结果的搜索
+  return allResults.filter((results) => results.length > 0);
 }
 
 /**
@@ -79,7 +70,7 @@ async function performSearch(
         q: searchQuery,
         gl: "us",
         hl: "en",
-        num: 3,
+        num: 10, // 增加返回结果数量
       }),
     });
 

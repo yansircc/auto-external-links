@@ -125,7 +125,10 @@ export function removeFromBlacklist(domain: string): BlacklistEntry[] {
 /**
  * Check if a URL is blacklisted
  */
-function isBlacklisted(url: string, blacklist: BlacklistEntry[]): boolean {
+export function isBlacklisted(
+  url: string,
+  blacklist: BlacklistEntry[],
+): boolean {
   const domain = extractDomain(url);
   return isDomainBlacklisted(domain, blacklist);
 }
