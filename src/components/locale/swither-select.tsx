@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Languages } from 'lucide-react';
-import { useTransition } from 'react';
-import { setUserLocale } from '@/services/locale';
-import type { Locale } from '@/i18n/config';
+import { Languages } from "lucide-react";
+import { useTransition } from "react";
+import { setUserLocale } from "@/lib/locale";
+import type { Locale } from "@/i18n/config";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,7 @@ type Props = {
 export default function LocaleSwitcherSelect({
   defaultValue,
   items,
-  label
+  label,
 }: Props) {
   const [isPending, startTransition] = useTransition();
 
@@ -36,12 +36,12 @@ export default function LocaleSwitcherSelect({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="icon"
           className={cn(
             "h-9 w-9",
-            isPending && "pointer-events-none opacity-60"
+            isPending && "pointer-events-none opacity-60",
           )}
           aria-label={label}
         >
@@ -55,7 +55,7 @@ export default function LocaleSwitcherSelect({
             onSelect={() => onChange(item.value)}
             className={cn(
               "cursor-pointer",
-              defaultValue === item.value && "font-medium"
+              defaultValue === item.value && "font-medium",
             )}
           >
             {item.label}
