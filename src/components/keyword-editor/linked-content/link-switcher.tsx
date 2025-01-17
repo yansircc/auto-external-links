@@ -9,6 +9,7 @@ import {
 import { type SerperResponse } from "@/lib/serper/schema";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface LinkSwitcherProps {
   link: string;
@@ -28,6 +29,7 @@ export function LinkSwitcher({
   onLinkChange,
   children,
 }: LinkSwitcherProps) {
+  const t = useTranslations("keyword-editor.linked-content");
   const [open, setOpen] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
 
@@ -143,7 +145,7 @@ export function LinkSwitcher({
                   </div>
                   {isPreferred && (
                     <span className="ml-2 shrink-0 text-xs text-primary">
-                      首选
+                      {t("preferred")}
                     </span>
                   )}
                 </div>

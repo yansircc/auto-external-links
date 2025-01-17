@@ -17,8 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { FormDataBadge } from "./form-data-badge";
 import { isEqual } from 'lodash';
+import { sendFeedback } from "@/actions/feedback";
 
 export function FeedbackForm() {
   const router = useRouter();
@@ -61,28 +61,8 @@ export function FeedbackForm() {
   const isSubmitting = form.formState.isSubmitting;
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    const formDataUrl = process.env.NEXT_PUBLIC_FORM_DATA_URL;
-    if (!formDataUrl) {
-      form.setError("message", {
-        type: "manual",
-        message: t('errors.config'),
-      });
-      return;
-    }
-
     try {
-      const response = await fetch(formDataUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to submit feedback");
-      }
-
+      await sendFeedback(data);
       router.push("/thanks");
     } catch (error) {
       console.error("提交反馈时出错:", error);
@@ -142,8 +122,6 @@ export function FeedbackForm() {
             t('submit')
           )}
         </Button>
-
-        <FormDataBadge />
       </form>
     </Form>
   );
