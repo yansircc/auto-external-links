@@ -1,1 +1,0 @@
-ALTER TABLE "auto-elink_user" ADD COLUMN "password" varchar(255);

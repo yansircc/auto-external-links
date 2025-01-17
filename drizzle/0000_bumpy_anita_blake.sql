@@ -32,6 +32,7 @@ CREATE TABLE "auto-elink_user" (
 	"id" varchar(255) PRIMARY KEY NOT NULL,
 	"name" varchar(255),
 	"email" varchar(255) NOT NULL,
+	"password" varchar(255),
 	"email_verified" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
 	"image" varchar(255),
 	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
