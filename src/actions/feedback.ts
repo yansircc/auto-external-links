@@ -14,7 +14,7 @@ interface FeedbackData {
  * @returns 发送结果
  */
 export async function sendFeedback(data: FeedbackData) {
-  const toEmail = process.env.FEEDBACK_RECEIVER_EMAIL;
+  const toEmail = process.env.ADMIN_EMAIL;
   if (!toEmail) {
     throw new Error("接收反馈的邮箱未配置");
   }
