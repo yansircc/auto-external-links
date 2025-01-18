@@ -7,6 +7,11 @@ import {
 import { getKeywords, fetchLinksForKeywords } from "@/actions/keywords";
 import { findKeywordsInText, getUniqueSelectedKeywords } from "@/lib/keywords";
 import { useSitePreferencesStore } from "@/stores/site-preferences";
+import {
+  showAnalysisError,
+  showServerError,
+  showValidationError,
+} from "@/components/keyword-editor/core/toast-handler";
 
 interface KeywordEditorState {
   // 状态
@@ -103,8 +108,17 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
 
     try {
       const result = await getKeywords(data.text, fingerprint);
-      if (!result.data || result.error) {
-        throw new Error(result.error?.message ?? "分析失败");
+      if (result.error) {
+        showAnalysisError(
+          result.error,
+          () => void get().handleSubmit(data, fingerprint),
+        );
+        return;
+      }
+
+      if (!result.data) {
+        showServerError("服务器返回了无效的数据");
+        return;
       }
 
       // 创建关键词到元数据的映射
@@ -123,6 +137,12 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
       setMatches(matches);
       setKeywordMetadata(metadata);
       setIsEditing(false);
+    } catch (error) {
+      console.error("分析文本失败:", error);
+      showServerError(
+        "服务器错误，请稍后重试",
+        () => void get().handleSubmit(data, fingerprint),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -152,7 +172,8 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
         .filter((item): item is NonNullable<typeof item> => item !== null);
 
       if (keywordsForSearch.length === 0) {
-        throw new Error("至少需要选择一个关键词");
+        showValidationError("至少需要选择一个关键词");
+        return;
       }
 
       const { blacklist } = useSitePreferencesStore.getState();
@@ -179,6 +200,9 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
       setKeywordMetadata(newMetadata);
       setHasLinks(true);
       setShouldAnimateLogo(true);
+    } catch (error) {
+      console.error("获取链接失败:", error);
+      showServerError("请稍后重试");
     } finally {
       setIsLoading(false);
     }

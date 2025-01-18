@@ -8,7 +8,7 @@ import { searchGoogle } from "@/lib/serper";
 import type { SerperResponse } from "@/lib/serper/schema";
 import { catchError } from "@/utils";
 import { auth } from "@/server/auth";
-import { isRateLimited } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 interface KeywordsResponse {
   error?: {
@@ -62,8 +62,8 @@ export async function getKeywords(
 
   // 2. 如果未登录，检查是否超出访问限制
   if (!isAuthenticated) {
-    const limited = await isRateLimited(fingerprint);
-    if (limited) {
+    const { remaining } = await checkRateLimit(fingerprint, false);
+    if (remaining <= 0) {
       return {
         error: {
           code: "RATE_LIMITED",
@@ -89,6 +89,11 @@ export async function getKeywords(
     }),
     (error) => new Error("分析文本失败", { cause: error }),
   );
+
+  // 4. 如果分析成功且用户未登录，增加使用次数
+  if (!error && !isAuthenticated) {
+    await checkRateLimit(fingerprint, true);
+  }
 
   if (error) {
     return {

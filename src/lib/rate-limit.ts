@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import type { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 
 const RATE_LIMIT_PREFIX = "rate-limit:";
-const DAILY_LIMIT = 1;
+const DAILY_LIMIT = 3;
 
 interface RateLimitInfo {
   remaining: number;
@@ -55,13 +55,19 @@ function getSecondsUntilNextDay(): number {
 }
 
 /**
- * 检查并更新访问次数
- * @param fingerprint - 浏览器指纹
- * @returns 返回剩余次数信息
+ * 获取当前访问次数
  */
-export async function checkRateLimit(
-  fingerprint?: string,
-): Promise<RateLimitInfo> {
+async function getCurrentCount(fingerprint?: string): Promise<number> {
+  const visitorId = await getVisitorId(fingerprint);
+  const key = `${RATE_LIMIT_PREFIX}${visitorId}:${getTodayStart()}`;
+  const count = await redis.get<string>(key);
+  return count ? parseInt(count, 10) : 0;
+}
+
+/**
+ * 增加访问次数
+ */
+async function incrementCount(fingerprint?: string): Promise<number> {
   const visitorId = await getVisitorId(fingerprint);
   const key = `${RATE_LIMIT_PREFIX}${visitorId}:${getTodayStart()}`;
 
@@ -72,6 +78,23 @@ export async function checkRateLimit(
   if (count === 1) {
     await redis.expire(key, getSecondsUntilNextDay());
   }
+
+  return count;
+}
+
+/**
+ * 检查并更新访问次数
+ * @param fingerprint - 浏览器指纹
+ * @param increment - 是否增加计数
+ * @returns 返回剩余次数信息
+ */
+export async function checkRateLimit(
+  fingerprint?: string,
+  increment = false,
+): Promise<RateLimitInfo> {
+  const count = increment
+    ? await incrementCount(fingerprint)
+    : await getCurrentCount(fingerprint);
 
   return {
     remaining: Math.max(0, DAILY_LIMIT - count),
@@ -86,6 +109,6 @@ export async function checkRateLimit(
  * @returns 是否已超出限制
  */
 export async function isRateLimited(fingerprint?: string): Promise<boolean> {
-  const { remaining } = await checkRateLimit(fingerprint);
+  const { remaining } = await checkRateLimit(fingerprint, false);
   return remaining <= 0;
 }
