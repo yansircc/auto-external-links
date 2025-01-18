@@ -1,0 +1,46 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import SiteLogo from "@/images/site-logo.png";
+import { useKeywordEditorStore } from "@/stores/keyword-editor";
+import { motion } from "framer-motion";
+
+export default function Logo() {
+  const { handleNewAnalysis, shouldAnimateLogo } = useKeywordEditorStore();
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-9 w-9 rounded-full p-0"
+      onClick={handleNewAnalysis}
+      title="开始新的分析"
+    >
+      <motion.div
+        animate={
+          shouldAnimateLogo
+            ? {
+                rotate: [0, -10, 10, -10, 10, 0],
+                scale: [1, 1.1, 1.1, 1.1, 1.1, 1],
+              }
+            : { rotate: 0, scale: 1 }
+        }
+        transition={{
+          duration: 1,
+          repeat: 2,
+          repeatDelay: 1,
+        }}
+      >
+        <Image
+          src={SiteLogo}
+          alt="Logo"
+          width={36}
+          height={36}
+          className="rounded-full transition-transform hover:rotate-12"
+          priority
+        />
+      </motion.div>
+    </Button>
+  );
+}

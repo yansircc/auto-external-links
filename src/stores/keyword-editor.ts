@@ -18,6 +18,7 @@ interface KeywordEditorState {
   isEditing: boolean;
   hasLinks: boolean;
   preferredSites: string[];
+  shouldAnimateLogo: boolean;
 
   // 动作
   setText: (text: string) => void;
@@ -28,6 +29,7 @@ interface KeywordEditorState {
   setIsEditing: (isEditing: boolean) => void;
   setHasLinks: (hasLinks: boolean) => void;
   setPreferredSites: (sites: string[]) => void;
+  setShouldAnimateLogo: (should: boolean) => void;
   updateKeywordLink: (keyword: string, link: string, title: string) => void;
 
   // 复合动作
@@ -47,6 +49,7 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
   isEditing: true,
   hasLinks: false,
   preferredSites: [],
+  shouldAnimateLogo: false,
 
   // 基础动作
   setText: (text) => set({ text }),
@@ -66,6 +69,7 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
   setIsEditing: (isEditing) => set({ isEditing }),
   setHasLinks: (hasLinks) => set({ hasLinks }),
   setPreferredSites: (sites) => set({ preferredSites: sites }),
+  setShouldAnimateLogo: (should) => set({ shouldAnimateLogo: should }),
   updateKeywordLink: (keyword, link, title) =>
     set((state) => {
       const metadata = state.keywordMetadata[keyword];
@@ -91,9 +95,11 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
       setMatches,
       setKeywordMetadata,
       setIsEditing,
+      setShouldAnimateLogo,
     } = get();
 
     setIsLoading(true);
+    setShouldAnimateLogo(false);
 
     try {
       const result = await getKeywords(data.text, fingerprint);
@@ -130,6 +136,7 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
       setIsLoading,
       setKeywordMetadata,
       setHasLinks,
+      setShouldAnimateLogo,
     } = get();
 
     setIsLoading(true);
@@ -170,15 +177,15 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
         },
       );
       setKeywordMetadata(newMetadata);
-
       setHasLinks(true);
+      setShouldAnimateLogo(true);
     } finally {
       setIsLoading(false);
     }
   },
 
   handleEditClick: () => {
-    set({ isEditing: true, hasLinks: false });
+    set({ isEditing: true, hasLinks: false, shouldAnimateLogo: false });
   },
 
   handleNewAnalysis: () => {
@@ -189,6 +196,7 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
       selectedKeywordIds: new Set(),
       isEditing: true,
       hasLinks: false,
+      shouldAnimateLogo: false,
     });
   },
 }));
