@@ -17,18 +17,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { isEqual } from 'lodash';
+import { isEqual } from "lodash";
 import { sendFeedback } from "@/actions/feedback";
+import { catchError } from "@/utils";
 
 export function FeedbackForm() {
   const router = useRouter();
-  const t = useTranslations('feedback.form');
+  const t = useTranslations("feedback.form");
 
   const formSchema = z.object({
-    message: z
-      .string()
-      .min(10)
-      .max(1000),
+    message: z.string().min(10).max(1000),
     email: z.string().email().optional().or(z.literal("")),
   });
 
@@ -37,20 +35,20 @@ export function FeedbackForm() {
       errorMap: (issue, ctx) => {
         let message: string | undefined;
 
-        if (isEqual(issue.path, ['message'])) {
-          if (issue.code === 'too_small') {
-            message = t('message.min');
-          } else if (issue.code === 'too_big') {
-            message = t('message.max');
+        if (isEqual(issue.path, ["message"])) {
+          if (issue.code === "too_small") {
+            message = t("message.min");
+          } else if (issue.code === "too_big") {
+            message = t("message.max");
           }
-        } else if (isEqual(issue.path, ['email'])) {
-          if (issue.code === 'invalid_string') {
-            message = t('email.invalid');
+        } else if (isEqual(issue.path, ["email"])) {
+          if (issue.code === "invalid_string") {
+            message = t("email.invalid");
           }
         }
 
         return { message: message ?? ctx.defaultError };
-      }
+      },
     }),
     defaultValues: {
       message: "",
@@ -61,16 +59,18 @@ export function FeedbackForm() {
   const isSubmitting = form.formState.isSubmitting;
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    try {
-      await sendFeedback(data);
-      router.push("/thanks");
-    } catch (error) {
+    const [error] = await catchError(sendFeedback(data));
+
+    if (error) {
       console.error("提交反馈时出错:", error);
       form.setError("message", {
         type: "manual",
-        message: t('errors.submit'),
+        message: t("errors.submit"),
       });
+      return;
     }
+
+    router.push("/thanks");
   }
 
   return (
@@ -81,10 +81,10 @@ export function FeedbackForm() {
           name="message"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('message.label')}</FormLabel>
+              <FormLabel>{t("message.label")}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder={t('message.placeholder')}
+                  placeholder={t("message.placeholder")}
                   className="min-h-[120px] resize-none"
                   {...field}
                 />
@@ -99,11 +99,11 @@ export function FeedbackForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('email.label')}</FormLabel>
+              <FormLabel>{t("email.label")}</FormLabel>
               <FormControl>
                 <Input
                   type="email"
-                  placeholder={t('email.placeholder')}
+                  placeholder={t("email.placeholder")}
                   {...field}
                 />
               </FormControl>
@@ -116,10 +116,10 @@ export function FeedbackForm() {
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t('submitting')}
+              {t("submitting")}
             </>
           ) : (
-            t('submit')
+            t("submit")
           )}
         </Button>
       </form>

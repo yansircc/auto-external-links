@@ -1,26 +1,25 @@
 import { type NextAuthConfig } from "next-auth";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { db } from "@/server/db";
-import { authConfig } from "./auth.config";
-import {
-  accounts,
-  sessions,
-  users,
-  verificationTokens,
-} from "@/server/db/schema";
+import { providers } from "./providers";
+import { UpstashRedisAdapter } from "@auth/upstash-redis-adapter";
+import { redis } from "@/server/kv";
+
+if (!process.env.AUTH_SECRET) {
+  throw new Error("AUTH_SECRET 环境变量未设置");
+}
 
 /**
  * 完整的认证配置
- * 包含数据库适配器，仅在非 Edge 环境使用
+ * 使用 Upstash Redis 作为数据库，支持 Edge Runtime
  */
-const config: NextAuthConfig = {
-  ...authConfig,
-  adapter: DrizzleAdapter(db, {
-    usersTable: users,
-    accountsTable: accounts,
-    sessionsTable: sessions,
-    verificationTokensTable: verificationTokens,
-  }),
+export const config: NextAuthConfig = {
+  providers,
+  adapter: UpstashRedisAdapter(redis),
+  pages: {
+    signIn: "/login",
+    error: "/auth/error",
+    verifyRequest: "/verify-request",
+  },
 };
 
-export { config };
+// 为了向后兼容，保留 authConfig 导出
+export const authConfig = config;

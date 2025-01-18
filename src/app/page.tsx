@@ -14,6 +14,7 @@ import { loadPreferredSites } from "@/lib/preferred-sites";
 import { SiteHeader } from "@/components/layout/site-header";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { catchError } from "@/utils";
 
 export default function Home() {
   const { toast } = useToast();
@@ -45,31 +46,12 @@ export default function Home() {
 
   // 处理表单提交
   async function handleSubmit(data: FormData) {
-    try {
-      setIsLoading(true);
-      const result = await getKeywords(data.text);
-      if (!result.object) {
-        throw new Error("Failed to analyze keywords");
-      }
+    setIsLoading(true);
 
-      // 创建关键词到元数据的映射
-      const metadata: Record<string, KeywordMetadata> = {};
-      const keywords = result.object.map((item) => {
-        const { keyword, ...rest } = item;
-        metadata[keyword] = rest;
-        return keyword;
-      });
+    const [error, result] = await catchError(getKeywords(data.text));
 
-      // 查找关键词在文本中的位置
-      const matches = findKeywordsInText(data.text, keywords);
-
-      // 更新状态
-      setText(data.text);
-      setMatches(matches);
-      setKeywordMetadata(metadata);
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Failed to analyze text:", error);
+    if (error) {
+      console.error("分析文本失败:", error);
       toast({
         variant: "destructive",
         title: "分析失败",
@@ -80,9 +62,27 @@ export default function Home() {
           </ToastAction>
         ),
       });
-    } finally {
       setIsLoading(false);
+      return;
     }
+
+    // 创建关键词到元数据的映射
+    const metadata: Record<string, KeywordMetadata> = {};
+    const keywords = result.object.map((item) => {
+      const { keyword, ...rest } = item;
+      metadata[keyword] = rest;
+      return keyword;
+    });
+
+    // 查找关键词在文本中的位置
+    const matches = findKeywordsInText(data.text, keywords);
+
+    // 更新状态
+    setText(data.text);
+    setMatches(matches);
+    setKeywordMetadata(metadata);
+    setIsEditing(false);
+    setIsLoading(false);
   }
 
   // 处理关键词切换
@@ -100,60 +100,62 @@ export default function Home() {
 
   // 处理确认选择
   async function handleConfirm() {
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
 
-      const selectedKeywords = getUniqueSelectedKeywords(selectedKeywordIds);
-      const keywordsForSearch = selectedKeywords
-        .map((keyword) => {
-          const metadata = keywordMetadata[keyword];
-          if (!metadata?.query) return null;
-          return {
-            keyword,
-            query: metadata.query,
-          };
-        })
-        .filter((item): item is NonNullable<typeof item> => item !== null);
+    const selectedKeywords = getUniqueSelectedKeywords(selectedKeywordIds);
+    const keywordsForSearch = selectedKeywords
+      .map((keyword) => {
+        const metadata = keywordMetadata[keyword];
+        if (!metadata?.query) return null;
+        return { keyword, query: metadata.query };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
-      if (keywordsForSearch.length === 0) {
-        throw new Error("No valid keywords selected");
-      }
-
-      const blacklist = loadBlacklist();
-      const linkMap = await fetchLinksForKeywords(
-        keywordsForSearch,
-        blacklist,
-        preferredSites,
-      );
-
-      setKeywordMetadata((prev) => {
-        const next = { ...prev };
-        Object.entries(linkMap).forEach(
-          ([keyword, { link, title, alternatives }]) => {
-            if (next[keyword]) {
-              next[keyword] = {
-                ...next[keyword],
-                link,
-                title,
-                alternatives,
-              };
-            }
-          },
-        );
-        return next;
+    if (keywordsForSearch.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "请选择关键词",
+        description: "至少需要选择一个关键词",
       });
+      setIsLoading(false);
+      return;
+    }
 
-      setHasLinks(true);
-    } catch (error) {
-      console.error("Failed to fetch links:", error);
+    const blacklist = loadBlacklist();
+    const [error, linkMap] = await catchError(
+      fetchLinksForKeywords(keywordsForSearch, blacklist, preferredSites),
+    );
+
+    if (error) {
+      console.error("获取链接失败:", error);
       toast({
         variant: "destructive",
         title: "获取链接失败",
         description: "请稍后重试",
       });
-    } finally {
       setIsLoading(false);
+      return;
     }
+
+    setKeywordMetadata((prev) => {
+      const next = { ...prev };
+      Object.entries(linkMap).forEach(
+        ([keyword, { link, title, alternatives }]) => {
+          if (next[keyword]) {
+            next[keyword] = {
+              ...next[keyword],
+              link,
+              title,
+              alternatives,
+            };
+          }
+        },
+      );
+      return next;
+    });
+
+    setHasLinks(true);
+    setIsLoading(false);
   }
 
   // 处理编辑点击

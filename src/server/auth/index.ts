@@ -1,10 +1,15 @@
 import NextAuth from "next-auth";
 import { cache } from "react";
+import { authConfig } from "@/server/auth/config";
 
-import { config } from "./config";
+/**
+ * Edge 兼容的认证实例
+ * 用于全局认证，包括中间件、客户端组件和 API 路由
+ * 使用 Upstash Redis 作为数据库，完全支持 Edge Runtime
+ */
+const { auth: uncachedAuth, signIn, signOut, handlers } = NextAuth(authConfig);
 
-const { auth: uncachedAuth, handlers, signIn, signOut } = NextAuth(config);
-
+// 使用 React cache 优化性能
 const auth = cache(uncachedAuth);
 
-export { auth, handlers, signIn, signOut };
+export { auth, signIn, signOut, handlers, authConfig };

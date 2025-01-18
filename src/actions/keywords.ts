@@ -8,6 +8,7 @@ import { keywordSchema } from "./schema";
 import { searchGoogle } from "@/lib/serper";
 import { type BlacklistEntry, isBlacklisted } from "@/lib/blacklist";
 import type { SerperResponse } from "@/lib/serper/schema";
+import { catchError } from "@/utils";
 
 // 包装成对象类型的模式
 const wrapperSchema = z.object({
@@ -24,22 +25,29 @@ const wrapperSchema = z.object({
  * 分析文本获取关键词
  */
 export async function getKeywords(text: string) {
-  const { object, finishReason, usage } = await generateObject({
-    // model: openai("gpt-4o"),
-    model: deepseek("deepseek-chat"),
-    system: `
+  const [error, result] = await catchError(
+    generateObject({
+      model: deepseek("deepseek-chat"),
+      system: `
     You are a SEO expert, you need to:
     1. Select 1~3 most valuable keywords/phrases from the text(never select from the heading or title)
     2. For each keyword:
       - Extract the exact keyword or phrase from the text (maintain original case and format). Each should be unique, never repeat.
       - Generate a search query in question form to find the best external link
       - Provide a brief convincing reason for the reader why they should explore the resource link`,
-    prompt: text,
-    schema: wrapperSchema,
-  });
+      prompt: text,
+      schema: wrapperSchema,
+    }),
+    (error) => new Error("分析文本失败", { cause: error }),
+  );
+
+  if (error) {
+    console.error("分析文本失败:", error);
+    throw error;
+  }
 
   // Initialize with null links
-  const keywordsWithoutLinks = object.keywords.map((item) => ({
+  const keywordsWithoutLinks = result.object.keywords.map((item) => ({
     ...item,
     link: null,
     title: null,
@@ -49,7 +57,11 @@ export async function getKeywords(text: string) {
     },
   }));
 
-  return { object: keywordsWithoutLinks, finishReason, usage };
+  return {
+    object: keywordsWithoutLinks,
+    finishReason: result.finishReason,
+    usage: result.usage,
+  };
 }
 
 /**
@@ -65,67 +77,28 @@ export async function fetchLinksForKeywords(
   const results = [];
 
   for (const { keyword, query } of keywords) {
-    try {
-      // Get search results and filter out blacklisted links
-      const searchResults = await searchGoogle(query, preferredSites);
-      const validResults = searchResults
-        .flat()
-        .filter((result) => !isBlacklisted(result.link, blacklist))
-        .filter((result) => !usedLinks.has(result.link));
+    const [error, searchResults] = await catchError(
+      searchGoogle(query, preferredSites),
+    );
 
-      // No valid results found
-      if (validResults.length === 0) {
-        results.push({
-          keyword,
-          link: null,
-          title: null,
-          alternatives: {
-            preferred: [],
-            regular: [],
-          },
-        });
-        continue;
-      }
-
-      // Separate preferred and regular results
-      const preferred = validResults.filter((result) =>
-        preferredSites.some((site) => result.link.includes(site)),
-      );
-      const regular = validResults.filter(
-        (result) => !preferredSites.some((site) => result.link.includes(site)),
-      );
-
-      // Select best result (prefer preferred sites)
-      const bestResult = preferred[0] ?? regular[0];
-      if (!bestResult) {
-        results.push({
-          keyword,
-          link: null,
-          title: null,
-          alternatives: {
-            preferred: [],
-            regular: [],
-          },
-        });
-        continue;
-      }
-
-      usedLinks.add(bestResult.link);
-
-      // Get alternatives (excluding the best result)
-      const alternatives = {
-        preferred: preferred.filter((r) => r.link !== bestResult.link),
-        regular: regular.filter((r) => r.link !== bestResult.link).slice(0, 3),
-      };
-
+    if (error) {
+      console.error(`获取关键词 "${keyword}" 的链接失败:`, error);
       results.push({
         keyword,
-        link: bestResult.link,
-        title: bestResult.title,
-        alternatives,
+        link: null,
+        title: null,
+        alternatives: { preferred: [], regular: [] },
       });
-    } catch (error) {
-      console.error(`Failed to fetch link for keyword: ${keyword}`, error);
+      continue;
+    }
+
+    const validResults = searchResults
+      .flat()
+      .filter((result) => !isBlacklisted(result.link, blacklist))
+      .filter((result) => !usedLinks.has(result.link));
+
+    // No valid results found
+    if (validResults.length === 0) {
       results.push({
         keyword,
         link: null,
@@ -135,7 +108,46 @@ export async function fetchLinksForKeywords(
           regular: [],
         },
       });
+      continue;
     }
+
+    // Separate preferred and regular results
+    const preferred = validResults.filter((result) =>
+      preferredSites.some((site) => result.link.includes(site)),
+    );
+    const regular = validResults.filter(
+      (result) => !preferredSites.some((site) => result.link.includes(site)),
+    );
+
+    // Select best result (prefer preferred sites)
+    const bestResult = preferred[0] ?? regular[0];
+    if (!bestResult) {
+      results.push({
+        keyword,
+        link: null,
+        title: null,
+        alternatives: {
+          preferred: [],
+          regular: [],
+        },
+      });
+      continue;
+    }
+
+    usedLinks.add(bestResult.link);
+
+    // Get alternatives (excluding the best result)
+    const alternatives = {
+      preferred: preferred.filter((r) => r.link !== bestResult.link),
+      regular: regular.filter((r) => r.link !== bestResult.link).slice(0, 3),
+    };
+
+    results.push({
+      keyword,
+      link: bestResult.link,
+      title: bestResult.title,
+      alternatives,
+    });
   }
 
   // Convert array to record

@@ -1,25 +1,29 @@
 const STORAGE_KEY = "link-blacklist";
+import { catchError } from "@/utils";
 
 export interface BlacklistEntry {
   domain: string;
-  addedAt: string; // ISO date string
+  addedAt: string;
   reason?: string;
 }
 
 /**
- * Extract domain from URL
+ * 从 URL 中提取域名
+ * @param url - 需要提取域名的 URL
+ * @returns 提取出的域名（小写）
  */
 function extractDomain(url: string): string {
-  try {
-    const { hostname } = new URL(url);
+  const [error, hostname] = catchError(() => new URL(url).hostname);
+
+  if (!error && hostname) {
     return hostname.toLowerCase();
-  } catch {
-    // If URL is invalid, try to extract domain using regex
-    const match = /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?]+)/.exec(
-      url.toLowerCase(),
-    );
-    return match?.[1] ?? url.toLowerCase();
   }
+
+  // URL 无效时，使用正则表达式提取域名
+  const match = /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?]+)/.exec(
+    url.toLowerCase(),
+  );
+  return match?.[1] ?? url.toLowerCase();
 }
 
 /**
@@ -70,35 +74,47 @@ function isDomainBlacklisted(
 }
 
 /**
- * Load blacklist from localStorage
+ * 从 localStorage 加载黑名单
  */
 export function loadBlacklist(): BlacklistEntry[] {
   if (typeof window === "undefined") return [];
 
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? (JSON.parse(data) as BlacklistEntry[]) : [];
-  } catch {
+  const [error, data] = catchError(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? (JSON.parse(stored) as BlacklistEntry[]) : [];
+  });
+
+  if (error) {
+    console.error("加载黑名单失败:", error);
     return [];
+  }
+
+  return data;
+}
+
+/**
+ * 保存黑名单到 localStorage
+ */
+export function saveBlacklist(entries: BlacklistEntry[]): void {
+  if (typeof window === "undefined") return;
+
+  const [error] = catchError(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  });
+
+  if (error) {
+    console.error("保存黑名单失败:", error);
   }
 }
 
 /**
- * Save blacklist to localStorage
- */
-export function saveBlacklist(entries: BlacklistEntry[]): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-}
-
-/**
- * Add a domain to blacklist
+ * 添加域名到黑名单
  */
 export function addToBlacklist(url: string, reason?: string): BlacklistEntry[] {
   const domain = extractDomain(url);
   const entries = loadBlacklist();
 
-  // Check if domain or any of its variations already exist
+  // 检查域名或其变体是否已存在
   if (!isDomainBlacklisted(domain, entries)) {
     entries.push({
       domain,

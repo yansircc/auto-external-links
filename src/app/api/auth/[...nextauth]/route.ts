@@ -1,6 +1,10 @@
 import { handlers } from "@/server/auth";
 
+/**
+ * API 路由处理器
+ * 使用完整的认证配置（包含数据库适配器）
+ */
 export const { GET, POST } = handlers;
 
-// 使用 Node.js runtime 以支持数据库和邮件功能
-export const runtime = "nodejs";
+// 使用 Edge Runtime
+export const runtime = "edge";
