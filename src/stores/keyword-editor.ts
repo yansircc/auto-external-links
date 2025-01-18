@@ -1,0 +1,194 @@
+import { create } from "zustand";
+import {
+  type FormData,
+  type KeywordMatch,
+  type KeywordMetadata,
+} from "@/components/keyword-editor/core/schema";
+import { getKeywords, fetchLinksForKeywords } from "@/actions/keywords";
+import { findKeywordsInText, getUniqueSelectedKeywords } from "@/lib/keywords";
+import { useSitePreferencesStore } from "@/stores/site-preferences";
+
+interface KeywordEditorState {
+  // 状态
+  text: string;
+  matches: KeywordMatch[];
+  keywordMetadata: Record<string, KeywordMetadata>;
+  selectedKeywordIds: Set<string>;
+  isLoading: boolean;
+  isEditing: boolean;
+  hasLinks: boolean;
+  preferredSites: string[];
+
+  // 动作
+  setText: (text: string) => void;
+  setMatches: (matches: KeywordMatch[]) => void;
+  setKeywordMetadata: (metadata: Record<string, KeywordMetadata>) => void;
+  toggleKeyword: (id: string) => void;
+  setIsLoading: (isLoading: boolean) => void;
+  setIsEditing: (isEditing: boolean) => void;
+  setHasLinks: (hasLinks: boolean) => void;
+  setPreferredSites: (sites: string[]) => void;
+  updateKeywordLink: (keyword: string, link: string, title: string) => void;
+
+  // 复合动作
+  handleSubmit: (data: FormData, fingerprint?: string) => Promise<void>;
+  handleConfirm: () => Promise<void>;
+  handleEditClick: () => void;
+  handleNewAnalysis: () => void;
+}
+
+export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
+  // 初始状态
+  text: "",
+  matches: [],
+  keywordMetadata: {},
+  selectedKeywordIds: new Set(),
+  isLoading: false,
+  isEditing: true,
+  hasLinks: false,
+  preferredSites: [],
+
+  // 基础动作
+  setText: (text) => set({ text }),
+  setMatches: (matches) => set({ matches }),
+  setKeywordMetadata: (metadata) => set({ keywordMetadata: metadata }),
+  toggleKeyword: (id) =>
+    set((state) => {
+      const next = new Set(state.selectedKeywordIds);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return { selectedKeywordIds: next };
+    }),
+  setIsLoading: (isLoading) => set({ isLoading }),
+  setIsEditing: (isEditing) => set({ isEditing }),
+  setHasLinks: (hasLinks) => set({ hasLinks }),
+  setPreferredSites: (sites) => set({ preferredSites: sites }),
+  updateKeywordLink: (keyword, link, title) =>
+    set((state) => {
+      const metadata = state.keywordMetadata[keyword];
+      if (!metadata) return state;
+
+      return {
+        keywordMetadata: {
+          ...state.keywordMetadata,
+          [keyword]: {
+            ...metadata,
+            link,
+            title,
+          },
+        },
+      };
+    }),
+
+  // 复合动作
+  handleSubmit: async (data, fingerprint) => {
+    const {
+      setIsLoading,
+      setText,
+      setMatches,
+      setKeywordMetadata,
+      setIsEditing,
+    } = get();
+
+    setIsLoading(true);
+
+    try {
+      const result = await getKeywords(data.text, fingerprint);
+      if (!result.data || result.error) {
+        throw new Error(result.error?.message ?? "分析失败");
+      }
+
+      // 创建关键词到元数据的映射
+      const metadata: Record<string, KeywordMetadata> = {};
+      const keywords = result.data.object.keywords.map((item) => {
+        const { keyword, ...rest } = item;
+        metadata[keyword] = rest;
+        return keyword;
+      });
+
+      // 查找关键词在文本中的位置
+      const matches = findKeywordsInText(data.text, keywords);
+
+      // 更新状态
+      setText(data.text);
+      setMatches(matches);
+      setKeywordMetadata(metadata);
+      setIsEditing(false);
+    } finally {
+      setIsLoading(false);
+    }
+  },
+
+  handleConfirm: async () => {
+    const {
+      selectedKeywordIds,
+      keywordMetadata,
+      preferredSites,
+      setIsLoading,
+      setKeywordMetadata,
+      setHasLinks,
+    } = get();
+
+    setIsLoading(true);
+
+    try {
+      const selectedKeywords = getUniqueSelectedKeywords(selectedKeywordIds);
+      const keywordsForSearch = selectedKeywords
+        .map((keyword) => {
+          const metadata = keywordMetadata[keyword];
+          if (!metadata?.query) return null;
+          return { keyword, query: metadata.query };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null);
+
+      if (keywordsForSearch.length === 0) {
+        throw new Error("至少需要选择一个关键词");
+      }
+
+      const { blacklist } = useSitePreferencesStore.getState();
+      const blacklistDomains = blacklist.map((entry) => entry.domain);
+      const linkMap = await fetchLinksForKeywords(
+        keywordsForSearch,
+        blacklistDomains,
+        preferredSites,
+      );
+
+      const newMetadata = { ...keywordMetadata };
+      Object.entries(linkMap).forEach(
+        ([keyword, { link, title, alternatives }]) => {
+          if (newMetadata[keyword]) {
+            newMetadata[keyword] = {
+              ...newMetadata[keyword],
+              link,
+              title,
+              alternatives,
+            };
+          }
+        },
+      );
+      setKeywordMetadata(newMetadata);
+
+      setHasLinks(true);
+    } finally {
+      setIsLoading(false);
+    }
+  },
+
+  handleEditClick: () => {
+    set({ isEditing: true, hasLinks: false });
+  },
+
+  handleNewAnalysis: () => {
+    set({
+      text: "",
+      matches: [],
+      keywordMetadata: {},
+      selectedKeywordIds: new Set(),
+      isEditing: true,
+      hasLinks: false,
+    });
+  },
+}));

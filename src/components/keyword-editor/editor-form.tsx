@@ -9,14 +9,17 @@ import { type FormData, formSchema } from "./core/schema";
 import { EditorLayout, EditorActions } from "./core/editor-layout";
 import { MAX_LENGTH } from "./core/config";
 import { cn } from "@/lib/utils";
-import { type EditorFormProps } from "./core/types";
+import { type EditorMessages } from "./core/messages";
+import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
-export function EditorForm({
-  text,
-  isLoading,
-  messages,
-  onSubmit,
-}: EditorFormProps) {
+interface EditorFormProps {
+  messages: EditorMessages["form"];
+  onSubmit: (data: FormData) => Promise<void>;
+}
+
+export function EditorForm({ messages, onSubmit }: EditorFormProps) {
+  const { text, isLoading } = useKeywordEditorStore();
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {

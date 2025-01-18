@@ -4,13 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2 } from "lucide-react";
-import {
-  type BlacklistEntry,
-  loadBlacklist,
-  addToBlacklist,
-  removeFromBlacklist,
-} from "@/lib/blacklist";
 import { type SettingsMessages } from "./messages";
+import { useSitePreferencesStore } from "@/stores/site-preferences";
 
 interface BlacklistManagerProps {
   messages: SettingsMessages["blacklist"];
@@ -18,24 +13,16 @@ interface BlacklistManagerProps {
 
 export function BlacklistManager({ messages }: BlacklistManagerProps) {
   const [url, setUrl] = useState("");
-  const [entries, setEntries] = useState<BlacklistEntry[]>(() =>
-    loadBlacklist(),
-  );
+  const { blacklist, addToBlacklist, removeFromBlacklist } =
+    useSitePreferencesStore();
 
   // 添加域名到黑名单
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     if (!url.trim()) return;
 
-    const updatedEntries = addToBlacklist(url.trim());
-    setEntries(updatedEntries);
+    addToBlacklist(url.trim());
     setUrl("");
-  }
-
-  // 从黑名单中移除域名
-  function handleRemove(domain: string) {
-    const updatedEntries = removeFromBlacklist(domain);
-    setEntries(updatedEntries);
   }
 
   return (
@@ -51,9 +38,9 @@ export function BlacklistManager({ messages }: BlacklistManagerProps) {
         <Button type="submit">{messages.input.add}</Button>
       </form>
 
-      {entries.length > 0 ? (
+      {blacklist.length > 0 ? (
         <ul className="space-y-2">
-          {entries.map((entry) => (
+          {blacklist.map((entry) => (
             <li
               key={entry.domain}
               className="flex items-center justify-between rounded-lg border bg-card p-2 text-card-foreground"
@@ -63,7 +50,7 @@ export function BlacklistManager({ messages }: BlacklistManagerProps) {
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => handleRemove(entry.domain)}
+                onClick={() => removeFromBlacklist(entry.domain)}
                 aria-label={messages.list.remove}
               >
                 <Trash2 className="h-4 w-4" />

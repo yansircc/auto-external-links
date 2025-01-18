@@ -5,7 +5,6 @@ import { deepseek } from "@ai-sdk/deepseek";
 import { z } from "zod";
 import { keywordSchema } from "./schema";
 import { searchGoogle } from "@/lib/serper";
-import { type BlacklistEntry, isBlacklisted } from "@/lib/blacklist";
 import type { SerperResponse } from "@/lib/serper/schema";
 import { catchError } from "@/utils";
 import { auth } from "@/server/auth";
@@ -123,108 +122,87 @@ export async function getKeywords(
   };
 }
 
+interface KeywordSearchResult {
+  keyword: string;
+  query: string;
+}
+
+interface LinkResult {
+  link: string;
+  title: string;
+  alternatives: {
+    preferred: SerperResponse["organic"];
+    regular: SerperResponse["organic"];
+  };
+}
+
 /**
- * Fetch external links for selected keywords
+ * 为关键词获取外部链接
+ * @param keywords 关键词列表
+ * @param blacklist 黑名单域名列表
+ * @param preferredSites 偏好站点列表
+ * @returns 关键词到链接的映射
  */
 export async function fetchLinksForKeywords(
-  keywords: { keyword: string; query: string }[],
-  blacklist: BlacklistEntry[],
+  keywords: KeywordSearchResult[],
+  blacklist: string[],
   preferredSites: string[],
-) {
-  // Track used links to prevent duplicates
-  const usedLinks = new Set<string>();
-  const results = [];
+): Promise<Record<string, LinkResult>> {
+  const linkMap: Record<string, LinkResult> = {};
 
-  for (const { keyword, query } of keywords) {
-    const [error, searchResults] = await catchError(
-      searchGoogle(query, preferredSites),
-    );
+  // 并行搜索所有关键词
+  await Promise.all(
+    keywords.map(async ({ keyword, query }) => {
+      const [error, results] = await catchError(
+        searchGoogle(query, preferredSites),
+      );
+      if (error || !results?.length) return;
 
-    if (error) {
-      console.error(`获取关键词 "${keyword}" 的链接失败:`, error);
-      results.push({
-        keyword,
-        link: null,
-        title: null,
-        alternatives: { preferred: [], regular: [] },
+      // 合并所有搜索结果
+      const allResults = results.flat();
+
+      // 过滤搜索结果
+      const filteredResults = allResults.filter((item) => {
+        try {
+          const domain = new URL(item.link).hostname.replace(/^www\./, "");
+          return !blacklist.includes(domain);
+        } catch {
+          return false;
+        }
       });
-      continue;
-    }
 
-    const validResults = searchResults
-      .flat()
-      .filter((result) => !isBlacklisted(result.link, blacklist))
-      .filter((result) => !usedLinks.has(result.link));
-
-    // No valid results found
-    if (validResults.length === 0) {
-      results.push({
-        keyword,
-        link: null,
-        title: null,
-        alternatives: {
-          preferred: [],
-          regular: [],
+      // 分离偏好站点和普通站点
+      const [preferred, regular] = filteredResults.reduce<
+        [SerperResponse["organic"], SerperResponse["organic"]]
+      >(
+        (acc, item) => {
+          try {
+            const domain = new URL(item.link).hostname.replace(/^www\./, "");
+            if (preferredSites.includes(domain)) {
+              return [[...acc[0], item], acc[1]];
+            }
+            return [acc[0], [...acc[1], item]];
+          } catch {
+            return acc;
+          }
         },
-      });
-      continue;
-    }
+        [[], []],
+      );
 
-    // Separate preferred and regular results
-    const preferred = validResults.filter((result) =>
-      preferredSites.some((site) => result.link.includes(site)),
-    );
-    const regular = validResults.filter(
-      (result) => !preferredSites.some((site) => result.link.includes(site)),
-    );
-
-    // Select best result (prefer preferred sites)
-    const bestResult = preferred[0] ?? regular[0];
-    if (!bestResult) {
-      results.push({
-        keyword,
-        link: null,
-        title: null,
-        alternatives: {
-          preferred: [],
-          regular: [],
-        },
-      });
-      continue;
-    }
-
-    usedLinks.add(bestResult.link);
-
-    // Get alternatives (excluding the best result)
-    const alternatives = {
-      preferred: preferred.filter((r) => r.link !== bestResult.link),
-      regular: regular.filter((r) => r.link !== bestResult.link).slice(0, 3),
-    };
-
-    results.push({
-      keyword,
-      link: bestResult.link,
-      title: bestResult.title,
-      alternatives,
-    });
-  }
-
-  // Convert array to record
-  return results.reduce(
-    (acc, { keyword, link, title, alternatives }) => ({
-      ...acc,
-      [keyword]: { link, title, alternatives },
-    }),
-    {} as Record<
-      string,
-      {
-        link: string | null;
-        title: string | null;
-        alternatives: {
-          preferred: SerperResponse["organic"];
-          regular: SerperResponse["organic"];
+      // 选择最佳链接
+      const bestLink = preferred[0] ?? regular[0];
+      if (bestLink) {
+        linkMap[keyword] = {
+          link: bestLink.link,
+          title: bestLink.title,
+          alternatives: {
+            preferred,
+            regular,
+          },
         };
       }
-    >,
+    }),
   );
+
+  return linkMap;
 }

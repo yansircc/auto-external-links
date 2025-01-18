@@ -11,45 +11,10 @@ import { Settings } from "lucide-react";
 import { BlacklistManager } from "./blacklist-manager";
 import { PreferredSitesManager } from "./preferred-manager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getTranslations } from "next-intl/server";
-import { type SettingsMessages } from "./messages";
+import { getSettingsMessages } from "./messages";
 
 export default async function SettingsDialog() {
-  const dialogT = await getTranslations("settings.dialog");
-  const blacklistT = await getTranslations("settings.blacklist");
-  const preferredT = await getTranslations("settings.preferred");
-
-  const messages: SettingsMessages = {
-    dialog: {
-      title: dialogT("title"),
-      searchTitle: dialogT("searchTitle"),
-      searchDescription: dialogT("searchDescription"),
-      preferredTitle: dialogT("preferredTitle"),
-      blacklistTitle: dialogT("blacklistTitle"),
-    },
-    blacklist: {
-      input: {
-        placeholder: blacklistT("input.placeholder"),
-        add: blacklistT("input.add"),
-      },
-      list: {
-        remove: blacklistT("list.remove"),
-        empty: blacklistT("list.empty"),
-      },
-    },
-    preferred: {
-      input: {
-        placeholder: preferredT("input.placeholder"),
-        add: preferredT("input.add"),
-      },
-      list: {
-        remove: preferredT("list.remove"),
-        empty: preferredT("list.empty"),
-      },
-      maxLimit: preferredT("maxLimit"),
-      message: preferredT("message"),
-    },
-  };
+  const messages = await getSettingsMessages();
 
   return (
     <Dialog>

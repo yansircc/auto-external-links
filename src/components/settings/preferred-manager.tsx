@@ -4,13 +4,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2 } from "lucide-react";
-import {
-  type PreferredSite,
-  loadPreferredSites,
-  addToPreferredSites,
-  removeFromPreferredSites,
-} from "@/lib/preferred-sites";
 import { type SettingsMessages } from "./messages";
+import { useSitePreferencesStore } from "@/stores/site-preferences";
 
 interface PreferredSitesManagerProps {
   messages: SettingsMessages["preferred"];
@@ -20,28 +15,20 @@ export function PreferredSitesManager({
   messages,
 }: PreferredSitesManagerProps) {
   const [url, setUrl] = useState("");
-  const [entries, setEntries] = useState<PreferredSite[]>(() =>
-    loadPreferredSites(),
-  );
+  const { preferredSites, addToPreferredSites, removeFromPreferredSites } =
+    useSitePreferencesStore();
 
   // 添加域名到偏好网站
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     if (!url.trim()) return;
-    if (entries.length >= 3) {
+    if (preferredSites.length >= 3) {
       alert(messages.maxLimit);
       return;
     }
 
-    const updatedEntries = addToPreferredSites(url.trim());
-    setEntries(updatedEntries);
+    addToPreferredSites(url.trim());
     setUrl("");
-  }
-
-  // 从偏好网站中移除域名
-  function handleRemove(domain: string) {
-    const updatedEntries = removeFromPreferredSites(domain);
-    setEntries(updatedEntries);
   }
 
   return (
@@ -54,14 +41,14 @@ export function PreferredSitesManager({
           placeholder={messages.input.placeholder}
           className="flex-1"
         />
-        <Button type="submit" disabled={entries.length >= 3}>
+        <Button type="submit" disabled={preferredSites.length >= 3}>
           {messages.input.add}
         </Button>
       </form>
 
-      {entries.length > 0 ? (
+      {preferredSites.length > 0 ? (
         <ul className="space-y-2">
-          {entries.map((entry) => (
+          {preferredSites.map((entry) => (
             <li
               key={entry.domain}
               className="flex items-center justify-between rounded-lg border bg-card p-2 text-card-foreground"
@@ -71,7 +58,7 @@ export function PreferredSitesManager({
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => handleRemove(entry.domain)}
+                onClick={() => removeFromPreferredSites(entry.domain)}
                 aria-label={messages.list.remove}
               >
                 <Trash2 className="h-4 w-4" />
@@ -84,7 +71,7 @@ export function PreferredSitesManager({
         <p className="text-sm text-muted-foreground">{messages.list.empty}</p>
       )}
 
-      {entries.length > 0 && (
+      {preferredSites.length > 0 && (
         <p className="text-xs text-muted-foreground">{messages.message}</p>
       )}
     </div>

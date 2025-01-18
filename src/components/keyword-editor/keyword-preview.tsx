@@ -1,28 +1,33 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { Link2 } from "lucide-react";
+import { Loader2, Link2 } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import { type KeywordPreviewProps } from "./core/types";
+import { type EditorMessages } from "./core/messages";
 import { createKeywordId } from "@/lib/keywords";
 import { EditorLayout, EditorActions } from "./core/editor-layout";
+import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
-export function KeywordPreview({
-  text,
-  matches,
-  keywordMetadata,
-  selectedKeywordIds,
-  isLoading,
-  messages,
-  onToggleKeyword,
-  onConfirm,
-}: KeywordPreviewProps) {
+interface KeywordPreviewProps {
+  messages: EditorMessages["preview"];
+}
+
+export function KeywordPreview({ messages }: KeywordPreviewProps) {
+  const {
+    text,
+    matches,
+    keywordMetadata,
+    selectedKeywordIds,
+    isLoading,
+    toggleKeyword,
+    handleConfirm,
+  } = useKeywordEditorStore();
+
   // 渲染高亮文本
   function renderHighlightedText() {
     let lastIndex = 0;
@@ -49,7 +54,7 @@ export function KeywordPreview({
           <TooltipTrigger asChild>
             <button
               type="button"
-              onClick={() => onToggleKeyword(id)}
+              onClick={() => toggleKeyword(id)}
               className={`rounded px-0.5 hover:bg-accent ${
                 selectedKeywordIds.has(id)
                   ? "bg-green-200 text-green-700 hover:bg-green-300"
@@ -95,7 +100,7 @@ export function KeywordPreview({
         <Button
           type="button"
           disabled={isLoading}
-          onClick={() => onConfirm()}
+          onClick={() => handleConfirm()}
           className="gap-2"
         >
           {isLoading ? (

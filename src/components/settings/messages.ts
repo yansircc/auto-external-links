@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 // 定义设置对话框的消息类型
 export interface SettingsMessages {
   dialog: {
@@ -28,5 +30,43 @@ export interface SettingsMessages {
     };
     maxLimit: string;
     message: string;
+  };
+}
+
+export async function getSettingsMessages(): Promise<SettingsMessages> {
+  const dialogT = await getTranslations("settings.dialog");
+  const blacklistT = await getTranslations("settings.blacklist");
+  const preferredT = await getTranslations("settings.preferred");
+
+  return {
+    dialog: {
+      title: dialogT("title"),
+      searchTitle: dialogT("searchTitle"),
+      searchDescription: dialogT("searchDescription"),
+      preferredTitle: dialogT("preferredTitle"),
+      blacklistTitle: dialogT("blacklistTitle"),
+    },
+    blacklist: {
+      input: {
+        placeholder: blacklistT("input.placeholder"),
+        add: blacklistT("input.add"),
+      },
+      list: {
+        remove: blacklistT("list.remove"),
+        empty: blacklistT("list.empty"),
+      },
+    },
+    preferred: {
+      input: {
+        placeholder: preferredT("input.placeholder"),
+        add: preferredT("input.add"),
+      },
+      list: {
+        remove: preferredT("list.remove"),
+        empty: preferredT("list.empty"),
+      },
+      maxLimit: preferredT("maxLimit"),
+      message: preferredT("message"),
+    },
   };
 }

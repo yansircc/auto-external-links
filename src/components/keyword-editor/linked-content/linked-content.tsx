@@ -1,25 +1,27 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 import { EditorLayout, EditorActions } from "../core/editor-layout";
 import { Footnotes } from "./footnotes";
-import { type LinkedContentProps } from "../core/types";
+import { type EditorMessages } from "../core/messages";
 import { useFootnotes } from "./use-footnotes";
 import { renderLinkedText } from "./text-utils";
 import { useCopy } from "./use-copy";
+import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
-export function LinkedContent({
-  text,
-  matches,
-  keywordMetadata: initialKeywordMetadata,
-  selectedKeywordIds,
-  messages,
-}: LinkedContentProps) {
-  const [keywordMetadata, setKeywordMetadata] = useState(
-    initialKeywordMetadata,
-  );
+interface LinkedContentProps {
+  messages: EditorMessages["linkedContent"];
+}
+
+export function LinkedContent({ messages }: LinkedContentProps) {
+  const {
+    text,
+    matches,
+    keywordMetadata,
+    selectedKeywordIds,
+    updateKeywordLink,
+  } = useKeywordEditorStore();
 
   const { footnotes, footnoteIndexMap } = useFootnotes(
     matches,
@@ -42,18 +44,7 @@ export function LinkedContent({
   // 处理链接切换
   function handleLinkChange(id: string, link: string, title: string) {
     const keyword = id.slice(0, id.lastIndexOf("-"));
-    const metadata = keywordMetadata[keyword];
-    if (!metadata) return;
-
-    setKeywordMetadata((prev) => ({
-      ...prev,
-      [keyword]: {
-        ...metadata,
-        link,
-        title,
-        alternatives: metadata.alternatives,
-      },
-    }));
+    updateKeywordLink(keyword, link, title);
   }
 
   return (

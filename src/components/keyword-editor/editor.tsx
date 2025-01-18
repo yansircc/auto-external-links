@@ -1,6 +1,6 @@
 "use client";
 
-import { type KeywordEditorProps } from "./core/types";
+import { type EditorMessages } from "./core/messages";
 import { EditorForm } from "./editor-form";
 import { KeywordPreview } from "./keyword-preview";
 import { LinkedContent } from "./linked-content";
@@ -13,20 +13,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
-export function KeywordEditor({
-  text,
-  matches,
-  keywordMetadata,
-  selectedKeywordIds,
-  isLoading,
-  isEditing,
-  hasLinks,
-  messages,
-  onSubmit,
-  onToggleKeyword,
-  onConfirm,
-}: KeywordEditorProps) {
+interface EditorProps {
+  messages: EditorMessages;
+  onSubmit: (data: { text: string }) => Promise<void>;
+}
+
+export function KeywordEditor({ messages, onSubmit }: EditorProps) {
+  const { isEditing, hasLinks } = useKeywordEditorStore();
+
   return (
     <div className="space-y-6">
       {/* Marketing Header */}
@@ -57,32 +53,13 @@ export function KeywordEditor({
             {isEditing ? (
               <EditorForm
                 key="form"
-                text={text}
-                isLoading={isLoading}
                 messages={messages.form}
                 onSubmit={onSubmit}
               />
             ) : hasLinks ? (
-              <LinkedContent
-                key="linked"
-                text={text}
-                matches={matches}
-                keywordMetadata={keywordMetadata}
-                selectedKeywordIds={selectedKeywordIds}
-                messages={messages.linkedContent}
-              />
+              <LinkedContent key="linked" messages={messages.linkedContent} />
             ) : (
-              <KeywordPreview
-                key="preview"
-                text={text}
-                matches={matches}
-                keywordMetadata={keywordMetadata}
-                selectedKeywordIds={selectedKeywordIds}
-                isLoading={isLoading}
-                messages={messages.preview}
-                onToggleKeyword={onToggleKeyword}
-                onConfirm={onConfirm}
-              />
+              <KeywordPreview key="preview" messages={messages.preview} />
             )}
           </AnimatePresence>
         </CardContent>
