@@ -1,7 +1,6 @@
 "use server";
 
 import { generateObject } from "ai";
-// import { openai } from "@ai-sdk/openai";
 import { deepseek } from "@ai-sdk/deepseek";
 import { z } from "zod";
 import { keywordSchema } from "./schema";
@@ -9,6 +8,36 @@ import { searchGoogle } from "@/lib/serper";
 import { type BlacklistEntry, isBlacklisted } from "@/lib/blacklist";
 import type { SerperResponse } from "@/lib/serper/schema";
 import { catchError } from "@/utils";
+import { auth } from "@/server/auth";
+import { isRateLimited } from "@/lib/rate-limit";
+
+interface KeywordsResponse {
+  error?: {
+    code: "RATE_LIMITED" | "AI_ERROR";
+    message: string;
+  };
+  data?: {
+    object: {
+      keywords: Array<{
+        keyword: string;
+        query: string;
+        reason: string;
+        link: null;
+        title: null;
+        alternatives: {
+          preferred: SerperResponse["organic"];
+          regular: SerperResponse["organic"];
+        };
+      }>;
+    };
+    finishReason: string;
+    usage: {
+      prompt_tokens: number;
+      completion_tokens: number;
+      total_tokens: number;
+    };
+  };
+}
 
 // 包装成对象类型的模式
 const wrapperSchema = z.object({
@@ -24,7 +53,28 @@ const wrapperSchema = z.object({
 /**
  * 分析文本获取关键词
  */
-export async function getKeywords(text: string) {
+export async function getKeywords(
+  text: string,
+  fingerprint?: string,
+): Promise<KeywordsResponse> {
+  // 1. 检查用户是否已登录
+  const session = await auth();
+  const isAuthenticated = !!session?.user;
+
+  // 2. 如果未登录，检查是否超出访问限制
+  if (!isAuthenticated) {
+    const limited = await isRateLimited(fingerprint);
+    if (limited) {
+      return {
+        error: {
+          code: "RATE_LIMITED",
+          message: "未注册用户每日使用次数有限，请登录后继续使用",
+        },
+      };
+    }
+  }
+
+  // 3. 继续原有的关键词分析逻辑
   const [error, result] = await catchError(
     generateObject({
       model: deepseek("deepseek-chat"),
@@ -42,25 +92,34 @@ export async function getKeywords(text: string) {
   );
 
   if (error) {
-    console.error("分析文本失败:", error);
-    throw error;
+    return {
+      error: {
+        code: "AI_ERROR",
+        message: "分析文本失败，请稍后重试",
+      },
+    };
   }
 
-  // Initialize with null links
-  const keywordsWithoutLinks = result.object.keywords.map((item) => ({
-    ...item,
-    link: null,
-    title: null,
-    alternatives: {
-      preferred: [],
-      regular: [],
-    },
-  }));
-
   return {
-    object: keywordsWithoutLinks,
-    finishReason: result.finishReason,
-    usage: result.usage,
+    data: {
+      object: {
+        keywords: result.object.keywords.map((item) => ({
+          ...item,
+          link: null,
+          title: null,
+          alternatives: {
+            preferred: [],
+            regular: [],
+          },
+        })),
+      },
+      finishReason: result.finishReason,
+      usage: {
+        prompt_tokens: result.usage.promptTokens,
+        completion_tokens: result.usage.completionTokens,
+        total_tokens: result.usage.totalTokens,
+      },
+    },
   };
 }
 

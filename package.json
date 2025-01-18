@@ -24,6 +24,7 @@
     "@ai-sdk/openai": "^1.0.15",
     "@auth/drizzle-adapter": "^1.7.4",
     "@auth/upstash-redis-adapter": "^2.7.4",
+    "@fingerprintjs/fingerprintjs": "^4.5.1",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.4",

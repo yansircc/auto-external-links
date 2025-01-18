@@ -1,5 +1,14 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
+import dotenv from "dotenv";
+import path from "path";
+
+// 加载 .env.local 文件
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({
+    path: path.resolve(process.cwd(), ".env.local"),
+  });
+}
 
 export const env = createEnv({
   /**

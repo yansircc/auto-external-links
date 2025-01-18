@@ -15,18 +15,19 @@ import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { catchError } from "@/utils";
 import { type EditorMessages } from "./core/messages";
+import { useFingerprint } from "../fingerprint/use-fingerprint";
 
 /**
  * 关键词编辑器容器组件
  * 处理状态管理和用户交互逻辑
  */
-
 export function KeywordEditorContainer({
   messages,
 }: {
   messages: EditorMessages;
 }) {
   const { toast } = useToast();
+  const fingerprint = useFingerprint();
   const [text, setText] = useState("");
   const [matches, setMatches] = useState<KeywordMatch[]>([]);
   const [keywordMetadata, setKeywordMetadata] = useState<
@@ -56,27 +57,58 @@ export function KeywordEditorContainer({
   async function handleSubmit(data: FormData) {
     setIsLoading(true);
 
-    const [error, result] = await catchError(getKeywords(data.text));
+    const [error, result] = await catchError(
+      getKeywords(data.text, fingerprint ?? undefined),
+    );
 
     if (error) {
+      setIsLoading(false);
       console.error("分析文本失败:", error);
       toast({
         variant: "destructive",
         title: "分析失败",
-        description: "大语言模型通病，可以多试几次",
+        description: "服务器错误，请稍后重试",
+      });
+      return;
+    }
+
+    if (result.error) {
+      setIsLoading(false);
+      if (result.error.code === "RATE_LIMITED") {
+        toast({
+          variant: "destructive",
+          title: "访问限制",
+          description: result.error.message,
+        });
+        return;
+      }
+
+      toast({
+        variant: "destructive",
+        title: "分析失败",
+        description: result.error.message,
         action: (
           <ToastAction altText="重试" onClick={() => handleSubmit(data)}>
             重试
           </ToastAction>
         ),
       });
+      return;
+    }
+
+    if (!result.data) {
       setIsLoading(false);
+      toast({
+        variant: "destructive",
+        title: "分析失败",
+        description: "服务器返回了无效的数据",
+      });
       return;
     }
 
     // 创建关键词到元数据的映射
     const metadata: Record<string, KeywordMetadata> = {};
-    const keywords = result.object.map((item) => {
+    const keywords = result.data.object.keywords.map((item) => {
       const { keyword, ...rest } = item;
       metadata[keyword] = rest;
       return keyword;

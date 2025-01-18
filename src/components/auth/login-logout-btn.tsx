@@ -19,8 +19,8 @@ export default async function LoginLogoutBtn() {
       </Button>
     </form>
   ) : (
-    <Button variant="ghost" size="sm" className="gap-2">
-      <Link href="/auth/login">{t("login")}</Link>
+    <Button variant="ghost" size="sm" className="gap-2" asChild>
+      <Link href="/login">{t("login")}</Link>
     </Button>
   );
 }
