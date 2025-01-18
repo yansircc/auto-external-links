@@ -9,7 +9,7 @@ import {
 import { type SerperResponse } from "@/lib/serper/schema";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Check } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { type EditorMessages } from "../core/messages";
 
 interface LinkSwitcherProps {
   link: string;
@@ -20,6 +20,7 @@ interface LinkSwitcherProps {
   };
   onLinkChange: (link: string, title: string) => void;
   children: React.ReactNode;
+  messages: EditorMessages["linkedContent"];
 }
 
 export function LinkSwitcher({
@@ -28,8 +29,8 @@ export function LinkSwitcher({
   alternatives,
   onLinkChange,
   children,
+  messages,
 }: LinkSwitcherProps) {
-  const t = useTranslations("keyword-editor.linked-content");
   const [open, setOpen] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
 
@@ -91,9 +92,7 @@ export function LinkSwitcher({
             {children}
           </a>
           {showSuccess ? (
-            <Check
-              className="ml-1 h-3 w-3 text-green-500 animate-in fade-in-0 zoom-in-0 duration-300"
-            />
+            <Check className="ml-1 h-3 w-3 text-green-500 duration-300 animate-in fade-in-0 zoom-in-0" />
           ) : (
             <ChevronDown
               className={cn(
@@ -145,7 +144,7 @@ export function LinkSwitcher({
                   </div>
                   {isPreferred && (
                     <span className="ml-2 shrink-0 text-xs text-primary">
-                      {t("preferred")}
+                      {messages.preferred}
                     </span>
                   )}
                 </div>

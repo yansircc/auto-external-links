@@ -1,25 +1,12 @@
 import { useState } from "react";
-import { type Footnote } from "../core/types";
+import { type Footnote, type RenderOptions } from "../core/types";
 import {
   generateMarkdown,
   generateMarkdownWithFootnotes,
   generateFootnotesSection,
 } from "./text-utils";
-import { type RenderOptions } from "../core/types";
 
-interface CopyState {
-  copiedSimple: boolean;
-  copiedWithFootnotes: boolean;
-}
-
-interface CopyActions {
-  copyToClipboard: (withFootnotes: boolean) => Promise<void>;
-}
-
-export function useCopy(
-  options: RenderOptions,
-  footnotes: Footnote[],
-): [CopyState, CopyActions] {
+export function useCopy(options: RenderOptions, footnotes: Footnote[]) {
   const [copiedSimple, setCopiedSimple] = useState(false);
   const [copiedWithFootnotes, setCopiedWithFootnotes] = useState(false);
 
@@ -33,12 +20,16 @@ export function useCopy(
 
     if (withFootnotes) {
       setCopiedWithFootnotes(true);
-      setTimeout(() => setCopiedWithFootnotes(false), 2000);
+      setTimeout(() => {
+        setCopiedWithFootnotes(false);
+      }, 1000);
     } else {
       setCopiedSimple(true);
-      setTimeout(() => setCopiedSimple(false), 2000);
+      setTimeout(() => {
+        setCopiedSimple(false);
+      }, 1000);
     }
   }
 
-  return [{ copiedSimple, copiedWithFootnotes }, { copyToClipboard }];
+  return [{ copiedSimple, copiedWithFootnotes }, { copyToClipboard }] as const;
 }

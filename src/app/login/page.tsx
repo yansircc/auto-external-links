@@ -9,15 +9,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getTranslations } from "next-intl/server";
 
-export default function SignIn() {
+export default async function SignIn() {
+  const t = await getTranslations("auth.loginPage");
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background/50 p-4">
       <Card className="w-full max-w-[400px] shadow-lg">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">登录</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t("title")}</CardTitle>
           <CardDescription className="text-base">
-            输入邮箱地址，你会收到登录链接。
+            {t("description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -31,13 +34,13 @@ export default function SignIn() {
           >
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
-                邮箱地址
+                {t("email.label")}
               </Label>
               <Input
                 type="email"
                 id="email"
                 name="email"
-                placeholder="name@example.com"
+                placeholder={t("email.placeholder")}
                 required
                 className="transition-colors focus:ring-2"
               />
@@ -46,7 +49,7 @@ export default function SignIn() {
               type="submit"
               className="w-full font-medium transition-colors hover:opacity-90"
             >
-              发送登录链接
+              {t("email.submit")}
             </Button>
           </form>
         </CardContent>

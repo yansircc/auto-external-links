@@ -9,6 +9,7 @@ export function renderLinkedText({
   selectedKeywordIds,
   footnoteIndexMap,
   onLinkChange,
+  messages,
 }: RenderOptions & {
   onLinkChange: (id: string, link: string, title: string) => void;
 }) {
@@ -57,6 +58,7 @@ export function renderLinkedText({
           title={metadata.title}
           alternatives={metadata.alternatives}
           onLinkChange={(link, title) => onLinkChange(id, link, title)}
+          messages={messages}
         >
           {text.slice(match.index, match.index + match.keyword.length)}
         </LinkSwitcher>
@@ -88,7 +90,7 @@ export function generateMarkdown({
   matches,
   keywordMetadata,
   selectedKeywordIds,
-}: Omit<RenderOptions, "footnoteIndexMap">) {
+}: Omit<RenderOptions, "footnoteIndexMap" | "messages">) {
   let result = text;
   const sortedMatches = [...matches]
     .filter((match, index) =>
@@ -121,7 +123,7 @@ export function generateMarkdownWithFootnotes({
   keywordMetadata,
   selectedKeywordIds,
   footnoteIndexMap,
-}: RenderOptions) {
+}: Omit<RenderOptions, "messages">) {
   let result = text;
   const sortedMatches = [...matches]
     .filter((match, index) =>

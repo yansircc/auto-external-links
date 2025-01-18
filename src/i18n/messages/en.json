@@ -50,31 +50,30 @@
   },
   "locale-switcher": {
     "en": "EN",
-    "zh-CN": "中文",
+    "zh": "中文",
     "label": "Language"
   },
   "feedback": {
     "title": "Submit Feedback",
     "description": "Your feedback is important to us, and we will carefully consider every suggestion.",
-    "form": {
-      "message": {
-        "label": "Message",
-        "placeholder": "Share your thoughts, suggestions, or report issues...",
-        "min": "Feedback must be at least 10 characters",
-        "max": "Feedback cannot exceed 1000 characters"
-      },
-      "email": {
-        "label": "Email (Optional)",
-        "placeholder": "Leave your email for follow-up",
-        "invalid": "Please enter a valid email address"
-      },
-      "submit": "Submit Feedback",
-      "submitting": "Submitting...",
-      "errors": {
-        "config": "System configuration error, please contact administrator",
-        "submit": "Failed to submit feedback, please try again later",
-        "unknown": "An unknown error occurred"
-      }
+
+    "message": {
+      "label": "Message",
+      "placeholder": "Share your thoughts, suggestions, or report issues...",
+      "min": "Feedback must be at least 10 characters",
+      "max": "Feedback cannot exceed 1000 characters"
+    },
+    "email": {
+      "label": "Email (Optional)",
+      "placeholder": "Leave your email for follow-up",
+      "invalid": "Please enter a valid email address"
+    },
+    "submit": "Submit Feedback",
+    "submitting": "Submitting...",
+    "errors": {
+      "config": "System configuration error, please contact administrator",
+      "submit": "Failed to submit feedback, please try again later",
+      "unknown": "An unknown error occurred"
     }
   },
   "thanks": {
@@ -109,7 +108,36 @@
         "empty": "No preferred URLs yet",
         "remove": "Remove from preferred list"
       },
+      "maxLimit": "Maximum 3 preferred sites",
       "message": "Display search results from these sites first"
+    }
+  },
+  "auth": {
+    "login": "Login/Register",
+    "logout": "Logout",
+    "loginPage": {
+      "title": "Login",
+      "description": "Enter your email address, you will receive a login link.",
+      "email": {
+        "label": "Email Address",
+        "placeholder": "Enter your email address",
+        "submit": "Send Login Link"
+      }
+    },
+    "verifyRequest": {
+      "title": "Check Your Email",
+      "description": "We've sent a login link to your email",
+      "checkSpam": "If you don't receive the email, please check your spam folder.",
+      "backToLogin": "Back to Login Page"
+    },
+    "error": {
+      "verification": "Verification Link Invalid or Expired",
+      "accessDenied": "Access Denied",
+      "configuration": "Server Configuration Error",
+      "default": "An error occurred during authentication",
+      "title": "Authentication Error",
+      "resendVerification": "Resend Verification Email",
+      "backToHome": "Back to Home"
     }
   }
 }

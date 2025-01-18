@@ -1,24 +1,24 @@
-import { useLocale, useTranslations } from 'next-intl';
-import LocaleSwitcherSelect from './swither-select';
+import { getLocale, getTranslations } from "next-intl/server";
+import LocaleSwitcherSelect from "./swither-select";
 
-export default function LocaleSwitcher() {
-  const t = useTranslations('locale-switcher');
-  const locale = useLocale();
+export default async function LocaleSwitcher() {
+  const t = await getTranslations("locale-switcher");
+  const locale = await getLocale();
 
   return (
     <LocaleSwitcherSelect
       defaultValue={locale}
       items={[
         {
-          value: 'en',
-          label: t('en')
+          value: "en",
+          label: t("en"),
         },
         {
-          value: 'zh-CN',
-          label: t('zh-CN')
-        }
+          value: "zh",
+          label: t("zh"),
+        },
       ]}
-      label={t('label')}
+      label={t("label")}
     />
   );
 }

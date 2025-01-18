@@ -9,23 +9,20 @@ import { type FormData, formSchema } from "./core/schema";
 import { EditorLayout, EditorActions } from "./core/editor-layout";
 import { MAX_LENGTH } from "./core/config";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
+import { type EditorFormProps } from "./core/types";
 
-interface EditorFormProps {
-  text: string;
-  isLoading: boolean;
-  onSubmit: (data: FormData) => Promise<void>;
-}
-
-export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
+export function EditorForm({
+  text,
+  isLoading,
+  messages,
+  onSubmit,
+}: EditorFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       text,
     },
   });
-
-  const t = useTranslations('keyword-editor.form');
 
   const count = form.watch("text")?.length ?? 0;
   const isOverLimit = count > MAX_LENGTH;
@@ -38,7 +35,7 @@ export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
       <EditorLayout>
         <div className="flex-1">
           <Textarea
-            placeholder={t('placeholder')}
+            placeholder={messages.placeholder}
             className="min-h-[160px] resize-none bg-transparent"
             {...form.register("text")}
             maxLength={MAX_LENGTH}
@@ -50,17 +47,17 @@ export function EditorForm({ text, isLoading, onSubmit }: EditorFormProps) {
                 isOverLimit ? "text-destructive" : "text-muted-foreground",
               )}
             >
-              {t('characterCount', { count, max: MAX_LENGTH })}
+              {count} / {MAX_LENGTH}
             </div>
             <EditorActions>
               <Button type="submit" disabled={isLoading || isOverLimit}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t('analyzing')}
+                    {messages.analyzing}
                   </>
                 ) : (
-                  t('analyze')
+                  messages.analyze
                 )}
               </Button>
             </EditorActions>

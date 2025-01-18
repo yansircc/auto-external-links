@@ -9,10 +9,34 @@ import {
 import { Button } from "@/components/ui/button";
 import { MessageSquarePlus } from "lucide-react";
 import { FeedbackForm } from "./form";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import { type FeedbackMessages } from "./messages";
 
-export function FeedbackDialog() {
-  const t = useTranslations("feedback");
+export default async function FeedbackDialog() {
+  const t = await getTranslations("feedback");
+
+  // 预先获取所有需要的翻译
+  const messages: FeedbackMessages = {
+    title: t("title"),
+    description: t("description"),
+    message: {
+      label: t("message.label"),
+      placeholder: t("message.placeholder"),
+      min: t("message.min"),
+      max: t("message.max"),
+    },
+    email: {
+      label: t("email.label"),
+      placeholder: t("email.placeholder"),
+      invalid: t("email.invalid"),
+    },
+    submit: t("submit"),
+    submitting: t("submitting"),
+    errors: {
+      submit: t("errors.submit"),
+    },
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -22,10 +46,10 @@ export function FeedbackDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>{t("description")}</DialogDescription>
+          <DialogTitle>{messages.title}</DialogTitle>
+          <DialogDescription>{messages.description}</DialogDescription>
         </DialogHeader>
-        <FeedbackForm />
+        <FeedbackForm messages={messages} />
       </DialogContent>
     </Dialog>
   );

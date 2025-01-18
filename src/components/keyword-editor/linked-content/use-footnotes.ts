@@ -32,7 +32,6 @@ export function useFootnotes(
       map.set(match.keyword, {
         keyword: match.keyword,
         reason: metadata.reason,
-        link: metadata.link,
         referenceIds: [id],
       });
       return map;

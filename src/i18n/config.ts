@@ -1,4 +1,5 @@
 export type Locale = (typeof locales)[number];
 
-export const locales = ['en', 'zh-CN'] as const;
-export const defaultLocale: Locale = 'en';
+export const locales = ["en", "zh"] as const;
+export const defaultLocale: Locale = "zh";
+export const timeZone = "Asia/Shanghai";

@@ -9,20 +9,9 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import { type KeywordMatch, type KeywordMetadata } from "./core/schema";
+import { type KeywordPreviewProps } from "./core/types";
 import { createKeywordId } from "@/lib/keywords";
 import { EditorLayout, EditorActions } from "./core/editor-layout";
-import { useTranslations } from "next-intl";
-
-interface KeywordPreviewProps {
-  text: string;
-  matches: KeywordMatch[];
-  keywordMetadata: Record<string, KeywordMetadata>;
-  selectedKeywordIds: Set<string>;
-  isLoading: boolean;
-  onToggleKeyword: (id: string) => void;
-  onConfirm: () => Promise<void>;
-}
 
 export function KeywordPreview({
   text,
@@ -30,11 +19,10 @@ export function KeywordPreview({
   keywordMetadata,
   selectedKeywordIds,
   isLoading,
+  messages,
   onToggleKeyword,
   onConfirm,
 }: KeywordPreviewProps) {
-  const t = useTranslations('keyword-editor.preview');
-
   // 渲染高亮文本
   function renderHighlightedText() {
     let lastIndex = 0;
@@ -113,12 +101,12 @@ export function KeywordPreview({
           {isLoading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              {t('gettingLinks')}
+              {messages.gettingLinks}
             </>
           ) : (
             <>
               <Link2 className="h-4 w-4" />
-              {t('confirm')}
+              {messages.confirm}
             </>
           )}
         </Button>

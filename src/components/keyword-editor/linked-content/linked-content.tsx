@@ -9,15 +9,14 @@ import { type LinkedContentProps } from "../core/types";
 import { useFootnotes } from "./use-footnotes";
 import { renderLinkedText } from "./text-utils";
 import { useCopy } from "./use-copy";
-import { useTranslations } from "next-intl";
 
 export function LinkedContent({
   text,
   matches,
   keywordMetadata: initialKeywordMetadata,
   selectedKeywordIds,
+  messages,
 }: LinkedContentProps) {
-  const t = useTranslations("keyword-editor.linked-content");
   const [keywordMetadata, setKeywordMetadata] = useState(
     initialKeywordMetadata,
   );
@@ -35,6 +34,7 @@ export function LinkedContent({
       keywordMetadata,
       selectedKeywordIds,
       footnoteIndexMap,
+      messages,
     },
     footnotes,
   );
@@ -67,9 +67,10 @@ export function LinkedContent({
             selectedKeywordIds,
             footnoteIndexMap,
             onLinkChange: handleLinkChange,
+            messages,
           })}
         </div>
-        <Footnotes footnotes={footnotes} />
+        <Footnotes footnotes={footnotes} messages={messages} />
       </EditorLayout>
 
       <EditorActions>
@@ -82,12 +83,12 @@ export function LinkedContent({
             {copiedSimple ? (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                {t('copied')}
+                {messages.copied}
               </>
             ) : (
               <>
                 <Copy className="mr-2 h-4 w-4" />
-                {t('copyMarkdown')}
+                {messages.copyMarkdown}
               </>
             )}
           </Button>
@@ -99,12 +100,12 @@ export function LinkedContent({
             {copiedWithFootnotes ? (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                {t('copied')}
+                {messages.copied}
               </>
             ) : (
               <>
                 <Copy className="mr-2 h-4 w-4" />
-                {t('copyMarkdownWithFootnotes')}
+                {messages.copyMarkdownWithFootnotes}
               </>
             )}
           </Button>

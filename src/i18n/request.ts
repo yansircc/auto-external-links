@@ -4,6 +4,7 @@
  */
 import { getRequestConfig } from "next-intl/server";
 import { getUserLocale } from "@/lib/locale";
+import { timeZone } from "./config";
 
 interface LocaleMessages {
   default: Record<string, string>;
@@ -14,6 +15,7 @@ export default getRequestConfig(async () => {
 
   return {
     locale,
+    timeZone,
     messages: ((await import(`./messages/${locale}.json`)) as LocaleMessages)
       .default,
   };

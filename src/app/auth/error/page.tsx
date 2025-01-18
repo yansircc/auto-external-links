@@ -2,16 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import Link from "next/link";
-
-/**
- * 认证错误信息映射
- */
-const errorMessages: Record<string, string> = {
-  Verification: "验证链接无效或已过期",
-  AccessDenied: "访问被拒绝",
-  Configuration: "服务器配置错误",
-  Default: "认证过程中出现错误",
-};
+import { getTranslations } from "next-intl/server";
 
 interface ErrorPageProps {
   searchParams: Promise<{
@@ -20,8 +11,19 @@ interface ErrorPageProps {
 }
 
 export default async function ErrorPage({ searchParams }: ErrorPageProps) {
+  const t = await getTranslations("auth.error");
   const errorType = (await searchParams).error ?? "Default";
-  const errorMessage = errorMessages[errorType] ?? errorMessages.Default;
+
+  /**
+   * 获取错误信息的翻译
+   */
+  const getErrorMessage = (type: string) => {
+    const key = type.toLowerCase();
+    // 如果有对应的翻译键值，使用翻译，否则使用默认错误信息
+    return t.has(key) ? t(key) : t("default");
+  };
+
+  const errorMessage = getErrorMessage(errorType);
 
   return (
     <div className="container flex h-screen items-center justify-center">
@@ -33,7 +35,7 @@ export default async function ErrorPage({ searchParams }: ErrorPageProps) {
           </div>
 
           {/* 错误标题 */}
-          <h1 className="text-2xl font-bold tracking-tight">认证错误</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
 
           {/* 错误信息 */}
           <p className="text-muted-foreground">{errorMessage}</p>
@@ -42,11 +44,11 @@ export default async function ErrorPage({ searchParams }: ErrorPageProps) {
           <div className="flex w-full flex-col gap-2 pt-4">
             {errorType === "Verification" && (
               <Button asChild variant="default">
-                <Link href="/login">重新发送验证邮件</Link>
+                <Link href="/login">{t("resend")}</Link>
               </Button>
             )}
             <Button asChild variant="outline">
-              <Link href="/">返回首页</Link>
+              <Link href="/">{t("back")}</Link>
             </Button>
           </div>
         </div>

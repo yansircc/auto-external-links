@@ -5,26 +5,24 @@ import type { NextRequest } from "next/server";
 
 // 需要认证的路径
 const AUTH_PATHS = ["/dashboard", "/settings", "/api/user"];
-// 认证相关路径（需要特殊处理的路径）
-const AUTH_ROUTES = {
-  login: "/login",
-  logout: "/logout",
-  verifyRequest: "/verify-request",
-  error: "/auth/error",
-} as const;
 
-type AuthRoute = (typeof AUTH_ROUTES)[keyof typeof AUTH_ROUTES];
-
-// API 路径
-const API_PATHS = ["/api"];
 // 公开路径
 const PUBLIC_PATHS = ["/", "/about", "/privacy", "/terms"];
 
+// NextAuth 的路径和错误类型映射
+const NEXTAUTH_PATHS = {
+  api: "/api/auth", // NextAuth API 路由
+  login: "/login", // 登录页面
+  logout: "/logout", // 登出页面
+  verifyRequest: "/verify-request", // 验证请求页面
+  error: "/auth/error", // 错误页面
+} as const;
+
 // 有效的错误类型和它们的来源路径映射
 const ERROR_SOURCES = {
-  Verification: AUTH_ROUTES.verifyRequest,
-  Configuration: "/api", // API 配置错误
-  AccessDenied: AUTH_ROUTES.login, // 登录失败
+  Verification: NEXTAUTH_PATHS.verifyRequest,
+  Configuration: NEXTAUTH_PATHS.api,
+  AccessDenied: NEXTAUTH_PATHS.login,
 } as const;
 
 type ValidError = keyof typeof ERROR_SOURCES;
@@ -58,19 +56,19 @@ function addSecurityHeaders(response: NextResponse): void {
 }
 
 /**
- * 检查路径是否为认证路由
- */
-function isAuthRoute(path: string): path is AuthRoute {
-  return Object.values(AUTH_ROUTES).includes(path as AuthRoute);
-}
-
-/**
  * 中间件主函数
  */
 export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
-  // 获取认证会话
+  // 1. 静态资源直接放行
+  if (
+    /\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/.exec(pathname)
+  ) {
+    return NextResponse.next();
+  }
+
+  // 2. 获取认证会话
   const [authError, session] = await catchError(auth());
   if (authError) {
     console.error("认证错误:", authError);
@@ -80,103 +78,64 @@ export async function middleware(request: NextRequest) {
   }
 
   const isAuthenticated = !!session?.user;
-  const response = NextResponse.next();
 
-  // 使用 catchError 处理路由逻辑
-  const [routeError, routeResponse] = catchError(() => {
-    // 1. API 路由处理
-    if (matchesPath(pathname, API_PATHS)) {
-      if (!isAuthenticated) {
-        return new NextResponse("Unauthorized", { status: 401 });
-      }
-      return response;
-    }
-
-    // 2. 认证路由特殊处理
-    if (isAuthRoute(pathname)) {
-      // 已登录用户访问登录页面，重定向到首页
-      if (isAuthenticated && pathname === AUTH_ROUTES.login) {
-        return NextResponse.redirect(new URL("/", request.url));
-      }
-
-      // verify-request 页面只能从登录流程访问
-      if (pathname === AUTH_ROUTES.verifyRequest) {
-        const referer = request.headers.get("referer");
-        if (!referer?.includes(AUTH_ROUTES.login)) {
-          return NextResponse.redirect(new URL("/", request.url));
-        }
-      }
-
-      // auth/error 页面访问控制
-      if (pathname === AUTH_ROUTES.error) {
-        const error = searchParams.get("error") as ValidError | null;
-        const referer = request.headers.get("referer");
-
-        // 检查错误类型是否有效
-        if (!error || !Object.keys(ERROR_SOURCES).includes(error)) {
-          return NextResponse.redirect(new URL("/", request.url));
-        }
-
-        // 检查来源路径是否匹配
-        const expectedSource = ERROR_SOURCES[error];
-        if (!referer?.includes(expectedSource)) {
-          return NextResponse.redirect(new URL("/", request.url));
-        }
-      }
-
-      return response;
-    }
-
-    // 3. 需要认证的路径处理
-    if (matchesPath(pathname, AUTH_PATHS)) {
-      if (!isAuthenticated) {
-        const callbackUrl = encodeURIComponent(request.url);
-        return NextResponse.redirect(
-          new URL(`/login?callbackUrl=${callbackUrl}`, request.url),
-        );
-      }
-      return response;
-    }
-
-    // 4. 公开路径处理
-    if (matchesPath(pathname, PUBLIC_PATHS)) {
-      return response;
-    }
-
-    // 5. 静态资源处理
-    if (
-      /\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/.exec(pathname)
-    ) {
-      return response;
-    }
-
-    // 6. 默认处理：允许访问
-    return response;
-  });
-
-  // 处理路由错误
-  if (routeError) {
-    console.error("路由处理错误:", routeError);
-    return new NextResponse("Internal Server Error", { status: 500 });
+  // 3. 处理认证相关路径
+  if (pathname.startsWith(NEXTAUTH_PATHS.api)) {
+    return NextResponse.next(); // API 路由直接放行
   }
 
-  // 添加安全响应头
-  addSecurityHeaders(routeResponse);
+  // 4. 处理错误页面
+  if (pathname === NEXTAUTH_PATHS.error) {
+    const error = searchParams.get("error") as ValidError | null;
+    const referer = request.headers.get("referer");
 
-  return routeResponse;
+    // 检查错误类型是否有效
+    if (!error || !Object.keys(ERROR_SOURCES).includes(error)) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    // 检查来源路径是否匹配
+    const expectedSource = ERROR_SOURCES[error];
+    if (!referer?.includes(expectedSource)) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  // 5. 已登录用户的特殊处理
+  if (isAuthenticated) {
+    // 已登录用户不能访问登录相关页面
+    if (
+      pathname === NEXTAUTH_PATHS.login ||
+      pathname === NEXTAUTH_PATHS.verifyRequest
+    ) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  // 6. 处理需要认证的路径
+  if (matchesPath(pathname, AUTH_PATHS)) {
+    if (!isAuthenticated) {
+      const callbackUrl = encodeURIComponent(request.url);
+      return NextResponse.redirect(
+        new URL(`/login?callbackUrl=${callbackUrl}`, request.url),
+      );
+    }
+  }
+
+  // 7. 公开路径直接放行
+  if (matchesPath(pathname, PUBLIC_PATHS)) {
+    return NextResponse.next();
+  }
+
+  // 8. 添加安全响应头并返回
+  const response = NextResponse.next();
+  addSecurityHeaders(response);
+  return response;
 }
 
 /**
  * 配置中间件匹配的路径
  */
 export const config = {
-  matcher: [
-    /*
-     * 匹配所有路径除了:
-     * - _next/static (静态文件)
-     * - _next/image (图片优化)
-     * - favicon.ico (浏览器图标)
-     */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

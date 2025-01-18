@@ -1,47 +1,41 @@
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 import BlacklistDialog from "@/components/settings/dialog";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { FeedbackDialog } from "@/components/feedback/dialog";
+import FeedbackDialog from "@/components/feedback/dialog";
 import SiteLogo from "@/images/site-logo.png";
 import LocaleSwitcher from "@/components/locale/swither";
+import LoginLogoutBtn from "@/components/auth/login-logout-btn";
 
-interface SiteHeaderProps {
-  onLogoClick?: () => void;
-}
-
-export function SiteHeader({ onLogoClick }: SiteHeaderProps) {
+export default function SiteHeader() {
   return (
-    <TooltipProvider>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-4">
-          {/* Logo */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 rounded-full p-0"
-            onClick={onLogoClick}
-          >
-            <Image
-              src={SiteLogo}
-              alt="Logo"
-              width={36}
-              height={36}
-              className="rounded-full transition-transform hover:rotate-12"
-              priority
-            />
-          </Button>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-4">
+        {/* Logo */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 rounded-full p-0"
+        >
+          <Image
+            src={SiteLogo}
+            alt="Logo"
+            width={36}
+            height={36}
+            className="rounded-full transition-transform hover:rotate-12"
+            priority
+          />
+        </Button>
 
-          {/* Navigation */}
-          <nav className="flex items-center gap-2">
-            <FeedbackDialog />
-            <BlacklistDialog />
-            <ThemeToggle />
-            <LocaleSwitcher />
-          </nav>
-        </div>
-      </header>
-    </TooltipProvider>
+        {/* Navigation */}
+        <nav className="flex items-center gap-2">
+          <FeedbackDialog />
+          <BlacklistDialog />
+          <ThemeToggle />
+          <LocaleSwitcher />
+          <LoginLogoutBtn />
+        </nav>
+      </div>
+    </header>
   );
 }

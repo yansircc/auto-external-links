@@ -5,7 +5,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 export default async function ThanksPage() {
-  const t = await getTranslations('thanks');
+  const t = await getTranslations("thanks");
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center">
@@ -15,17 +15,17 @@ export default async function ThanksPage() {
             <CheckCircle2 className="h-12 w-12 text-green-500" />
             <div className="space-y-2">
               <h1 className="text-2xl font-semibold tracking-tight">
-                {t('title')}
+                {t("title")}
               </h1>
               <p className="text-sm text-muted-foreground">
-                {t('description')}
+                {t("description")}
               </p>
             </div>
           </div>
         </CardContent>
         <CardFooter className="justify-center">
           <Link href="/" passHref>
-            <Button>{t('backHome')}</Button>
+            <Button>{t("backHome")}</Button>
           </Link>
         </CardFooter>
       </Card>

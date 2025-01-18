@@ -16,14 +16,17 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { isEqual } from "lodash";
 import { sendFeedback } from "@/actions/feedback";
 import { catchError } from "@/utils";
+import { type FeedbackMessages } from "./messages";
 
-export function FeedbackForm() {
+interface FeedbackFormProps {
+  messages: FeedbackMessages;
+}
+
+export function FeedbackForm({ messages }: FeedbackFormProps) {
   const router = useRouter();
-  const t = useTranslations("feedback.form");
 
   const formSchema = z.object({
     message: z.string().min(10).max(1000),
@@ -37,13 +40,13 @@ export function FeedbackForm() {
 
         if (isEqual(issue.path, ["message"])) {
           if (issue.code === "too_small") {
-            message = t("message.min");
+            message = messages.message.min;
           } else if (issue.code === "too_big") {
-            message = t("message.max");
+            message = messages.message.max;
           }
         } else if (isEqual(issue.path, ["email"])) {
           if (issue.code === "invalid_string") {
-            message = t("email.invalid");
+            message = messages.email.invalid;
           }
         }
 
@@ -65,7 +68,7 @@ export function FeedbackForm() {
       console.error("提交反馈时出错:", error);
       form.setError("message", {
         type: "manual",
-        message: t("errors.submit"),
+        message: messages.errors.submit,
       });
       return;
     }
@@ -81,10 +84,10 @@ export function FeedbackForm() {
           name="message"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("message.label")}</FormLabel>
+              <FormLabel>{messages.message.label}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder={t("message.placeholder")}
+                  placeholder={messages.message.placeholder}
                   className="min-h-[120px] resize-none"
                   {...field}
                 />
@@ -99,11 +102,11 @@ export function FeedbackForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("email.label")}</FormLabel>
+              <FormLabel>{messages.email.label}</FormLabel>
               <FormControl>
                 <Input
                   type="email"
-                  placeholder={t("email.placeholder")}
+                  placeholder={messages.email.placeholder}
                   {...field}
                 />
               </FormControl>
@@ -116,10 +119,10 @@ export function FeedbackForm() {
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("submitting")}
+              {messages.submitting}
             </>
           ) : (
-            t("submit")
+            messages.submit
           )}
         </Button>
       </form>

@@ -50,31 +50,30 @@
   },
   "locale-switcher": {
     "en": "EN",
-    "zh-CN": "中文",
+    "zh": "中文",
     "label": "语言"
   },
   "feedback": {
     "title": "提交反馈",
     "description": "你的反馈对改进这个工具非常重要，我们认真考虑每一条建议。",
-    "form": {
-      "message": {
-        "label": "反馈内容",
-        "placeholder": "分享你的想法、建议或反馈问题...",
-        "min": "反馈内容至少需要 10 个字符",
-        "max": "反馈内容不能超过 1000 个字符"
-      },
-      "email": {
-        "label": "邮箱（选填）",
-        "placeholder": "留下邮箱以便后续跟进",
-        "invalid": "请输入有效的邮箱地址"
-      },
-      "submit": "提交反馈",
-      "submitting": "提交中...",
-      "errors": {
-        "config": "系统配置错误，请联系管理员",
-        "submit": "提交反馈失败，请稍后重试",
-        "unknown": "发生未知错误"
-      }
+
+    "message": {
+      "label": "反馈内容",
+      "placeholder": "分享你的想法、建议或反馈问题...",
+      "min": "反馈内容至少需要 10 个字符",
+      "max": "反馈内容不能超过 1000 个字符"
+    },
+    "email": {
+      "label": "邮箱（选填）",
+      "placeholder": "留下邮箱以便后续跟进",
+      "invalid": "请输入有效的邮箱地址"
+    },
+    "submit": "提交反馈",
+    "submitting": "提交中...",
+    "errors": {
+      "config": "系统配置错误，请联系管理员",
+      "submit": "提交反馈失败，请稍后重试",
+      "unknown": "发生未知错误"
     }
   },
   "thanks": {
@@ -109,7 +108,36 @@
         "empty": "暂无偏好网址",
         "remove": "从偏好列表移除"
       },
+      "maxLimit": "最多支持 3 个偏好网址",
       "message": "搜索时会优先展示来自这些网站的结果"
+    }
+  },
+  "auth": {
+    "login": "登录/注册",
+    "logout": "注销",
+    "loginPage": {
+      "title": "登录",
+      "description": "输入你的邮箱地址，你会收到登录链接。",
+      "email": {
+        "label": "邮箱地址",
+        "placeholder": "输入你的邮箱地址",
+        "submit": "发送登录链接"
+      }
+    },
+    "verifyRequest": {
+      "title": "查看你的邮箱",
+      "description": "我们已发送登录链接至你的邮箱",
+      "checkSpam": "如果未收到邮件，请检查垃圾邮件文件夹。",
+      "backToLogin": "返回登录页面"
+    },
+    "error": {
+      "verification": "验证链接无效或已过期",
+      "accessDenied": "访问被拒绝",
+      "configuration": "服务器配置错误",
+      "default": "认证过程中出现错误",
+      "title": "认证错误",
+      "resendVerification": "重新发送验证邮件",
+      "backToHome": "返回首页"
     }
   }
 }

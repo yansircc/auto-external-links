@@ -13,7 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useTranslations } from "next-intl";
 
 export function KeywordEditor({
   text,
@@ -23,34 +22,34 @@ export function KeywordEditor({
   isLoading,
   isEditing,
   hasLinks,
+  messages,
   onSubmit,
   onToggleKeyword,
   onConfirm,
 }: KeywordEditorProps) {
-  const t = useTranslations('keyword-editor');
   return (
     <div className="space-y-6">
       {/* Marketing Header */}
       <div className="space-y-2 text-center">
         <div className="flex items-center justify-center gap-2 text-primary">
           <Sparkles className="h-5 w-5" />
-          <h2 className="text-lg font-semibold">{t('header.title')}</h2>
+          <h2 className="text-lg font-semibold">{messages.header.title}</h2>
         </div>
         <p className="text-sm text-muted-foreground">
-          {t('header.description')}
+          {messages.header.description}
         </p>
       </div>
 
       {/* Editor Container */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('form.title')}</CardTitle>
+          <CardTitle>{messages.form.title}</CardTitle>
           <CardDescription>
             {isEditing
-              ? t('form.description')
+              ? messages.form.description
               : hasLinks
-                ? t('linked-content.description')
-                : t('preview.description')}
+                ? messages.linkedContent.description
+                : messages.preview.description}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -60,6 +59,7 @@ export function KeywordEditor({
                 key="form"
                 text={text}
                 isLoading={isLoading}
+                messages={messages.form}
                 onSubmit={onSubmit}
               />
             ) : hasLinks ? (
@@ -69,6 +69,7 @@ export function KeywordEditor({
                 matches={matches}
                 keywordMetadata={keywordMetadata}
                 selectedKeywordIds={selectedKeywordIds}
+                messages={messages.linkedContent}
               />
             ) : (
               <KeywordPreview
@@ -78,6 +79,7 @@ export function KeywordEditor({
                 keywordMetadata={keywordMetadata}
                 selectedKeywordIds={selectedKeywordIds}
                 isLoading={isLoading}
+                messages={messages.preview}
                 onToggleKeyword={onToggleKeyword}
                 onConfirm={onConfirm}
               />
@@ -94,11 +96,13 @@ export function KeywordEditor({
               <div className="rounded-md bg-primary/10 p-1">
                 <Brain className="h-4 w-4 text-primary" />
               </div>
-              <CardTitle className="text-sm font-medium">{t('features.ai.title')}</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {messages.features.ai.title}
+              </CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-2 text-xs text-muted-foreground">
-            <p>{t('features.ai.description')}</p>
+            <p>{messages.features.ai.description}</p>
           </CardContent>
         </Card>
 
@@ -108,11 +112,13 @@ export function KeywordEditor({
               <div className="rounded-md bg-primary/10 p-1">
                 <Link2 className="h-4 w-4 text-primary" />
               </div>
-              <CardTitle className="text-sm font-medium">{t('features.links.title')}</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {messages.features.links.title}
+              </CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-2 text-xs text-muted-foreground">
-            <p>{t('features.links.description')}</p>
+            <p>{messages.features.links.description}</p>
           </CardContent>
         </Card>
 
@@ -122,11 +128,13 @@ export function KeywordEditor({
               <div className="rounded-md bg-primary/10 p-1">
                 <Wand2 className="h-4 w-4 text-primary" />
               </div>
-              <CardTitle className="text-sm font-medium">{t('features.optimization.title')}</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {messages.features.optimization.title}
+              </CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-2 text-xs text-muted-foreground">
-            <p>{t('features.optimization.description')}</p>
+            <p>{messages.features.optimization.description}</p>
           </CardContent>
         </Card>
       </div>

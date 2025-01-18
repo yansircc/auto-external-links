@@ -10,21 +10,26 @@ import {
   addToPreferredSites,
   removeFromPreferredSites,
 } from "@/lib/preferred-sites";
-import { useTranslations } from "next-intl";
+import { type SettingsMessages } from "./messages";
 
-export function PreferredSitesManager() {
+interface PreferredSitesManagerProps {
+  messages: SettingsMessages["preferred"];
+}
+
+export function PreferredSitesManager({
+  messages,
+}: PreferredSitesManagerProps) {
   const [url, setUrl] = useState("");
   const [entries, setEntries] = useState<PreferredSite[]>(() =>
     loadPreferredSites(),
   );
-  const t = useTranslations('settings.preferred');
 
   // 添加域名到偏好网站
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     if (!url.trim()) return;
     if (entries.length >= 3) {
-      alert(t("maxLimit"));
+      alert(messages.maxLimit);
       return;
     }
 
@@ -46,11 +51,11 @@ export function PreferredSitesManager() {
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder={t('input.placeholder')}
+          placeholder={messages.input.placeholder}
           className="flex-1"
         />
         <Button type="submit" disabled={entries.length >= 3}>
-          {t('input.add')}
+          {messages.input.add}
         </Button>
       </form>
 
@@ -67,24 +72,20 @@ export function PreferredSitesManager() {
                 variant="ghost"
                 size="icon"
                 onClick={() => handleRemove(entry.domain)}
-                aria-label={t('list.remove')}
+                aria-label={messages.list.remove}
               >
                 <Trash2 className="h-4 w-4" />
-                <span className="sr-only">{t('list.remove')}</span>
+                <span className="sr-only">{messages.list.remove}</span>
               </Button>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          {t('list.empty')}
-        </p>
+        <p className="text-sm text-muted-foreground">{messages.list.empty}</p>
       )}
 
       {entries.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          {t('message')}
-        </p>
+        <p className="text-xs text-muted-foreground">{messages.message}</p>
       )}
     </div>
   );

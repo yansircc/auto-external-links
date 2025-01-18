@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
-import { NextIntlClientProvider } from "next-intl";
+import { Providers } from "@/components/provider";
 import { getLocale, getMessages } from "next-intl/server";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -29,19 +29,12 @@ export default async function RootLayout({
           "min-h-screen bg-background antialiased",
         )}
       >
-        <NextIntlClientProvider messages={messages}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <div className="relative flex min-h-screen flex-col">
-              <div className="container mx-auto">{children}</div>
-              <Toaster />
-            </div>
-          </ThemeProvider>
-        </NextIntlClientProvider>
+        <Providers messages={messages} locale={locale}>
+          <div className="relative flex min-h-screen flex-col">
+            <div className="container mx-auto">{children}</div>
+            <Toaster />
+          </div>
+        </Providers>
       </body>
     </html>
   );
