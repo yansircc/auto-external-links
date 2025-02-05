@@ -1,7 +1,8 @@
 "use server";
 
 import { generateObject } from "ai";
-import { deepseek } from "@ai-sdk/deepseek";
+// import { deepseek } from "@ai-sdk/deepseek";
+import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { keywordSchema } from "./schema";
 import { searchGoogle } from "@/lib/serper";
@@ -76,7 +77,8 @@ export async function getKeywords(
   // 3. 继续原有的关键词分析逻辑
   const [error, result] = await catchError(
     generateObject({
-      model: deepseek("deepseek-chat"),
+      // model: deepseek("deepseek-chat"),
+      model: openai("gpt-4o-mini"),
       system: `
     You are a SEO expert, you need to:
     1. Select 1~3 most valuable keywords/phrases from the text(never select from the heading or title)
