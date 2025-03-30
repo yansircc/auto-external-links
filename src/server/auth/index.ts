@@ -1,6 +1,6 @@
+import { config } from "@/server/auth/config";
 import NextAuth from "next-auth";
 import { cache } from "react";
-import { config } from "@/server/auth/config";
 
 /**
  * Edge 兼容的认证实例

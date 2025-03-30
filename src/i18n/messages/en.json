@@ -1,143 +1,143 @@
 {
-  "keyword-editor": {
-    "header": {
-      "title": "External Link Optimization",
-      "description": "AI-powered article external link optimization tool"
-    },
-    "form": {
-      "title": "Text Editor",
-      "description": "Please enter the English text to analyze",
-      "placeholder": "Please enter the English text to analyze...",
-      "characterCount": "{count} / {max}",
-      "analyze": "Analyze Keywords",
-      "analyzing": "Analyzing..."
-    },
-    "preview": {
-      "description": "Click on keywords to choose whether to add external links",
-      "confirm": "Confirm Selection",
-      "gettingLinks": "Getting links..."
-    },
-    "linked-content": {
-      "description": "Click the link to preview, copy to use directly",
-      "copyMarkdown": "Copy Markdown",
-      "copyMarkdownWithFootnotes": "Copy Markdown+Footnotes",
-      "copied": "Copied",
-      "footnotes": "Recommendations",
-      "preferred": "Preferred"
-    },
-    "features": {
-      "ai": {
-        "title": "AI Analysis",
-        "description": "AI-driven keyword recognition, accurately grasping article focus"
-      },
-      "links": {
-        "title": "Quality Links",
-        "description": "Automatically match high-quality related links to enhance article value"
-      },
-      "optimization": {
-        "title": "One-click Optimization",
-        "description": "Quickly generate optimized Markdown text, ready to use anytime"
-      }
-    },
-    "errors": {
-      "analyzeFailed": "Analysis Failed",
-      "fetchLinksFailed": "Failed to Fetch Links",
-      "tryAgain": "Please try again"
-    },
-    "actions": {
-      "retry": "Retry"
-    }
-  },
-  "locale-switcher": {
-    "en": "EN",
-    "zh": "中文",
-    "label": "Language"
-  },
-  "feedback": {
-    "title": "Submit Feedback",
-    "description": "Your feedback is important to us, and we will carefully consider every suggestion.",
+	"keyword-editor": {
+		"header": {
+			"title": "External Link Optimization",
+			"description": "AI-powered article external link optimization tool"
+		},
+		"form": {
+			"title": "Text Editor",
+			"description": "Please enter the English text to analyze",
+			"placeholder": "Please enter the English text to analyze...",
+			"characterCount": "{count} / {max}",
+			"analyze": "Analyze Keywords",
+			"analyzing": "Analyzing..."
+		},
+		"preview": {
+			"description": "Click on keywords to choose whether to add external links",
+			"confirm": "Confirm Selection",
+			"gettingLinks": "Getting links..."
+		},
+		"linked-content": {
+			"description": "Click the link to preview, copy to use directly",
+			"copyMarkdown": "Copy Markdown",
+			"copyMarkdownWithFootnotes": "Copy Markdown+Footnotes",
+			"copied": "Copied",
+			"footnotes": "Recommendations",
+			"preferred": "Preferred"
+		},
+		"features": {
+			"ai": {
+				"title": "AI Analysis",
+				"description": "AI-driven keyword recognition, accurately grasping article focus"
+			},
+			"links": {
+				"title": "Quality Links",
+				"description": "Automatically match high-quality related links to enhance article value"
+			},
+			"optimization": {
+				"title": "One-click Optimization",
+				"description": "Quickly generate optimized Markdown text, ready to use anytime"
+			}
+		},
+		"errors": {
+			"analyzeFailed": "Analysis Failed",
+			"fetchLinksFailed": "Failed to Fetch Links",
+			"tryAgain": "Please try again"
+		},
+		"actions": {
+			"retry": "Retry"
+		}
+	},
+	"locale-switcher": {
+		"en": "EN",
+		"zh": "中文",
+		"label": "Language"
+	},
+	"feedback": {
+		"title": "Submit Feedback",
+		"description": "Your feedback is important to us, and we will carefully consider every suggestion.",
 
-    "message": {
-      "label": "Message",
-      "placeholder": "Share your thoughts, suggestions, or report issues...",
-      "min": "Feedback must be at least 10 characters",
-      "max": "Feedback cannot exceed 1000 characters"
-    },
-    "email": {
-      "label": "Email (Optional)",
-      "placeholder": "Leave your email for follow-up",
-      "invalid": "Please enter a valid email address"
-    },
-    "submit": "Submit Feedback",
-    "submitting": "Submitting...",
-    "errors": {
-      "config": "System configuration error, please contact administrator",
-      "submit": "Failed to submit feedback, please try again later",
-      "unknown": "An unknown error occurred"
-    }
-  },
-  "thanks": {
-    "title": "Thank You!",
-    "description": "Your feedback is important to us, and we will carefully consider every suggestion.",
-    "backHome": "Back to Home"
-  },
-  "settings": {
-    "dialog": {
-      "title": "Settings",
-      "searchTitle": "Search Settings",
-      "searchDescription": "Manage search preferences and filters",
-      "preferredTitle": "Preferred Sites",
-      "blacklistTitle": "Blacklist"
-    },
-    "blacklist": {
-      "input": {
-        "placeholder": "Enter URL to block",
-        "add": "Add"
-      },
-      "list": {
-        "empty": "No blocked URLs yet",
-        "remove": "Remove from blacklist"
-      }
-    },
-    "preferred": {
-      "input": {
-        "placeholder": "Enter preferred URL",
-        "add": "Add"
-      },
-      "list": {
-        "empty": "No preferred URLs yet",
-        "remove": "Remove from preferred list"
-      },
-      "maxLimit": "Maximum 3 preferred sites",
-      "message": "Display search results from these sites first"
-    }
-  },
-  "auth": {
-    "login": "Login/Register",
-    "logout": "Logout",
-    "loginPage": {
-      "title": "Login",
-      "description": "Enter your email address, you will receive a login link.",
-      "email": {
-        "label": "Email Address",
-        "placeholder": "Enter your email address",
-        "submit": "Send Login Link"
-      }
-    },
-    "verifyRequest": {
-      "title": "Check Your Email",
-      "description": "We've sent a login link to your email",
-      "checkSpam": "If you don't receive the email, please check your spam folder.",
-      "backToLogin": "Back to Login Page"
-    },
-    "error": {
-      "verification": "Verification Link Invalid or Expired",
-      "accessDenied": "Access Denied",
-      "configuration": "Server Configuration Error",
-      "default": "An error occurred during authentication",
-      "title": "Authentication Error",
-      "resendVerification": "Resend Verification Email",
-      "backToHome": "Back to Home"
-    }
-  }
+		"message": {
+			"label": "Message",
+			"placeholder": "Share your thoughts, suggestions, or report issues...",
+			"min": "Feedback must be at least 10 characters",
+			"max": "Feedback cannot exceed 1000 characters"
+		},
+		"email": {
+			"label": "Email (Optional)",
+			"placeholder": "Leave your email for follow-up",
+			"invalid": "Please enter a valid email address"
+		},
+		"submit": "Submit Feedback",
+		"submitting": "Submitting...",
+		"errors": {
+			"config": "System configuration error, please contact administrator",
+			"submit": "Failed to submit feedback, please try again later",
+			"unknown": "An unknown error occurred"
+		}
+	},
+	"thanks": {
+		"title": "Thank You!",
+		"description": "Your feedback is important to us, and we will carefully consider every suggestion.",
+		"backHome": "Back to Home"
+	},
+	"settings": {
+		"dialog": {
+			"title": "Settings",
+			"searchTitle": "Search Settings",
+			"searchDescription": "Manage search preferences and filters",
+			"preferredTitle": "Preferred Sites",
+			"blacklistTitle": "Blacklist"
+		},
+		"blacklist": {
+			"input": {
+				"placeholder": "Enter URL to block",
+				"add": "Add"
+			},
+			"list": {
+				"empty": "No blocked URLs yet",
+				"remove": "Remove from blacklist"
+			}
+		},
+		"preferred": {
+			"input": {
+				"placeholder": "Enter preferred URL",
+				"add": "Add"
+			},
+			"list": {
+				"empty": "No preferred URLs yet",
+				"remove": "Remove from preferred list"
+			},
+			"maxLimit": "Maximum 3 preferred sites",
+			"message": "Display search results from these sites first"
+		}
+	},
+	"auth": {
+		"login": "Login/Register",
+		"logout": "Logout",
+		"loginPage": {
+			"title": "Login",
+			"description": "Enter your email address, you will receive a login link.",
+			"email": {
+				"label": "Email Address",
+				"placeholder": "Enter your email address",
+				"submit": "Send Login Link"
+			}
+		},
+		"verifyRequest": {
+			"title": "Check Your Email",
+			"description": "We've sent a login link to your email",
+			"checkSpam": "If you don't receive the email, please check your spam folder.",
+			"backToLogin": "Back to Login Page"
+		},
+		"error": {
+			"verification": "Verification Link Invalid or Expired",
+			"accessDenied": "Access Denied",
+			"configuration": "Server Configuration Error",
+			"default": "An error occurred during authentication",
+			"title": "Authentication Error",
+			"resendVerification": "Resend Verification Email",
+			"backToHome": "Back to Home"
+		}
+	}
 }

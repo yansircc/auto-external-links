@@ -1,7 +1,7 @@
 // 关键词匹配
 interface KeywordMatch {
-  keyword: string;
-  index: number;
+	keyword: string;
+	index: number;
 }
 
 /**
@@ -11,7 +11,7 @@ interface KeywordMatch {
  * @returns 唯一标识符
  */
 export function createKeywordId(keyword: string, index: number) {
-  return `${keyword}-${index}`;
+	return `${keyword}-${index}`;
 }
 
 /**
@@ -20,9 +20,9 @@ export function createKeywordId(keyword: string, index: number) {
  * @returns 关键词
  */
 export function extractKeywordFromId(id: string): string {
-  const lastHyphenIndex = id.lastIndexOf("-");
-  if (lastHyphenIndex === -1) return id;
-  return id.slice(0, lastHyphenIndex);
+	const lastHyphenIndex = id.lastIndexOf("-");
+	if (lastHyphenIndex === -1) return id;
+	return id.slice(0, lastHyphenIndex);
 }
 
 /**
@@ -31,7 +31,7 @@ export function extractKeywordFromId(id: string): string {
  * @returns 唯一的关键词列表
  */
 export function getUniqueSelectedKeywords(selectedIds: Set<string>): string[] {
-  return Array.from(new Set(Array.from(selectedIds).map(extractKeywordFromId)));
+	return Array.from(new Set(Array.from(selectedIds).map(extractKeywordFromId)));
 }
 
 /**
@@ -41,30 +41,30 @@ export function getUniqueSelectedKeywords(selectedIds: Set<string>): string[] {
  * @returns 关键词匹配信息数组
  */
 export function findKeywordsInText(
-  text: string,
-  keywords: string[],
+	text: string,
+	keywords: string[],
 ): KeywordMatch[] {
-  const matches: KeywordMatch[] = [];
+	const matches: KeywordMatch[] = [];
 
-  // 对每个关键词进行查找
-  keywords.forEach((keyword) => {
-    let index = 0;
-    while (true) {
-      // 从当前位置开始查找关键词
-      index = text.indexOf(keyword, index);
-      if (index === -1) break;
+	// 对每个关键词进行查找
+	keywords.forEach((keyword) => {
+		let index = 0;
+		while (true) {
+			// 从当前位置开始查找关键词
+			index = text.indexOf(keyword, index);
+			if (index === -1) break;
 
-      // 添加匹配信息
-      matches.push({
-        keyword,
-        index,
-      });
+			// 添加匹配信息
+			matches.push({
+				keyword,
+				index,
+			});
 
-      // 移动到下一个位置继续查找
-      index += keyword.length;
-    }
-  });
+			// 移动到下一个位置继续查找
+			index += keyword.length;
+		}
+	});
 
-  // 按位置排序
-  return matches.sort((a, b) => a.index - b.index);
+	// 按位置排序
+	return matches.sort((a, b) => a.index - b.index);
 }

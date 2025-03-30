@@ -4,8 +4,8 @@ import { PlunkClient } from "@/lib/plunk";
 import { catchError } from "@/utils";
 
 interface FeedbackData {
-  message: string;
-  email?: string;
+	message: string;
+	email?: string;
 }
 
 /**
@@ -14,28 +14,28 @@ interface FeedbackData {
  * @returns 发送结果
  */
 export async function sendFeedback(data: FeedbackData) {
-  const toEmail = process.env.ADMIN_EMAIL;
-  if (!toEmail) {
-    throw new Error("接收反馈的邮箱未配置");
-  }
+	const toEmail = process.env.ADMIN_EMAIL;
+	if (!toEmail) {
+		throw new Error("接收反馈的邮箱未配置");
+	}
 
-  const [error, result] = await catchError(
-    PlunkClient.getInstance().sendEmail({
-      to: toEmail,
-      subject: "Auto External Links网站反馈",
-      reply: data.email,
-      body: `
+	const [error, result] = await catchError(
+		PlunkClient.getInstance().sendEmail({
+			to: toEmail,
+			subject: "Auto External Links网站反馈",
+			reply: data.email,
+			body: `
       ${data.email ? `用户邮箱：${data.email}` : "用户未提供邮箱\n\n"}
       反馈内容：${data.message}
       `.trim(),
-    }),
-    (error) => new Error("发送失败", { cause: error }),
-  );
+		}),
+		(error) => new Error("发送失败", { cause: error }),
+	);
 
-  if (error) {
-    console.error("发送反馈邮件失败:", error.cause || error);
-    throw error;
-  }
+	if (error) {
+		console.error("发送反馈邮件失败:", error.cause || error);
+		throw error;
+	}
 
-  return result;
+	return result;
 }

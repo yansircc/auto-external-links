@@ -1,143 +1,143 @@
 {
-  "keyword-editor": {
-    "header": {
-      "title": "外链优化",
-      "description": "AI驱动的文章外链优化工具"
-    },
-    "form": {
-      "title": "文本编辑器",
-      "description": "请输入要分析的英文文本",
-      "placeholder": "请输入要分析的英文文本...",
-      "characterCount": "{count} / {max}",
-      "analyze": "分析关键词",
-      "analyzing": "分析中..."
-    },
-    "preview": {
-      "description": "点击关键词可以选择是否添加外链",
-      "confirm": "确认选择",
-      "gettingLinks": "获取链接中..."
-    },
-    "linked-content": {
-      "description": "点击链接可以预览，复制后可直接使用",
-      "copyMarkdown": "复制 Markdown",
-      "copyMarkdownWithFootnotes": "复制 Markdown+脚注",
-      "copied": "已复制",
-      "footnotes": "推荐理由",
-      "preferred": "首选"
-    },
-    "features": {
-      "ai": {
-        "title": "智能分析",
-        "description": "AI驱动的关键词识别，准确把握文章重点"
-      },
-      "links": {
-        "title": "优质外链",
-        "description": "自动匹配高质量相关链接，提升文章价值"
-      },
-      "optimization": {
-        "title": "一键优化",
-        "description": "快速生成优化后的Markdown文本，随时复制使用"
-      }
-    },
-    "errors": {
-      "analyzeFailed": "分析失败",
-      "fetchLinksFailed": "获取链接失败",
-      "tryAgain": "请稍后重试"
-    },
-    "actions": {
-      "retry": "重试"
-    }
-  },
-  "locale-switcher": {
-    "en": "EN",
-    "zh": "中文",
-    "label": "语言"
-  },
-  "feedback": {
-    "title": "提交反馈",
-    "description": "你的反馈对改进这个工具非常重要，我们认真考虑每一条建议。",
+	"keyword-editor": {
+		"header": {
+			"title": "外链优化",
+			"description": "AI驱动的文章外链优化工具"
+		},
+		"form": {
+			"title": "文本编辑器",
+			"description": "请输入要分析的英文文本",
+			"placeholder": "请输入要分析的英文文本...",
+			"characterCount": "{count} / {max}",
+			"analyze": "分析关键词",
+			"analyzing": "分析中..."
+		},
+		"preview": {
+			"description": "点击关键词可以选择是否添加外链",
+			"confirm": "确认选择",
+			"gettingLinks": "获取链接中..."
+		},
+		"linked-content": {
+			"description": "点击链接可以预览，复制后可直接使用",
+			"copyMarkdown": "复制 Markdown",
+			"copyMarkdownWithFootnotes": "复制 Markdown+脚注",
+			"copied": "已复制",
+			"footnotes": "推荐理由",
+			"preferred": "首选"
+		},
+		"features": {
+			"ai": {
+				"title": "智能分析",
+				"description": "AI驱动的关键词识别，准确把握文章重点"
+			},
+			"links": {
+				"title": "优质外链",
+				"description": "自动匹配高质量相关链接，提升文章价值"
+			},
+			"optimization": {
+				"title": "一键优化",
+				"description": "快速生成优化后的Markdown文本，随时复制使用"
+			}
+		},
+		"errors": {
+			"analyzeFailed": "分析失败",
+			"fetchLinksFailed": "获取链接失败",
+			"tryAgain": "请稍后重试"
+		},
+		"actions": {
+			"retry": "重试"
+		}
+	},
+	"locale-switcher": {
+		"en": "EN",
+		"zh": "中文",
+		"label": "语言"
+	},
+	"feedback": {
+		"title": "提交反馈",
+		"description": "你的反馈对改进这个工具非常重要，我们认真考虑每一条建议。",
 
-    "message": {
-      "label": "反馈内容",
-      "placeholder": "分享你的想法、建议或反馈问题...",
-      "min": "反馈内容至少需要 10 个字符",
-      "max": "反馈内容不能超过 1000 个字符"
-    },
-    "email": {
-      "label": "邮箱（选填）",
-      "placeholder": "留下邮箱以便后续跟进",
-      "invalid": "请输入有效的邮箱地址"
-    },
-    "submit": "提交反馈",
-    "submitting": "提交中...",
-    "errors": {
-      "config": "系统配置错误，请联系管理员",
-      "submit": "提交反馈失败，请稍后重试",
-      "unknown": "发生未知错误"
-    }
-  },
-  "thanks": {
-    "title": "感谢反馈！",
-    "description": "你的反馈对这个工具非常重要，我会认真考虑每一条建议。",
-    "backHome": "返回首页"
-  },
-  "settings": {
-    "dialog": {
-      "title": "设置",
-      "searchTitle": "搜索设置",
-      "searchDescription": "管理搜索偏好和过滤器",
-      "preferredTitle": "偏好网址",
-      "blacklistTitle": "黑名单"
-    },
-    "blacklist": {
-      "input": {
-        "placeholder": "输入要屏蔽的网址",
-        "add": "添加"
-      },
-      "list": {
-        "empty": "暂无屏蔽网址",
-        "remove": "从黑名单移除"
-      }
-    },
-    "preferred": {
-      "input": {
-        "placeholder": "输入偏好网址",
-        "add": "添加"
-      },
-      "list": {
-        "empty": "暂无偏好网址",
-        "remove": "从偏好列表移除"
-      },
-      "maxLimit": "最多支持 3 个偏好网址",
-      "message": "搜索时会优先展示来自这些网站的结果"
-    }
-  },
-  "auth": {
-    "login": "登录/注册",
-    "logout": "注销",
-    "loginPage": {
-      "title": "登录",
-      "description": "输入你的邮箱地址，你会收到登录链接。",
-      "email": {
-        "label": "邮箱地址",
-        "placeholder": "输入你的邮箱地址",
-        "submit": "发送登录链接"
-      }
-    },
-    "verifyRequest": {
-      "title": "查看你的邮箱",
-      "description": "我们已发送登录链接至你的邮箱",
-      "checkSpam": "如果未收到邮件，请检查垃圾邮件文件夹。",
-      "backToLogin": "返回登录页面"
-    },
-    "error": {
-      "verification": "验证链接无效或已过期",
-      "accessDenied": "访问被拒绝",
-      "configuration": "服务器配置错误",
-      "default": "认证过程中出现错误",
-      "title": "认证错误",
-      "resendVerification": "重新发送验证邮件",
-      "backToHome": "返回首页"
-    }
-  }
+		"message": {
+			"label": "反馈内容",
+			"placeholder": "分享你的想法、建议或反馈问题...",
+			"min": "反馈内容至少需要 10 个字符",
+			"max": "反馈内容不能超过 1000 个字符"
+		},
+		"email": {
+			"label": "邮箱（选填）",
+			"placeholder": "留下邮箱以便后续跟进",
+			"invalid": "请输入有效的邮箱地址"
+		},
+		"submit": "提交反馈",
+		"submitting": "提交中...",
+		"errors": {
+			"config": "系统配置错误，请联系管理员",
+			"submit": "提交反馈失败，请稍后重试",
+			"unknown": "发生未知错误"
+		}
+	},
+	"thanks": {
+		"title": "感谢反馈！",
+		"description": "你的反馈对这个工具非常重要，我会认真考虑每一条建议。",
+		"backHome": "返回首页"
+	},
+	"settings": {
+		"dialog": {
+			"title": "设置",
+			"searchTitle": "搜索设置",
+			"searchDescription": "管理搜索偏好和过滤器",
+			"preferredTitle": "偏好网址",
+			"blacklistTitle": "黑名单"
+		},
+		"blacklist": {
+			"input": {
+				"placeholder": "输入要屏蔽的网址",
+				"add": "添加"
+			},
+			"list": {
+				"empty": "暂无屏蔽网址",
+				"remove": "从黑名单移除"
+			}
+		},
+		"preferred": {
+			"input": {
+				"placeholder": "输入偏好网址",
+				"add": "添加"
+			},
+			"list": {
+				"empty": "暂无偏好网址",
+				"remove": "从偏好列表移除"
+			},
+			"maxLimit": "最多支持 3 个偏好网址",
+			"message": "搜索时会优先展示来自这些网站的结果"
+		}
+	},
+	"auth": {
+		"login": "登录/注册",
+		"logout": "注销",
+		"loginPage": {
+			"title": "登录",
+			"description": "输入你的邮箱地址，你会收到登录链接。",
+			"email": {
+				"label": "邮箱地址",
+				"placeholder": "输入你的邮箱地址",
+				"submit": "发送登录链接"
+			}
+		},
+		"verifyRequest": {
+			"title": "查看你的邮箱",
+			"description": "我们已发送登录链接至你的邮箱",
+			"checkSpam": "如果未收到邮件，请检查垃圾邮件文件夹。",
+			"backToLogin": "返回登录页面"
+		},
+		"error": {
+			"verification": "验证链接无效或已过期",
+			"accessDenied": "访问被拒绝",
+			"configuration": "服务器配置错误",
+			"default": "认证过程中出现错误",
+			"title": "认证错误",
+			"resendVerification": "重新发送验证邮件",
+			"backToHome": "返回首页"
+		}
+	}
 }

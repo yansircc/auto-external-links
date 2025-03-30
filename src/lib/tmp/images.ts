@@ -9,17 +9,17 @@ import sharp from "sharp";
  * @returns {Promise<string>} Base64 encoded compressed image
  */
 export async function compressAndConvertToBase64(
-  imagePath: string,
-  options = { width: 800, quality: 80 },
+	imagePath: string,
+	options = { width: 800, quality: 80 },
 ): Promise<string> {
-  const { width, quality } = options;
+	const { width, quality } = options;
 
-  const compressedImageBuffer = await sharp(imagePath)
-    .resize(width, null, {
-      withoutEnlargement: true,
-    })
-    .jpeg({ quality })
-    .toBuffer();
+	const compressedImageBuffer = await sharp(imagePath)
+		.resize(width, null, {
+			withoutEnlargement: true,
+		})
+		.jpeg({ quality })
+		.toBuffer();
 
-  return compressedImageBuffer.toString("base64");
+	return compressedImageBuffer.toString("base64");
 }
