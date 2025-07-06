@@ -55,3 +55,4 @@ docs/
 ## tmp
 **/tmp/**
 src/lib/tmp/
+**.bak

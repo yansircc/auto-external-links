@@ -3,7 +3,7 @@ import { redis } from "@/server/kv";
 import { catchError } from "@/utils";
 import { UpstashRedisAdapter } from "@auth/upstash-redis-adapter";
 import type { AuthOptions, DefaultSession } from "next-auth";
-import { EdgeEmailProvider } from "./edge-email-provider";
+import EmailProvider from "next-auth/providers/email";
 
 if (!process.env.AUTH_SECRET) {
 	throw new Error("AUTH_SECRET 环境变量未设置");
@@ -15,7 +15,7 @@ if (!process.env.AUTH_SECRET) {
  * 完全支持 Edge Runtime
  */
 const providers = [
-	EdgeEmailProvider({
+	EmailProvider({
 		from: "noreply@example.com",
 		maxAge: 24 * 60 * 60, // 24 小时
 		sendVerificationRequest,
