@@ -1,8 +1,5 @@
 import { Redis } from "@upstash/redis";
-
-if (!process.env.UPSTASH_REDIS_URL || !process.env.UPSTASH_REDIS_TOKEN) {
-	throw new Error("Missing UPSTASH_REDIS_* environment variables");
-}
+import { env } from "@/env";
 
 /**
  * Redis 客户端单例类
@@ -20,8 +17,8 @@ class RedisClient {
 	public static getInstance(): Redis {
 		if (!RedisClient.instance) {
 			RedisClient.instance = new Redis({
-				url: process.env.UPSTASH_REDIS_URL,
-				token: process.env.UPSTASH_REDIS_TOKEN,
+				url: env.UPSTASH_REDIS_URL,
+				token: env.UPSTASH_REDIS_TOKEN,
 				// 添加可选的错误重试配置
 				retry: {
 					retries: 3,

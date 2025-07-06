@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { env } from "@/env";
 import { AppError, ErrorCode, Errors } from "./types";
 
 /**
@@ -61,7 +62,7 @@ export class ErrorHandler {
 		const appError = ErrorHandler.normalize(error);
 
 		// 对于非操作性错误，在生产环境返回通用消息
-		if (!appError.isOperational && process.env.NODE_ENV === "production") {
+		if (!appError.isOperational && env.NODE_ENV === "production") {
 			return "服务器错误，请稍后重试";
 		}
 
@@ -75,7 +76,7 @@ export class ErrorHandler {
 		const appError = ErrorHandler.normalize(error);
 
 		// 生产环境下，隐藏非操作性错误的细节
-		if (!appError.isOperational && process.env.NODE_ENV === "production") {
+		if (!appError.isOperational && env.NODE_ENV === "production") {
 			return {
 				error: {
 					message: "服务器错误，请稍后重试",

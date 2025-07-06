@@ -1,3 +1,5 @@
+import { env } from "@/env";
+
 /**
  * 基础服务类，提供通用功能
  */
@@ -24,7 +26,7 @@ export abstract class BaseService {
 			data,
 		};
 
-		if (process.env.NODE_ENV === "development") {
+		if (env.NODE_ENV === "development") {
 			console.log(`[${this.serviceName}]`, message, data);
 		}
 

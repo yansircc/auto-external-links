@@ -1,3 +1,5 @@
+import { env } from "@/env";
+
 /**
  * Plunk 邮件服务客户端
  * @see https://docs.useplunk.com/
@@ -16,10 +18,7 @@ export class PlunkClient {
 	 */
 	public static getInstance(): PlunkClient {
 		if (!PlunkClient.instance) {
-			const apiKey = process.env.PLUNK_API_KEY;
-			if (!apiKey) {
-				throw new Error("Plunk API Key 未配置");
-			}
+			const apiKey = env.PLUNK_API_KEY;
 			PlunkClient.instance = new PlunkClient(apiKey);
 		}
 		return PlunkClient.instance;

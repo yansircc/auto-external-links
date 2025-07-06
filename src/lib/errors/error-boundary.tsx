@@ -82,16 +82,18 @@ function DefaultErrorFallback({
 
 				<p className="mb-4 text-muted-foreground text-sm">{message}</p>
 
-				{process.env.NODE_ENV === "development" && (
-					<details className="mb-4 text-left">
-						<summary className="cursor-pointer text-muted-foreground text-xs">
-							错误详情
-						</summary>
-						<pre className="mt-2 overflow-auto rounded bg-muted p-2 text-xs">
-							{error.stack}
-						</pre>
-					</details>
-				)}
+				{/* Show error details only in development */}
+				{typeof window !== "undefined" &&
+					window.location.hostname === "localhost" && (
+						<details className="mb-4 text-left">
+							<summary className="cursor-pointer text-muted-foreground text-xs">
+								错误详情
+							</summary>
+							<pre className="mt-2 overflow-auto rounded bg-muted p-2 text-xs">
+								{error.stack}
+							</pre>
+						</details>
+					)}
 
 				<div className="flex justify-center gap-2">
 					<Button onClick={reset} variant="default" size="sm">

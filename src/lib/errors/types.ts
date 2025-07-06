@@ -1,3 +1,5 @@
+import { env } from "@/env";
+
 /**
  * 错误代码枚举
  */
@@ -76,7 +78,7 @@ export class AppError extends Error {
 			code: this.code,
 			statusCode: this.statusCode,
 			details: this.details,
-			stack: process.env.NODE_ENV === "development" ? this.stack : undefined,
+			stack: env.NODE_ENV === "development" ? this.stack : undefined,
 		};
 	}
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { env } from "@/env";
 import { PlunkClient } from "@/lib/plunk";
 import { catchError } from "@/utils";
 
@@ -14,10 +15,7 @@ interface FeedbackData {
  * @returns 发送结果
  */
 export async function sendFeedback(data: FeedbackData) {
-	const toEmail = process.env.ADMIN_EMAIL;
-	if (!toEmail) {
-		throw new Error("接收反馈的邮箱未配置");
-	}
+	const toEmail = env.ADMIN_EMAIL;
 
 	const [error, result] = await catchError(
 		PlunkClient.getInstance().sendEmail({

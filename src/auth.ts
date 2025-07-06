@@ -1,13 +1,10 @@
 import { UpstashRedisAdapter } from "@auth/upstash-redis-adapter";
 import NextAuth from "next-auth";
 import Email from "next-auth/providers/email";
+import { env } from "@/env";
 import { PlunkClient } from "@/lib/plunk";
 import { redis } from "@/server/kv";
 import { catchError } from "@/utils";
-
-if (!process.env.AUTH_SECRET) {
-	throw new Error("AUTH_SECRET 环境变量未设置");
-}
 
 /**
  * 触发用户注册事件，由 Plunk 自动发送验证邮件
@@ -22,7 +19,7 @@ async function sendVerificationRequest(params: {
 	const { host } = new URL(url);
 	console.log("[auth] Sending verification request", { email, url, host });
 
-	const isProd = process.env.NODE_ENV === "production";
+	const isProd = env.NODE_ENV === "production";
 
 	const [error] = catchError(
 		async () => {
@@ -54,7 +51,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 			from: "noreply@example.com",
 			maxAge: 24 * 60 * 60, // 24 小时
 			sendVerificationRequest,
-			server: process.env.EMAIL_SERVER || {
+			server: env.EMAIL_SERVER || {
 				host: "smtp.gmail.com",
 				port: 587,
 				auth: {
@@ -70,5 +67,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 		error: "/auth/error",
 		verifyRequest: "/verify-request",
 	},
-	secret: process.env.AUTH_SECRET,
+	secret: env.AUTH_SECRET,
 });

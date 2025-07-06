@@ -1,8 +1,9 @@
+import { env } from "@/env";
 import { catchError } from "@/utils";
 import type { SerperResponse } from "./schema";
 import { validateSerperResponse } from "./schema";
 
-const SERPER_API_KEY = process.env.SERPER_API_KEY;
+const SERPER_API_KEY = env.SERPER_API_KEY;
 const SERPER_API_URL = "https://google.serper.dev/search";
 
 /**
