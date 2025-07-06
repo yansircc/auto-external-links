@@ -35,6 +35,16 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 			return;
 		}
 
+		// 检查关键词总数是否已达到上限
+		if (Object.keys(keywordMetadata).length >= 20) {
+			toast({
+				title: "已达到关键词数量上限",
+				description: "每篇文章最多只能有20个关键词",
+				variant: "destructive",
+			});
+			return;
+		}
+
 		// 检查关键词是否在文本中存在
 		if (!text.toLowerCase().includes(trimmedKeyword.toLowerCase())) {
 			toast({

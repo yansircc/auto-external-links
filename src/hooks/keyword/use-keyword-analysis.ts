@@ -55,8 +55,11 @@ export function useKeywordAnalysis() {
 			setIsLoading(true);
 
 			try {
-				// Call server action
-				const result = await getKeywords(data.text, fingerprint);
+				// 获取当前已有的关键词数量
+				const currentKeywordCount = Object.keys(keywordMetadata).length;
+
+				// Call server action with existing keyword count
+				const result = await getKeywords(data.text, fingerprint, currentKeywordCount);
 
 				if (result.error) {
 					const errorMessage = result.error.message || "分析失败，请稍后重试";
@@ -74,19 +77,26 @@ export function useKeywordAnalysis() {
 
 				// Process the result to get matches
 				const { findKeywordsInText } = await import("@/lib/keywords");
-				const keywords = result.data.object.keywords.map((k) => k.keyword);
-				const matches = findKeywordsInText(data.text, keywords);
+				const newKeywords = result.data.object.keywords.map((k) => k.keyword);
+				
+				// 合并现有关键词和新关键词
+				const existingKeywords = Object.keys(keywordMetadata);
+				const allKeywords = [...new Set([...existingKeywords, ...newKeywords])];
+				const matches = findKeywordsInText(data.text, allKeywords);
 
-				// Build metadata
-				const metadata: Record<string, any> = {};
+				// Build metadata - 保留现有的元数据并添加新的
+				const metadata: Record<string, any> = { ...keywordMetadata };
 				for (const keyword of result.data.object.keywords) {
-					metadata[keyword.keyword] = {
-						query: keyword.query,
-						reason: keyword.reason,
-						link: null,
-						title: null,
-						alternatives: { preferred: [], regular: [] },
-					};
+					// 只添加新的关键词元数据，不覆盖已有的
+					if (!metadata[keyword.keyword]) {
+						metadata[keyword.keyword] = {
+							query: keyword.query,
+							reason: keyword.reason,
+							link: null,
+							title: null,
+							alternatives: { preferred: [], regular: [] },
+						};
+					}
 				}
 
 				// 更新 Store
@@ -97,9 +107,11 @@ export function useKeywordAnalysis() {
 				});
 
 				// 显示成功提示
+				const newKeywordCount = newKeywords.length;
+				const totalKeywordCount = Object.keys(metadata).length;
 				toast({
 					title: "分析完成",
-					description: `找到 ${keywords.length} 个关键词`,
+					description: `新增 ${newKeywordCount} 个关键词，共 ${totalKeywordCount} 个关键词`,
 				});
 			} catch (error) {
 				const errorMessage = ErrorHandler.getMessage(error);

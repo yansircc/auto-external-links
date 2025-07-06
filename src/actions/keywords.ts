@@ -39,16 +39,31 @@ interface KeywordsResponse {
 	};
 }
 
-// 包装成对象类型的模式
-const wrapperSchema = z.object({
-	keywords: z
-		.array(keywordSchema)
-		.min(1)
-		.max(3)
-		.describe(
-			"The most important keywords information extracted from the original text, including keywords, search queries, and recommendations.",
-		),
-});
+/**
+ * 创建动态的关键词数组模式
+ */
+function createDynamicWrapperSchema(keywordCount: number) {
+	return z.object({
+		keywords: z
+			.array(keywordSchema)
+			.min(Math.min(keywordCount, 2))
+			.max(keywordCount)
+			.describe(
+				`Extract exactly ${keywordCount} most important keywords/phrases from the text. Each keyword should be unique and valuable for SEO.`,
+			),
+	});
+}
+
+/**
+ * 计算推荐的关键词数量
+ * 每1000字符推荐2个关键词，最少2个，最多20个
+ */
+function calculateKeywordCount(text: string): number {
+	const charCount = text.length;
+	const calculatedCount = Math.floor(charCount / 1000) * 2;
+	const keywordCount = Math.max(2, Math.min(20, calculatedCount));
+	return keywordCount;
+}
 
 /**
  * 分析文本获取关键词
@@ -56,6 +71,7 @@ const wrapperSchema = z.object({
 export async function getKeywords(
 	text: string,
 	fingerprint?: string,
+	existingKeywordCount = 0,
 ): Promise<KeywordsResponse> {
 	// 1. 检查用户是否已登录
 	const session = await auth();
@@ -74,25 +90,44 @@ export async function getKeywords(
 		}
 	}
 
-	// 3. 继续原有的关键词分析逻辑
+	// 3. 计算推荐的关键词数量，考虑已有的关键词
+	const baseRecommendedCount = calculateKeywordCount(text);
+	const availableSlots = Math.max(0, 20 - existingKeywordCount);
+	const recommendedKeywordCount = Math.min(baseRecommendedCount, availableSlots);
+	
+	// 如果没有可用的空位，直接返回
+	if (recommendedKeywordCount === 0) {
+		return {
+			error: {
+				code: "AI_ERROR",
+				message: "已达到关键词数量上限（20个），无法添加更多关键词",
+			},
+		};
+	}
+	
+	const dynamicSchema = createDynamicWrapperSchema(recommendedKeywordCount);
+
+	// 4. 继续原有的关键词分析逻辑
 	const [error, result] = await catchError(
 		generateObject({
 			// model: deepseek("deepseek-chat"),
 			model: openai("gpt-4o-mini"),
 			system: `
     You are a SEO expert, you need to:
-    1. Select 1~3 most valuable keywords/phrases from the text(never select from the heading or title)
+    1. Select exactly ${recommendedKeywordCount} most valuable keywords/phrases from the text (never select from the heading or title)
     2. For each keyword:
       - Extract the exact keyword or phrase from the text (maintain original case and format). Each should be unique, never repeat.
       - Generate a search query in question form to find the best external link
-      - Provide a brief convincing reason for the reader why they should explore the resource link`,
+      - Provide a brief convincing reason for the reader why they should explore the resource link
+    
+    IMPORTANT: You MUST extract exactly ${recommendedKeywordCount} keywords, no more, no less.`,
 			prompt: text,
-			schema: wrapperSchema,
+			schema: dynamicSchema,
 		}),
 		(error) => new Error("分析文本失败", { cause: error }),
 	);
 
-	// 4. 如果分析成功且用户未登录，增加使用次数
+	// 5. 如果分析成功且用户未登录，增加使用次数
 	if (!error && !isAuthenticated) {
 		await checkRateLimit(fingerprint, true);
 	}

@@ -117,7 +117,9 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 						</span>
 					</div>
 					<div className="text-sm">
-						<span className="text-muted-foreground">已选择关键词</span>
+						<span className="text-muted-foreground">
+							已选择关键词 ({Object.keys(keywordMetadata).length}/20)
+						</span>
 						<p className="text-muted-foreground/70 text-xs">
 							鼠标选择文本可快速添加新关键词
 						</p>

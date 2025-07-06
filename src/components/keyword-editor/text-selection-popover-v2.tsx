@@ -80,6 +80,18 @@ export function TextSelectionPopover() {
 			return;
 		}
 
+		// 检查关键词总数是否已达到上限
+		if (Object.keys(keywordMetadata).length >= 20) {
+			toast({
+				title: "已达到关键词数量上限",
+				description: "每篇文章最多只能有20个关键词",
+				variant: "destructive",
+			});
+			setShowPopover(false);
+			window.getSelection()?.removeAllRanges();
+			return;
+		}
+
 		// 设置加载状态
 		setIsLoading(true);
 

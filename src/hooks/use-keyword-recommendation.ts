@@ -29,6 +29,12 @@ export function useKeywordRecommendation() {
 			);
 			if (existingKeyword) return false;
 
+			// 检查关键词总数是否已达到上限（20个）
+			if (Object.keys(keywordMetadata).length >= 20) {
+				console.warn("已达到关键词数量上限（20个）");
+				return false;
+			}
+
 			// 在文本中查找关键词的所有位置
 			const newMatches: KeywordMatch[] = [];
 			let searchIndex = 0;
