@@ -1,4 +1,5 @@
 const STORAGE_KEY = "link-blacklist";
+
 import { catchError } from "@/utils";
 
 export interface BlacklistEntry {

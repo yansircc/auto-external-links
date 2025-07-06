@@ -47,7 +47,7 @@ export function findKeywordsInText(
 	const matches: KeywordMatch[] = [];
 
 	// 对每个关键词进行查找
-	keywords.forEach((keyword) => {
+	for (const keyword of keywords) {
 		let index = 0;
 		while (true) {
 			// 从当前位置开始查找关键词
@@ -63,7 +63,7 @@ export function findKeywordsInText(
 			// 移动到下一个位置继续查找
 			index += keyword.length;
 		}
-	});
+	}
 
 	// 按位置排序
 	return matches.sort((a, b) => a.index - b.index);

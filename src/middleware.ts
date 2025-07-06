@@ -1,7 +1,7 @@
 import { auth } from "@/server/auth";
 import { catchError } from "@/utils";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 // 需要认证的路径
 const AUTH_PATHS = ["/dashboard", "/settings", "/api/user"];
@@ -77,7 +77,8 @@ export async function middleware(request: NextRequest) {
 		);
 	}
 
-	const isAuthenticated = !!session?.user;
+	const isAuthenticated =
+		!!session && typeof session === "object" && "user" in session;
 
 	// 3. 处理认证相关路径
 	if (pathname.startsWith(NEXTAUTH_PATHS.api)) {
@@ -139,3 +140,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
 	matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
+
+// 使用 Edge Runtime
+export const runtime = "edge";

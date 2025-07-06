@@ -10,6 +10,7 @@ import {
 import { createKeywordId } from "@/lib/keywords";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 import { Link2, Loader2 } from "lucide-react";
+import type { JSX } from "react";
 import { EditorActions, EditorLayout } from "./core/editor-layout";
 import type { EditorMessages } from "./core/messages";
 
@@ -33,13 +34,13 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 		let lastIndex = 0;
 		const elements: JSX.Element[] = [];
 
-		matches.forEach((match, matchIndex) => {
+		for (const [matchIndex, match] of matches.entries()) {
 			const id = createKeywordId(match.keyword, matchIndex);
 
 			// 添加普通文本
 			if (match.index > lastIndex) {
 				elements.push(
-					<span key={`text-${matchIndex}`}>
+					<span key={`text-before-${match.index}`}>
 						{text.slice(lastIndex, match.index)}
 					</span>,
 				);
@@ -47,7 +48,7 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 
 			// 添加关键词
 			const metadata = keywordMetadata[match.keyword];
-			if (!metadata) return;
+			if (!metadata) continue;
 
 			elements.push(
 				<Tooltip key={`tooltip-${id}`}>
@@ -74,7 +75,7 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 			);
 
 			lastIndex = match.index + match.keyword.length;
-		});
+		}
 
 		// 添加剩余文本
 		if (lastIndex < text.length) {

@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { catchError } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isEqual } from "lodash";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -29,30 +28,19 @@ export function FeedbackForm({ messages }: FeedbackFormProps) {
 	const router = useRouter();
 
 	const formSchema = z.object({
-		message: z.string().min(10).max(1000),
-		email: z.string().email().optional().or(z.literal("")),
+		message: z
+			.string()
+			.min(10, messages.message.min)
+			.max(1000, messages.message.max),
+		email: z
+			.string()
+			.email(messages.email.invalid)
+			.optional()
+			.or(z.literal("")),
 	});
 
 	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema, {
-			errorMap: (issue, ctx) => {
-				let message: string | undefined;
-
-				if (isEqual(issue.path, ["message"])) {
-					if (issue.code === "too_small") {
-						message = messages.message.min;
-					} else if (issue.code === "too_big") {
-						message = messages.message.max;
-					}
-				} else if (isEqual(issue.path, ["email"])) {
-					if (issue.code === "invalid_string") {
-						message = messages.email.invalid;
-					}
-				}
-
-				return { message: message ?? ctx.defaultError };
-			},
-		}),
+		resolver: zodResolver(formSchema),
 		defaultValues: {
 			message: "",
 			email: "",

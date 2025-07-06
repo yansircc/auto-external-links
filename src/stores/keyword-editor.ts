@@ -185,18 +185,18 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
 			);
 
 			const newMetadata = { ...keywordMetadata };
-			Object.entries(linkMap).forEach(
-				([keyword, { link, title, alternatives }]) => {
-					if (newMetadata[keyword]) {
-						newMetadata[keyword] = {
-							...newMetadata[keyword],
-							link,
-							title,
-							alternatives,
-						};
-					}
-				},
-			);
+			for (const [keyword, { link, title, alternatives }] of Object.entries(
+				linkMap,
+			)) {
+				if (newMetadata[keyword]) {
+					newMetadata[keyword] = {
+						...newMetadata[keyword],
+						link,
+						title,
+						alternatives,
+					};
+				}
+			}
 			setKeywordMetadata(newMetadata);
 			setHasLinks(true);
 			setShouldAnimateLogo(true);

@@ -1,4 +1,5 @@
 import { createKeywordId } from "@/lib/keywords";
+import type { JSX } from "react";
 import type { Footnote, RenderOptions } from "../core/types";
 import { LinkSwitcher } from "./link-switcher";
 
@@ -16,25 +17,25 @@ export function renderLinkedText({
 	let lastIndex = 0;
 	const elements: JSX.Element[] = [];
 
-	matches.forEach((match, matchIndex) => {
+	for (const [matchIndex, match] of matches.entries()) {
 		const id = createKeywordId(match.keyword, matchIndex);
 		// Only process selected keywords
 		if (!selectedKeywordIds.has(id)) {
 			if (match.index > lastIndex) {
 				elements.push(
-					<span key={`text-${matchIndex}`}>
+					<span key={`text-skip-${match.index}`}>
 						{text.slice(lastIndex, match.index + match.keyword.length)}
 					</span>,
 				);
 				lastIndex = match.index + match.keyword.length;
 			}
-			return;
+			continue;
 		}
 
 		// Add normal text before the keyword
 		if (match.index > lastIndex) {
 			elements.push(
-				<span key={`text-${matchIndex}`}>
+				<span key={`text-before-${match.index}`}>
 					{text.slice(lastIndex, match.index)}
 				</span>,
 			);
@@ -42,10 +43,10 @@ export function renderLinkedText({
 
 		// Add linked keyword with footnote
 		const metadata = keywordMetadata[match.keyword];
-		if (!metadata?.link) return;
+		if (!metadata?.link) continue;
 
 		const footnoteIndex = footnoteIndexMap.get(id);
-		if (!footnoteIndex) return;
+		if (!footnoteIndex) continue;
 
 		elements.push(
 			<span
@@ -73,7 +74,7 @@ export function renderLinkedText({
 		);
 
 		lastIndex = match.index + match.keyword.length;
-	});
+	}
 
 	// Add remaining text
 	if (lastIndex < text.length) {
@@ -99,9 +100,9 @@ export function generateMarkdown({
 		.sort((a, b) => b.index - a.index); // Process from end to start
 
 	// Add links
-	sortedMatches.forEach((match) => {
+	for (const match of sortedMatches) {
 		const metadata = keywordMetadata[match.keyword];
-		if (!metadata?.link) return;
+		if (!metadata?.link) continue;
 
 		const linkText = text.slice(
 			match.index,
@@ -112,7 +113,7 @@ export function generateMarkdown({
 			result.slice(0, match.index) +
 			markdown +
 			result.slice(match.index + match.keyword.length);
-	});
+	}
 
 	return result;
 }
@@ -132,7 +133,7 @@ export function generateMarkdownWithFootnotes({
 		.sort((a, b) => b.index - a.index); // Process from end to start
 
 	// Add links with footnote references
-	sortedMatches.forEach((match) => {
+	for (const match of sortedMatches) {
 		// Find the original index of this match in the matches array
 		const originalIndex = matches.findIndex(
 			(m) => m.index === match.index && m.keyword === match.keyword,
@@ -140,10 +141,10 @@ export function generateMarkdownWithFootnotes({
 		const id = createKeywordId(match.keyword, originalIndex);
 
 		const metadata = keywordMetadata[match.keyword];
-		if (!metadata?.link) return;
+		if (!metadata?.link) continue;
 
 		const footnoteIndex = footnoteIndexMap.get(id);
-		if (!footnoteIndex) return;
+		if (!footnoteIndex) continue;
 
 		const linkText = text.slice(
 			match.index,
@@ -154,7 +155,7 @@ export function generateMarkdownWithFootnotes({
 			result.slice(0, match.index) +
 			markdown +
 			result.slice(match.index + match.keyword.length);
-	});
+	}
 
 	return result;
 }
@@ -162,11 +163,7 @@ export function generateMarkdownWithFootnotes({
 export function generateFootnotesSection(footnotes: Footnote[]) {
 	if (footnotes.length === 0) return "";
 
-	return (
-		"\n\n---\n\n" +
-		footnotes
-			.map((footnote, index) => `[^${index + 1}]: ${footnote.reason}`)
-			.join("\n") +
-		"\n"
-	);
+	return `\n\n---\n\n${footnotes
+		.map((footnote, index) => `[^${index + 1}]: ${footnote.reason}`)
+		.join("\n")}\n`;
 }

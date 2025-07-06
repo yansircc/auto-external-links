@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import { createEnv } from "@t3-oss/env-nextjs";
 import dotenv from "dotenv";
 import { z } from "zod";

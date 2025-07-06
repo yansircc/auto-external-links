@@ -2,9 +2,8 @@ import { PlunkClient } from "@/lib/plunk";
 import { redis } from "@/server/kv";
 import { catchError } from "@/utils";
 import { UpstashRedisAdapter } from "@auth/upstash-redis-adapter";
-import type { NextAuthConfig } from "next-auth";
-import type { Provider } from "next-auth/providers";
-import type { EmailConfig } from "next-auth/providers/email";
+import type { AuthOptions, DefaultSession } from "next-auth";
+import { EdgeEmailProvider } from "./edge-email-provider";
 
 if (!process.env.AUTH_SECRET) {
 	throw new Error("AUTH_SECRET 环境变量未设置");
@@ -15,14 +14,12 @@ if (!process.env.AUTH_SECRET) {
  * 使用 Plunk 发送验证邮件
  * 完全支持 Edge Runtime
  */
-const providers: Provider[] = [
-	{
-		id: "plunk",
-		name: "Email",
-		type: "email",
+const providers = [
+	EdgeEmailProvider({
+		from: "noreply@example.com",
 		maxAge: 24 * 60 * 60, // 24 小时
 		sendVerificationRequest,
-	} satisfies EmailConfig,
+	}),
 ];
 
 /**
@@ -68,7 +65,7 @@ async function sendVerificationRequest(params: {
  * 完整的认证配置
  * 使用 Upstash Redis 作为数据库，支持 Edge Runtime
  */
-export const config: NextAuthConfig = {
+export const config: AuthOptions = {
 	providers,
 	adapter: UpstashRedisAdapter(redis),
 	pages: {
@@ -76,4 +73,5 @@ export const config: NextAuthConfig = {
 		error: "/auth/error",
 		verifyRequest: "/verify-request",
 	},
+	secret: process.env.AUTH_SECRET,
 };

@@ -15,14 +15,14 @@ export class PlunkClient {
 	 * @returns PlunkClient 实例
 	 */
 	public static getInstance(): PlunkClient {
-		if (!this.instance) {
+		if (!PlunkClient.instance) {
 			const apiKey = process.env.PLUNK_API_KEY;
 			if (!apiKey) {
 				throw new Error("Plunk API Key 未配置");
 			}
-			this.instance = new PlunkClient(apiKey);
+			PlunkClient.instance = new PlunkClient(apiKey);
 		}
-		return this.instance;
+		return PlunkClient.instance;
 	}
 
 	/**
