@@ -92,6 +92,15 @@ export async function checkRateLimit(
 	fingerprint?: string,
 	increment = false,
 ): Promise<RateLimitInfo> {
+	// 开发环境下跳过限流
+	if (process.env.NODE_ENV === "development") {
+		return {
+			remaining: 999,
+			reset: getTodayStart() + 24 * 60 * 60 * 1000,
+			total: 999,
+		};
+	}
+
 	const count = increment
 		? await incrementCount(fingerprint)
 		: await getCurrentCount(fingerprint);

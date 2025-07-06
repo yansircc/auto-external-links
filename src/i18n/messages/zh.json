@@ -121,7 +121,12 @@
 			"email": {
 				"label": "邮箱地址",
 				"placeholder": "输入你的邮箱地址",
-				"submit": "发送登录链接"
+				"submit": "发送登录链接",
+				"sending": "正在发送...",
+				"successTitle": "邮件已发送",
+				"successDescription": "请查看你的邮箱收件箱",
+				"errorTitle": "发送失败",
+				"errorDescription": "无法发送登录邮件，请稍后重试"
 			}
 		},
 		"verifyRequest": {

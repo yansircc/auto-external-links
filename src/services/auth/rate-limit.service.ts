@@ -97,6 +97,12 @@ export class RateLimitService extends BaseService {
 	 * 验证并可能抛出限流错误
 	 */
 	async enforceLimit(fingerprint?: string): Promise<void> {
+		// 开发环境下跳过限流
+		if (process.env.NODE_ENV === "development") {
+			this.log("info", "Rate limit bypassed in development");
+			return;
+		}
+
 		const result = await this.checkLimit(fingerprint);
 
 		if (!result.allowed) {

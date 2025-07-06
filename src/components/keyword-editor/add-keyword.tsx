@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useKeywordRecommendation } from "@/hooks/use-keyword-recommendation";
 import { useToast } from "@/hooks/use-toast";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
@@ -15,9 +16,10 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 	const [keyword, setKeyword] = useState("");
 	const [isAdding, setIsAdding] = useState(false);
 	const { toast } = useToast();
-	const { text, keywordMetadata, addUserKeyword } = useKeywordEditorStore();
+	const { text, keywordMetadata } = useKeywordEditorStore();
+	const { addKeywordWithRecommendation } = useKeywordRecommendation();
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		const trimmedKeyword = keyword.trim();
@@ -44,20 +46,28 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 		}
 
 		// 添加关键词
-		addUserKeyword(trimmedKeyword);
+		const success = await addKeywordWithRecommendation(trimmedKeyword);
 
-		// 重置输入
-		setKeyword("");
-		setIsAdding(false);
+		if (success) {
+			// 重置输入
+			setKeyword("");
+			setIsAdding(false);
 
-		// 显示成功消息
-		toast({
-			title: "关键词已添加",
-			description: `"${trimmedKeyword}" 已成功添加到列表中`,
-		});
+			// 显示成功消息
+			toast({
+				title: "关键词已添加",
+				description: `"${trimmedKeyword}" 已成功添加到列表中`,
+			});
 
-		// 调用回调
-		onAdd?.();
+			// 调用回调
+			onAdd?.();
+		} else {
+			toast({
+				title: "添加失败",
+				description: "无法添加该关键词",
+				variant: "destructive",
+			});
+		}
 	};
 
 	if (!isAdding) {

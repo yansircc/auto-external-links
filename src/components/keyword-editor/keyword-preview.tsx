@@ -14,7 +14,7 @@ import { useKeywordEditorStore } from "@/stores/keyword-editor";
 import { AddKeyword } from "./add-keyword";
 import { EditorActions, EditorLayout } from "./core/editor-layout";
 import type { EditorMessages } from "./core/messages";
-import { TextSelectionPopover } from "./text-selection-popover";
+import { TextSelectionPopover } from "./text-selection-popover-v2";
 
 interface KeywordPreviewProps {
 	messages: EditorMessages["preview"];
@@ -53,7 +53,16 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 					<TooltipTrigger asChild>
 						<button
 							type="button"
-							onClick={() => handleToggleKeyword(match.id)}
+							onClick={(e) => {
+								e.preventDefault();
+								handleToggleKeyword(match.id);
+							}}
+							onMouseDown={(e) => {
+								// 防止按钮点击清除文本选择
+								if (window.getSelection()?.toString()) {
+									e.preventDefault();
+								}
+							}}
 							className={`rounded-md px-1.5 py-0.5 transition-all duration-200 ${
 								isKeywordSelected(match.id)
 									? "bg-green-100 text-green-700 ring-2 ring-green-300/50 ring-offset-1 hover:bg-green-200"

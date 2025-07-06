@@ -121,7 +121,12 @@
 			"email": {
 				"label": "Email Address",
 				"placeholder": "Enter your email address",
-				"submit": "Send Login Link"
+				"submit": "Send Login Link",
+				"sending": "Sending...",
+				"successTitle": "Email sent",
+				"successDescription": "Please check your email inbox",
+				"errorTitle": "Failed to send",
+				"errorDescription": "Unable to send login email, please try again later"
 			}
 		},
 		"verifyRequest": {

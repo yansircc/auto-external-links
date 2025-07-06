@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { signIn } from "@/auth";
-import { Button } from "@/components/ui/button";
+import { signInWithEmail } from "@/actions/auth";
+import { LoginForm } from "@/components/auth/login-form";
 import {
 	Card,
 	CardContent,
@@ -8,8 +8,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 export default async function SignIn() {
 	const t = await getTranslations("auth.loginPage");
@@ -24,34 +22,19 @@ export default async function SignIn() {
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<form
-						action={async (formData: FormData) => {
-							"use server";
-							const email = formData.get("email") as string;
-							await signIn("email", { email, redirect: true });
+					<LoginForm
+						messages={{
+							emailLabel: t("email.label"),
+							emailPlaceholder: t("email.placeholder"),
+							submitButton: t("email.submit"),
+							sendingButton: t("email.sending"),
+							successTitle: t("email.successTitle"),
+							successDescription: t("email.successDescription"),
+							errorTitle: t("email.errorTitle"),
+							errorDescription: t("email.errorDescription"),
 						}}
-						className="space-y-4"
-					>
-						<div className="space-y-2">
-							<Label htmlFor="email" className="font-medium text-sm">
-								{t("email.label")}
-							</Label>
-							<Input
-								type="email"
-								id="email"
-								name="email"
-								placeholder={t("email.placeholder")}
-								required
-								className="transition-colors focus:ring-2"
-							/>
-						</div>
-						<Button
-							type="submit"
-							className="w-full font-medium transition-colors hover:opacity-90"
-						>
-							{t("email.submit")}
-						</Button>
-					</form>
+						onSubmit={signInWithEmail}
+					/>
 				</CardContent>
 			</Card>
 		</div>
