@@ -59,7 +59,11 @@ export function useKeywordAnalysis() {
 				const currentKeywordCount = Object.keys(keywordMetadata).length;
 
 				// Call server action with existing keyword count
-				const result = await getKeywords(data.text, fingerprint, currentKeywordCount);
+				const result = await getKeywords(
+					data.text,
+					fingerprint,
+					currentKeywordCount,
+				);
 
 				if (result.error) {
 					const errorMessage = result.error.message || "分析失败，请稍后重试";
@@ -78,7 +82,7 @@ export function useKeywordAnalysis() {
 				// Process the result to get matches
 				const { findKeywordsInText } = await import("@/lib/keywords");
 				const newKeywords = result.data.object.keywords.map((k) => k.keyword);
-				
+
 				// 合并现有关键词和新关键词
 				const existingKeywords = Object.keys(keywordMetadata);
 				const allKeywords = [...new Set([...existingKeywords, ...newKeywords])];

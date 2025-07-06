@@ -2,6 +2,7 @@
 
 import { Languages } from "lucide-react";
 import { useTransition } from "react";
+import { setUserLocale } from "@/actions/locale";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -10,7 +11,6 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Locale } from "@/i18n/config";
-import { setUserLocale } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
 type Props = {

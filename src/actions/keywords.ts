@@ -93,8 +93,11 @@ export async function getKeywords(
 	// 3. 计算推荐的关键词数量，考虑已有的关键词
 	const baseRecommendedCount = calculateKeywordCount(text);
 	const availableSlots = Math.max(0, 20 - existingKeywordCount);
-	const recommendedKeywordCount = Math.min(baseRecommendedCount, availableSlots);
-	
+	const recommendedKeywordCount = Math.min(
+		baseRecommendedCount,
+		availableSlots,
+	);
+
 	// 如果没有可用的空位，直接返回
 	if (recommendedKeywordCount === 0) {
 		return {
@@ -104,7 +107,7 @@ export async function getKeywords(
 			},
 		};
 	}
-	
+
 	const dynamicSchema = createDynamicWrapperSchema(recommendedKeywordCount);
 
 	// 4. 继续原有的关键词分析逻辑

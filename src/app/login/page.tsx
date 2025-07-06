@@ -1,5 +1,5 @@
-import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { signInWithEmail } from "@/actions/auth";
 import { auth } from "@/auth";
 import { LoginForm } from "@/components/auth/login-form";
