@@ -42,6 +42,7 @@ interface KeywordEditorState {
 		keyword: string,
 		metadata: Partial<KeywordMetadata>,
 	) => void;
+	addUserKeyword: (keyword: string) => void;
 
 	// 批量更新方法
 	resetToInitialState: () => void;
@@ -141,6 +142,73 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
 					},
 				},
 			};
+		});
+	},
+
+	addUserKeyword: (keyword) => {
+		if (!keyword.trim()) return;
+
+		const { text, matches, keywordMetadata } = get();
+
+		// 检查关键词是否已存在（大小写不敏感）
+		const existingKeyword = Object.keys(keywordMetadata).find(
+			(k) => k.toLowerCase() === keyword.toLowerCase(),
+		);
+		if (existingKeyword) return;
+
+		// 在文本中查找关键词的所有位置
+		const newMatches: KeywordMatch[] = [];
+		let searchIndex = 0;
+		let instanceIndex = matches.filter(
+			(m) => m.keyword.toLowerCase() === keyword.toLowerCase(),
+		).length;
+
+		while (true) {
+			const foundIndex = text
+				.toLowerCase()
+				.indexOf(keyword.toLowerCase(), searchIndex);
+			if (foundIndex === -1) break;
+
+			// 获取实际匹配的文本（保持原始大小写）
+			const actualKeyword = text.slice(foundIndex, foundIndex + keyword.length);
+
+			// 创建新的匹配项
+			const id = `${actualKeyword}-${instanceIndex}`;
+			newMatches.push({
+				id,
+				keyword: actualKeyword,
+				start: foundIndex,
+				end: foundIndex + keyword.length,
+			});
+
+			searchIndex = foundIndex + keyword.length;
+			instanceIndex++;
+		}
+
+		// 如果没有找到匹配项，不添加
+		if (newMatches.length === 0) return;
+
+		// 创建默认元数据
+		const newMetadata: KeywordMetadata = {
+			query: `What is ${keyword}?`,
+			reason: `Learn more about ${keyword}`,
+			link: null,
+			title: null,
+			alternatives: { preferred: [], regular: [] },
+		};
+
+		// 更新状态
+		set({
+			matches: [...matches, ...newMatches].sort((a, b) => a.start - b.start),
+			keywordMetadata: {
+				...keywordMetadata,
+				[keyword]: newMetadata,
+			},
+			// 自动选中新添加的关键词
+			selectedKeywordIds: new Set([
+				...Array.from(get().selectedKeywordIds),
+				...newMatches.map((m) => m.id),
+			]),
 		});
 	},
 

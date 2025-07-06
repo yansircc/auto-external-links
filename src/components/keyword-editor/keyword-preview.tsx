@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useKeywordAnalysis, useKeywordSelection } from "@/hooks/keyword";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
+import { AddKeyword } from "./add-keyword";
 import { EditorActions, EditorLayout } from "./core/editor-layout";
 import type { EditorMessages } from "./core/messages";
 
@@ -20,7 +21,8 @@ interface KeywordPreviewProps {
 
 export function KeywordPreview({ messages }: KeywordPreviewProps) {
 	// Use store for pure state
-	const { text, matches, keywordMetadata } = useKeywordEditorStore();
+	const { text, matches, keywordMetadata, selectedKeywordIds } =
+		useKeywordEditorStore();
 
 	// Use hooks for business logic
 	const { fetchLinks, isLoading } = useKeywordAnalysis();
@@ -91,6 +93,18 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 					</div>
 				</TooltipProvider>
 			</EditorLayout>
+
+			{/* 关键词管理栏 */}
+			<div className="flex items-center justify-between rounded-lg border bg-muted/30 p-3">
+				<div className="text-muted-foreground text-sm">
+					已选择{" "}
+					<span className="font-medium text-foreground">
+						{selectedKeywordIds.size}
+					</span>{" "}
+					个关键词
+				</div>
+				<AddKeyword />
+			</div>
 
 			<EditorActions>
 				<Button
