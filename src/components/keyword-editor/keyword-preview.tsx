@@ -14,6 +14,7 @@ import { useKeywordEditorStore } from "@/stores/keyword-editor";
 import { AddKeyword } from "./add-keyword";
 import { EditorActions, EditorLayout } from "./core/editor-layout";
 import type { EditorMessages } from "./core/messages";
+import { TextSelectionPopover } from "./text-selection-popover";
 
 interface KeywordPreviewProps {
 	messages: EditorMessages["preview"];
@@ -53,10 +54,10 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 						<button
 							type="button"
 							onClick={() => handleToggleKeyword(match.id)}
-							className={`rounded px-0.5 hover:bg-accent ${
+							className={`rounded-md px-1.5 py-0.5 transition-all duration-200 ${
 								isKeywordSelected(match.id)
-									? "bg-green-200 text-green-700 hover:bg-green-300"
-									: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+									? "bg-green-100 text-green-700 ring-2 ring-green-300/50 ring-offset-1 hover:bg-green-200"
+									: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 hover:ring-2 hover:ring-yellow-300/50 hover:ring-offset-1"
 							}`}
 						>
 							{text.slice(match.start, match.end)}
@@ -88,20 +89,30 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 		<div className="space-y-4">
 			<EditorLayout>
 				<TooltipProvider>
-					<div className="whitespace-pre-wrap text-sm">
+					<div
+						className="whitespace-pre-wrap text-sm"
+						data-editor-content="true"
+					>
 						{renderHighlightedText()}
 					</div>
 				</TooltipProvider>
+				<TextSelectionPopover />
 			</EditorLayout>
 
 			{/* 关键词管理栏 */}
-			<div className="flex items-center justify-between rounded-lg border bg-muted/30 p-3">
-				<div className="text-muted-foreground text-sm">
-					已选择{" "}
-					<span className="font-medium text-foreground">
-						{selectedKeywordIds.size}
-					</span>{" "}
-					个关键词
+			<div className="flex items-center justify-between rounded-lg border bg-gradient-to-r from-muted/50 to-muted/30 p-4">
+				<div className="flex items-center gap-3">
+					<div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+						<span className="font-semibold text-primary text-sm">
+							{selectedKeywordIds.size}
+						</span>
+					</div>
+					<div className="text-sm">
+						<span className="text-muted-foreground">已选择关键词</span>
+						<p className="text-muted-foreground/70 text-xs">
+							鼠标选择文本可快速添加新关键词
+						</p>
+					</div>
 				</div>
 				<AddKeyword />
 			</div>

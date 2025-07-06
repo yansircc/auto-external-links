@@ -64,13 +64,13 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 		return (
 			<Button
 				type="button"
-				variant="outline"
+				variant="secondary"
 				size="sm"
 				onClick={() => setIsAdding(true)}
-				className="gap-1"
+				className="gap-1.5 shadow-sm transition-shadow hover:shadow-md"
 			>
-				<Plus className="h-3 w-3" />
-				添加关键词
+				<Plus className="h-4 w-4" />
+				手动添加
 			</Button>
 		);
 	}
