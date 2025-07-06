@@ -1,14 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
+import { fetchLinksForKeywords, getKeywords } from "@/actions/keywords";
+import { getUsageStats } from "@/actions/usage";
 import type { FormData } from "@/components/keyword-editor/core/schema";
 import { useToast } from "@/hooks/use-toast";
 import { ErrorHandler } from "@/lib/errors/handler";
-import { KeywordService } from "@/services/keyword/keyword.service";
 import {
 	keywordEditorSelectors,
 	useKeywordEditorStore,
-} from "@/stores/keyword-editor-v2";
+} from "@/stores/keyword-editor";
 import { useSitePreferencesStore } from "@/stores/site-preferences";
 
 /**
@@ -17,7 +18,6 @@ import { useSitePreferencesStore } from "@/stores/site-preferences";
  */
 export function useKeywordAnalysis() {
 	const { toast } = useToast();
-	const [keywordService] = useState(() => new KeywordService());
 
 	// Store 状态和方法
 	const store = useKeywordEditorStore();
@@ -55,10 +55,11 @@ export function useKeywordAnalysis() {
 			setIsLoading(true);
 
 			try {
-				const result = await keywordService.analyzeText(data.text, fingerprint);
+				// Call server action
+				const result = await getKeywords(data.text, fingerprint);
 
-				if (!result.success || !result.data) {
-					const errorMessage = result.error?.message || "分析失败，请稍后重试";
+				if (result.error) {
+					const errorMessage = result.error.message || "分析失败，请稍后重试";
 					toast({
 						title: "分析失败",
 						description: errorMessage,
@@ -67,17 +68,38 @@ export function useKeywordAnalysis() {
 					return;
 				}
 
+				if (!result.data) {
+					throw new Error("分析失败：未返回数据");
+				}
+
+				// Process the result to get matches
+				const { findKeywordsInText } = await import("@/lib/keywords");
+				const keywords = result.data.object.keywords.map((k) => k.keyword);
+				const matches = findKeywordsInText(data.text, keywords);
+
+				// Build metadata
+				const metadata: Record<string, any> = {};
+				for (const keyword of result.data.object.keywords) {
+					metadata[keyword.keyword] = {
+						query: keyword.query,
+						reason: keyword.reason,
+						link: null,
+						title: null,
+						alternatives: { preferred: [], regular: [] },
+					};
+				}
+
 				// 更新 Store
 				updateAnalysisResult({
-					text: result.data.text,
-					matches: result.data.matches,
-					metadata: result.data.metadata,
+					text: data.text,
+					matches,
+					metadata,
 				});
 
 				// 显示成功提示
 				toast({
 					title: "分析完成",
-					description: `找到 ${result.data.keywords.length} 个关键词`,
+					description: `找到 ${keywords.length} 个关键词`,
 				});
 			} catch (error) {
 				const errorMessage = ErrorHandler.getMessage(error);
@@ -106,7 +128,7 @@ export function useKeywordAnalysis() {
 				setIsLoading(false);
 			}
 		},
-		[keywordService, setIsLoading, updateAnalysisResult, toast],
+		[setIsLoading, updateAnalysisResult, toast],
 	);
 
 	/**
@@ -137,9 +159,10 @@ export function useKeywordAnalysis() {
 				preferredSites: preferredSites.map((site) => site.domain),
 			};
 
-			const linkMap = await keywordService.fetchLinksForKeywords(
+			const linkMap = await fetchLinksForKeywords(
 				keywordsForSearch,
-				searchOptions,
+				searchOptions.blacklist,
+				searchOptions.preferredSites,
 			);
 
 			// 合并链接结果到现有元数据
@@ -192,7 +215,6 @@ export function useKeywordAnalysis() {
 		keywordMetadata,
 		blacklist,
 		preferredSites,
-		keywordService,
 		setIsLoading,
 		updateLinksResult,
 		toast,
@@ -211,21 +233,6 @@ export function useKeywordAnalysis() {
 	const startNewAnalysis = useCallback(() => {
 		resetToInitialState();
 	}, [resetToInitialState]);
-
-	/**
-	 * 获取使用统计
-	 */
-	const getUsageStats = useCallback(
-		async (fingerprint?: string) => {
-			try {
-				return await keywordService.getUsageStats(fingerprint);
-			} catch (error) {
-				ErrorHandler.log(error, { action: "getUsageStats" });
-				return null;
-			}
-		},
-		[keywordService],
-	);
 
 	return {
 		// 状态

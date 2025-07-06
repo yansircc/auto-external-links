@@ -4,7 +4,6 @@
  */
 
 import { z } from "zod";
-import type { SerperResponse } from "@/lib/serper/schema";
 import { MAX_LENGTH } from "./config";
 
 // 表单模式
@@ -20,20 +19,5 @@ export const formSchema = z.object({
 
 export type FormData = z.infer<typeof formSchema>;
 
-// 关键词匹配
-export interface KeywordMatch {
-	keyword: string;
-	index: number;
-}
-
-// 关键词元数据
-export interface KeywordMetadata {
-	query: string;
-	reason: string;
-	link: string | null;
-	title: string | null;
-	alternatives: {
-		preferred: SerperResponse["organic"];
-		regular: SerperResponse["organic"];
-	};
-}
+// Re-export types from centralized location
+export type { KeywordMatch, KeywordMetadata } from "@/types/keywords";

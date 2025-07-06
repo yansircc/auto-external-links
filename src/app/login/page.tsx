@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -9,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn } from "@/server/auth";
 
 export default async function SignIn() {
 	const t = await getTranslations("auth.loginPage");
@@ -28,7 +28,7 @@ export default async function SignIn() {
 						action={async (formData: FormData) => {
 							"use server";
 							const email = formData.get("email") as string;
-							await signIn("plunk", { email, redirect: true });
+							await signIn("email", { email, redirect: true });
 						}}
 						className="space-y-4"
 					>

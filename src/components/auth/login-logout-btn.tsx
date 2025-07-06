@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/server/auth";
 
 export default async function LoginLogoutBtn() {
 	const session = await auth();

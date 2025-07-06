@@ -2,6 +2,7 @@
 
 import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useKeywordSelection } from "@/hooks/keyword";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 import { EditorActions, EditorLayout } from "../core/editor-layout";
 import type { EditorMessages } from "../core/messages";
@@ -15,13 +16,12 @@ interface LinkedContentProps {
 }
 
 export function LinkedContent({ messages }: LinkedContentProps) {
-	const {
-		text,
-		matches,
-		keywordMetadata,
-		selectedKeywordIds,
-		updateKeywordLink,
-	} = useKeywordEditorStore();
+	// Use store for pure state
+	const { text, matches, keywordMetadata, selectedKeywordIds } =
+		useKeywordEditorStore();
+
+	// Use hook for business logic
+	const { switchKeywordLink } = useKeywordSelection();
 
 	const { footnotes, footnoteIndexMap } = useFootnotes(
 		matches,
@@ -44,7 +44,7 @@ export function LinkedContent({ messages }: LinkedContentProps) {
 	// 处理链接切换
 	function handleLinkChange(id: string, link: string, title: string) {
 		const keyword = id.slice(0, id.lastIndexOf("-"));
-		updateKeywordLink(keyword, link, title);
+		switchKeywordLink(keyword, link, title);
 	}
 
 	return (

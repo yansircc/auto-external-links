@@ -1,8 +1,4 @@
-// 关键词匹配
-interface KeywordMatch {
-	keyword: string;
-	index: number;
-}
+import type { KeywordMatch } from "@/types/keywords";
 
 /**
  * 创建唯一的关键词标识符
@@ -10,7 +6,7 @@ interface KeywordMatch {
  * @param index - 位置索引
  * @returns 唯一标识符
  */
-export function createKeywordId(keyword: string, index: number) {
+export function createKeywordId(keyword: string, index: number): string {
 	return `${keyword}-${index}`;
 }
 
@@ -38,7 +34,7 @@ export function getUniqueSelectedKeywords(selectedIds: Set<string>): string[] {
  * 在文本中查找关键词的位置
  * @param text - 原始文本
  * @param keywords - 要查找的关键词列表
- * @returns 关键词匹配信息数组
+ * @returns 符合新类型定义的关键词匹配数组
  */
 export function findKeywordsInText(
 	text: string,
@@ -48,23 +44,28 @@ export function findKeywordsInText(
 
 	// 对每个关键词进行查找
 	for (const keyword of keywords) {
-		let index = 0;
+		let searchIndex = 0;
+		let instanceIndex = 0;
+
 		while (true) {
 			// 从当前位置开始查找关键词
-			index = text.indexOf(keyword, index);
-			if (index === -1) break;
+			const foundIndex = text.indexOf(keyword, searchIndex);
+			if (foundIndex === -1) break;
 
-			// 添加匹配信息
+			// 添加匹配信息，符合新的类型定义
 			matches.push({
+				id: createKeywordId(keyword, instanceIndex),
 				keyword,
-				index,
+				start: foundIndex,
+				end: foundIndex + keyword.length,
 			});
 
 			// 移动到下一个位置继续查找
-			index += keyword.length;
+			searchIndex = foundIndex + keyword.length;
+			instanceIndex++;
 		}
 	}
 
 	// 按位置排序
-	return matches.sort((a, b) => a.index - b.index);
+	return matches.sort((a, b) => a.start - b.start);
 }

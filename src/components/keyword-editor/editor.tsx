@@ -21,7 +21,7 @@ interface EditorProps {
 }
 
 export function KeywordEditor({ messages, onSubmit }: EditorProps) {
-	const { isEditing, hasLinks } = useKeywordEditorStore();
+	const { mode } = useKeywordEditorStore();
 
 	return (
 		<div className="space-y-6">
@@ -41,22 +41,22 @@ export function KeywordEditor({ messages, onSubmit }: EditorProps) {
 				<CardHeader>
 					<CardTitle>{messages.form.title}</CardTitle>
 					<CardDescription>
-						{isEditing
+						{mode === "editing"
 							? messages.form.description
-							: hasLinks
+							: mode === "linked"
 								? messages.linkedContent.description
 								: messages.preview.description}
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<AnimatePresence mode="wait">
-						{isEditing ? (
+						{mode === "editing" ? (
 							<EditorForm
 								key="form"
 								messages={messages.form}
 								onSubmit={onSubmit}
 							/>
-						) : hasLinks ? (
+						) : mode === "linked" ? (
 							<LinkedContent key="linked" messages={messages.linkedContent} />
 						) : (
 							<KeywordPreview key="preview" messages={messages.preview} />

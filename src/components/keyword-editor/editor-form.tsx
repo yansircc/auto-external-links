@@ -25,7 +25,9 @@ interface EditorFormProps {
 }
 
 export function EditorForm({ messages, onSubmit }: EditorFormProps) {
-	const { text, isLoading } = useKeywordEditorStore();
+	// Only get the state we need from the store
+	const text = useKeywordEditorStore((state) => state.text);
+	const isLoading = useKeywordEditorStore((state) => state.isLoading);
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(formSchema),

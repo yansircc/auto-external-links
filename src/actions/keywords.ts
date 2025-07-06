@@ -4,10 +4,10 @@
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
+import { auth } from "@/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { searchGoogle } from "@/lib/serper";
 import type { SerperResponse } from "@/lib/serper/schema";
-import { auth } from "@/server/auth";
 import { catchError } from "@/utils";
 import { keywordSchema } from "./schema";
 

@@ -1,5 +1,4 @@
 import type { JSX } from "react";
-import { createKeywordId } from "@/lib/keywords";
 import type { Footnote, RenderOptions } from "../core/types";
 import { LinkSwitcher } from "./link-switcher";
 
@@ -17,26 +16,26 @@ export function renderLinkedText({
 	let lastIndex = 0;
 	const elements: JSX.Element[] = [];
 
-	for (const [matchIndex, match] of matches.entries()) {
-		const id = createKeywordId(match.keyword, matchIndex);
+	for (const match of matches) {
+		const id = match.id;
 		// Only process selected keywords
 		if (!selectedKeywordIds.has(id)) {
-			if (match.index > lastIndex) {
+			if (match.start > lastIndex) {
 				elements.push(
-					<span key={`text-skip-${match.index}`}>
-						{text.slice(lastIndex, match.index + match.keyword.length)}
+					<span key={`text-skip-${match.start}`}>
+						{text.slice(lastIndex, match.end)}
 					</span>,
 				);
-				lastIndex = match.index + match.keyword.length;
+				lastIndex = match.end;
 			}
 			continue;
 		}
 
 		// Add normal text before the keyword
-		if (match.index > lastIndex) {
+		if (match.start > lastIndex) {
 			elements.push(
-				<span key={`text-before-${match.index}`}>
-					{text.slice(lastIndex, match.index)}
+				<span key={`text-before-${match.start}`}>
+					{text.slice(lastIndex, match.start)}
 				</span>,
 			);
 		}
@@ -61,7 +60,7 @@ export function renderLinkedText({
 					onLinkChange={(link, title) => onLinkChange(id, link, title)}
 					messages={messages}
 				>
-					{text.slice(match.index, match.index + match.keyword.length)}
+					{text.slice(match.start, match.end)}
 				</LinkSwitcher>
 				<a
 					href={`#footnote-${footnoteIndex}`}
@@ -73,7 +72,7 @@ export function renderLinkedText({
 			</span>,
 		);
 
-		lastIndex = match.index + match.keyword.length;
+		lastIndex = match.end;
 	}
 
 	// Add remaining text
@@ -94,25 +93,17 @@ export function generateMarkdown({
 }: Omit<RenderOptions, "footnoteIndexMap" | "messages">) {
 	let result = text;
 	const sortedMatches = [...matches]
-		.filter((match, index) =>
-			selectedKeywordIds.has(createKeywordId(match.keyword, index)),
-		)
-		.sort((a, b) => b.index - a.index); // Process from end to start
+		.filter((match) => selectedKeywordIds.has(match.id))
+		.sort((a, b) => b.start - a.start); // Process from end to start
 
 	// Add links
 	for (const match of sortedMatches) {
 		const metadata = keywordMetadata[match.keyword];
 		if (!metadata?.link) continue;
 
-		const linkText = text.slice(
-			match.index,
-			match.index + match.keyword.length,
-		);
+		const linkText = text.slice(match.start, match.end);
 		const markdown = `[${linkText}](${metadata.link})`;
-		result =
-			result.slice(0, match.index) +
-			markdown +
-			result.slice(match.index + match.keyword.length);
+		result = result.slice(0, match.start) + markdown + result.slice(match.end);
 	}
 
 	return result;
@@ -127,18 +118,12 @@ export function generateMarkdownWithFootnotes({
 }: Omit<RenderOptions, "messages">) {
 	let result = text;
 	const sortedMatches = [...matches]
-		.filter((match, index) =>
-			selectedKeywordIds.has(createKeywordId(match.keyword, index)),
-		)
-		.sort((a, b) => b.index - a.index); // Process from end to start
+		.filter((match) => selectedKeywordIds.has(match.id))
+		.sort((a, b) => b.start - a.start); // Process from end to start
 
 	// Add links with footnote references
 	for (const match of sortedMatches) {
-		// Find the original index of this match in the matches array
-		const originalIndex = matches.findIndex(
-			(m) => m.index === match.index && m.keyword === match.keyword,
-		);
-		const id = createKeywordId(match.keyword, originalIndex);
+		const id = match.id;
 
 		const metadata = keywordMetadata[match.keyword];
 		if (!metadata?.link) continue;
@@ -146,15 +131,9 @@ export function generateMarkdownWithFootnotes({
 		const footnoteIndex = footnoteIndexMap.get(id);
 		if (!footnoteIndex) continue;
 
-		const linkText = text.slice(
-			match.index,
-			match.index + match.keyword.length,
-		);
+		const linkText = text.slice(match.start, match.end);
 		const markdown = `[${linkText}](${metadata.link})[^${footnoteIndex}]`;
-		result =
-			result.slice(0, match.index) +
-			markdown +
-			result.slice(match.index + match.keyword.length);
+		result = result.slice(0, match.start) + markdown + result.slice(match.end);
 	}
 
 	return result;

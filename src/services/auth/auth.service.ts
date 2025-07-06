@@ -1,6 +1,6 @@
 import type { Session } from "next-auth";
+import { auth } from "@/auth";
 import { Errors } from "@/lib/errors/types";
-import { auth } from "@/server/auth";
 import { BaseService } from "@/services/base/base.service";
 
 /**

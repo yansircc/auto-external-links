@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { KeywordEditor } from "@/components/keyword-editor/editor";
+import { useKeywordAnalysis } from "@/hooks/keyword";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 import { useSitePreferencesStore } from "@/stores/site-preferences";
 import { useFingerprint } from "../fingerprint/use-fingerprint";
@@ -17,7 +18,11 @@ export function KeywordEditorContainer({
 	messages: EditorMessages;
 }) {
 	const fingerprint = useFingerprint();
-	const { handleSubmit, setPreferredSites } = useKeywordEditorStore();
+	// Use hook for business logic
+	const { analyzeText } = useKeywordAnalysis();
+
+	// Use store for state management
+	const { setPreferredSites } = useKeywordEditorStore();
 	const { preferredSites } = useSitePreferencesStore();
 
 	// 同步偏好站点到编辑器状态
@@ -28,7 +33,7 @@ export function KeywordEditorContainer({
 	return (
 		<KeywordEditor
 			messages={messages}
-			onSubmit={(data) => handleSubmit(data, fingerprint ?? undefined)}
+			onSubmit={(data) => analyzeText(data, fingerprint ?? undefined)}
 		/>
 	);
 }

@@ -1,4 +1,3 @@
-import { createKeywordId } from "@/lib/keywords";
 import type { KeywordMatch, KeywordMetadata } from "../core/schema";
 import type { Footnote } from "../core/types";
 
@@ -14,9 +13,8 @@ export function useFootnotes(
 ): FootnotesResult {
 	// Generate deduplicated footnotes for selected keywords
 	const footnotes: Footnote[] = Array.from(
-		matches.reduce((map, match, index) => {
-			const id = createKeywordId(match.keyword, index);
-			if (!selectedKeywordIds.has(id)) return map;
+		matches.reduce((map, match) => {
+			if (!selectedKeywordIds.has(match.id)) return map;
 
 			const metadata = keywordMetadata[match.keyword];
 			if (!metadata?.link || !metadata.reason) return map;
@@ -24,7 +22,7 @@ export function useFootnotes(
 			const existing = map.get(match.keyword);
 			if (existing) {
 				// Add this instance's ID to existing footnote
-				existing.referenceIds.push(id);
+				existing.referenceIds.push(match.id);
 				return map;
 			}
 
@@ -32,7 +30,7 @@ export function useFootnotes(
 			map.set(match.keyword, {
 				keyword: match.keyword,
 				reason: metadata.reason,
-				referenceIds: [id],
+				referenceIds: [match.id],
 			});
 			return map;
 		}, new Map<string, Footnote>()),

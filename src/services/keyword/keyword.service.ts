@@ -1,4 +1,4 @@
-import { findKeywordsInText } from "@/lib/keywords-v2";
+import { findKeywordsInText } from "@/lib/keywords";
 import { AuthService } from "@/services/auth/auth.service";
 import { RateLimitService } from "@/services/auth/rate-limit.service";
 import { BaseService } from "@/services/base/base.service";

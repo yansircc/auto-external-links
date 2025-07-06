@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useKeywordEditorStore } from "@/stores/keyword-editor-v2";
+import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
 /**
  * 关键词选择管理 Hook

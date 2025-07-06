@@ -9,7 +9,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { createKeywordId } from "@/lib/keywords";
+import { useKeywordAnalysis, useKeywordSelection } from "@/hooks/keyword";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 import { EditorActions, EditorLayout } from "./core/editor-layout";
 import type { EditorMessages } from "./core/messages";
@@ -19,29 +19,24 @@ interface KeywordPreviewProps {
 }
 
 export function KeywordPreview({ messages }: KeywordPreviewProps) {
-	const {
-		text,
-		matches,
-		keywordMetadata,
-		selectedKeywordIds,
-		isLoading,
-		toggleKeyword,
-		handleConfirm,
-	} = useKeywordEditorStore();
+	// Use store for pure state
+	const { text, matches, keywordMetadata } = useKeywordEditorStore();
+
+	// Use hooks for business logic
+	const { fetchLinks, isLoading } = useKeywordAnalysis();
+	const { handleToggleKeyword, isKeywordSelected } = useKeywordSelection();
 
 	// 渲染高亮文本
 	function renderHighlightedText() {
 		let lastIndex = 0;
 		const elements: JSX.Element[] = [];
 
-		for (const [matchIndex, match] of matches.entries()) {
-			const id = createKeywordId(match.keyword, matchIndex);
-
+		for (const match of matches) {
 			// 添加普通文本
-			if (match.index > lastIndex) {
+			if (match.start > lastIndex) {
 				elements.push(
-					<span key={`text-before-${match.index}`}>
-						{text.slice(lastIndex, match.index)}
+					<span key={`text-before-${match.start}`}>
+						{text.slice(lastIndex, match.start)}
 					</span>,
 				);
 			}
@@ -51,18 +46,18 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 			if (!metadata) continue;
 
 			elements.push(
-				<Tooltip key={`tooltip-${id}`}>
+				<Tooltip key={`tooltip-${match.id}`}>
 					<TooltipTrigger asChild>
 						<button
 							type="button"
-							onClick={() => toggleKeyword(id)}
+							onClick={() => handleToggleKeyword(match.id)}
 							className={`rounded px-0.5 hover:bg-accent ${
-								selectedKeywordIds.has(id)
+								isKeywordSelected(match.id)
 									? "bg-green-200 text-green-700 hover:bg-green-300"
 									: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
 							}`}
 						>
-							{text.slice(match.index, match.index + match.keyword.length)}
+							{text.slice(match.start, match.end)}
 						</button>
 					</TooltipTrigger>
 					<TooltipContent side="top" align="start">
@@ -74,7 +69,7 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 				</Tooltip>,
 			);
 
-			lastIndex = match.index + match.keyword.length;
+			lastIndex = match.end;
 		}
 
 		// 添加剩余文本
@@ -101,7 +96,7 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 				<Button
 					type="button"
 					disabled={isLoading}
-					onClick={() => handleConfirm()}
+					onClick={() => fetchLinks()}
 					className="gap-2"
 				>
 					{isLoading ? (
