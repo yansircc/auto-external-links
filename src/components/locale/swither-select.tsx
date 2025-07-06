@@ -1,5 +1,7 @@
 "use client";
 
+import { Languages } from "lucide-react";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -10,8 +12,6 @@ import {
 import type { Locale } from "@/i18n/config";
 import { setUserLocale } from "@/lib/locale";
 import { cn } from "@/lib/utils";
-import { Languages } from "lucide-react";
-import { useTransition } from "react";
 
 type Props = {
 	defaultValue: string;

@@ -1,7 +1,7 @@
-import type { BlacklistEntry } from "@/lib/blacklist";
-import type { PreferredSite } from "@/lib/preferred-sites";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { BlacklistEntry } from "@/lib/blacklist";
+import type { PreferredSite } from "@/lib/preferred-sites";
 
 interface SitePreferencesState {
 	// 状态

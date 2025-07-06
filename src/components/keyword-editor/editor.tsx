@@ -1,5 +1,7 @@
 "use client";
 
+import { AnimatePresence } from "framer-motion";
+import { Brain, Link2, Sparkles, Wand2 } from "lucide-react";
 import {
 	Card,
 	CardContent,
@@ -8,8 +10,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
-import { AnimatePresence } from "framer-motion";
-import { Brain, Link2, Sparkles, Wand2 } from "lucide-react";
 import type { EditorMessages } from "./core/messages";
 import { EditorForm } from "./editor-form";
 import { KeywordPreview } from "./keyword-preview";
@@ -29,9 +29,9 @@ export function KeywordEditor({ messages, onSubmit }: EditorProps) {
 			<div className="space-y-2 text-center">
 				<div className="flex items-center justify-center gap-2 text-primary">
 					<Sparkles className="h-5 w-5" />
-					<h2 className="text-lg font-semibold">{messages.header.title}</h2>
+					<h2 className="font-semibold text-lg">{messages.header.title}</h2>
 				</div>
-				<p className="text-sm text-muted-foreground">
+				<p className="text-muted-foreground text-sm">
 					{messages.header.description}
 				</p>
 			</div>
@@ -73,12 +73,12 @@ export function KeywordEditor({ messages, onSubmit }: EditorProps) {
 							<div className="rounded-md bg-primary/10 p-1">
 								<Brain className="h-4 w-4 text-primary" />
 							</div>
-							<CardTitle className="text-sm font-medium">
+							<CardTitle className="font-medium text-sm">
 								{messages.features.ai.title}
 							</CardTitle>
 						</div>
 					</CardHeader>
-					<CardContent className="space-y-2 text-xs text-muted-foreground">
+					<CardContent className="space-y-2 text-muted-foreground text-xs">
 						<p>{messages.features.ai.description}</p>
 					</CardContent>
 				</Card>
@@ -89,12 +89,12 @@ export function KeywordEditor({ messages, onSubmit }: EditorProps) {
 							<div className="rounded-md bg-primary/10 p-1">
 								<Link2 className="h-4 w-4 text-primary" />
 							</div>
-							<CardTitle className="text-sm font-medium">
+							<CardTitle className="font-medium text-sm">
 								{messages.features.links.title}
 							</CardTitle>
 						</div>
 					</CardHeader>
-					<CardContent className="space-y-2 text-xs text-muted-foreground">
+					<CardContent className="space-y-2 text-muted-foreground text-xs">
 						<p>{messages.features.links.description}</p>
 					</CardContent>
 				</Card>
@@ -105,12 +105,12 @@ export function KeywordEditor({ messages, onSubmit }: EditorProps) {
 							<div className="rounded-md bg-primary/10 p-1">
 								<Wand2 className="h-4 w-4 text-primary" />
 							</div>
-							<CardTitle className="text-sm font-medium">
+							<CardTitle className="font-medium text-sm">
 								{messages.features.optimization.title}
 							</CardTitle>
 						</div>
 					</CardHeader>
-					<CardContent className="space-y-2 text-xs text-muted-foreground">
+					<CardContent className="space-y-2 text-muted-foreground text-xs">
 						<p>{messages.features.optimization.description}</p>
 					</CardContent>
 				</Card>

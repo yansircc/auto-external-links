@@ -1,8 +1,8 @@
 "use client";
 
+import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
-import { Check, Copy } from "lucide-react";
 import { EditorActions, EditorLayout } from "../core/editor-layout";
 import type { EditorMessages } from "../core/messages";
 import { Footnotes } from "./footnotes";

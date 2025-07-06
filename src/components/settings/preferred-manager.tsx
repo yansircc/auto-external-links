@@ -1,10 +1,10 @@
 "use client";
 
+import { Trash2 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSitePreferencesStore } from "@/stores/site-preferences";
-import { Trash2 } from "lucide-react";
-import { useState } from "react";
 import type { SettingsMessages } from "./messages";
 
 interface PreferredSitesManagerProps {
@@ -68,11 +68,11 @@ export function PreferredSitesManager({
 					))}
 				</ul>
 			) : (
-				<p className="text-sm text-muted-foreground">{messages.list.empty}</p>
+				<p className="text-muted-foreground text-sm">{messages.list.empty}</p>
 			)}
 
 			{preferredSites.length > 0 && (
-				<p className="text-xs text-muted-foreground">{messages.message}</p>
+				<p className="text-muted-foreground text-xs">{messages.message}</p>
 			)}
 		</div>
 	);

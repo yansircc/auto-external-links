@@ -1,5 +1,8 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -11,9 +14,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { MAX_LENGTH } from "./core/config";
 import { EditorActions, EditorLayout } from "./core/editor-layout";
 import type { EditorMessages } from "./core/messages";

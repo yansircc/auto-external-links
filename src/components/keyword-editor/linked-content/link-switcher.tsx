@@ -1,5 +1,7 @@
 "use client";
 
+import { Check, ChevronDown } from "lucide-react";
+import * as React from "react";
 import {
 	Popover,
 	PopoverContent,
@@ -7,8 +9,6 @@ import {
 } from "@/components/ui/popover";
 import type { SerperResponse } from "@/lib/serper/schema";
 import { cn } from "@/lib/utils";
-import { Check, ChevronDown } from "lucide-react";
-import * as React from "react";
 import type { EditorMessages } from "../core/messages";
 
 interface LinkSwitcherProps {
@@ -92,7 +92,7 @@ export function LinkSwitcher({
 						{children}
 					</a>
 					{showSuccess ? (
-						<Check className="ml-1 h-3 w-3 text-green-500 duration-300 animate-in fade-in-0 zoom-in-0" />
+						<Check className="fade-in-0 zoom-in-0 ml-1 h-3 w-3 animate-in text-green-500 duration-300" />
 					) : (
 						<ChevronDown
 							className={cn(
@@ -138,12 +138,12 @@ export function LinkSwitcher({
 								<div className="flex items-center justify-between">
 									<div className="min-w-0 flex-1">
 										<p className="line-clamp-1 font-medium">{result.title}</p>
-										<p className="line-clamp-1 text-xs text-muted-foreground">
+										<p className="line-clamp-1 text-muted-foreground text-xs">
 											{result.link}
 										</p>
 									</div>
 									{isPreferred && (
-										<span className="ml-2 shrink-0 text-xs text-primary">
+										<span className="ml-2 shrink-0 text-primary text-xs">
 											{messages.preferred}
 										</span>
 									)}

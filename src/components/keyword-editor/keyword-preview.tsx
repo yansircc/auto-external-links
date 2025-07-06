@@ -1,5 +1,7 @@
 "use client";
 
+import { Link2, Loader2 } from "lucide-react";
+import type { JSX } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
@@ -9,8 +11,6 @@ import {
 } from "@/components/ui/tooltip";
 import { createKeywordId } from "@/lib/keywords";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
-import { Link2, Loader2 } from "lucide-react";
-import type { JSX } from "react";
 import { EditorActions, EditorLayout } from "./core/editor-layout";
 import type { EditorMessages } from "./core/messages";
 
@@ -68,7 +68,7 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 					<TooltipContent side="top" align="start">
 						<div className="space-y-1">
 							<p className="font-medium">{metadata.query}</p>
-							<p className="text-xs text-muted-foreground">{metadata.reason}</p>
+							<p className="text-muted-foreground text-xs">{metadata.reason}</p>
 						</div>
 					</TooltipContent>
 				</Tooltip>,

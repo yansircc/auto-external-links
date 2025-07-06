@@ -13,7 +13,7 @@ export default async function Home() {
 				<div className="my-14 w-full">
 					<div className="mx-auto max-w-5xl px-4">
 						<div className="mb-8 space-y-2">
-							<h1 className="text-3xl font-bold">{messages.header.title}</h1>
+							<h1 className="font-bold text-3xl">{messages.header.title}</h1>
 							<p className="text-muted-foreground">
 								{messages.header.description}
 							</p>

@@ -1,3 +1,4 @@
+import { create } from "zustand";
 import { fetchLinksForKeywords, getKeywords } from "@/actions/keywords";
 import type {
 	FormData,
@@ -11,7 +12,6 @@ import {
 } from "@/components/keyword-editor/core/toast-handler";
 import { findKeywordsInText, getUniqueSelectedKeywords } from "@/lib/keywords";
 import { useSitePreferencesStore } from "@/stores/site-preferences";
-import { create } from "zustand";
 
 interface KeywordEditorState {
 	// 状态

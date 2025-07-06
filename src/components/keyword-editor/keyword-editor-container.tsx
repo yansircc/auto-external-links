@@ -1,9 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { KeywordEditor } from "@/components/keyword-editor/editor";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 import { useSitePreferencesStore } from "@/stores/site-preferences";
-import { useEffect } from "react";
 import { useFingerprint } from "../fingerprint/use-fingerprint";
 import type { EditorMessages } from "./core/messages";
 

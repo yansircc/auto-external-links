@@ -1,6 +1,6 @@
-import { redis } from "@/server/kv";
 import type { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import { headers } from "next/headers";
+import { redis } from "@/server/kv";
 
 const RATE_LIMIT_PREFIX = "rate-limit:";
 const DAILY_LIMIT = 3;

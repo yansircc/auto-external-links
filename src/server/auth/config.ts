@@ -1,9 +1,9 @@
+import { UpstashRedisAdapter } from "@auth/upstash-redis-adapter";
+import type { AuthOptions } from "next-auth";
+import EmailProvider from "next-auth/providers/email";
 import { PlunkClient } from "@/lib/plunk";
 import { redis } from "@/server/kv";
 import { catchError } from "@/utils";
-import { UpstashRedisAdapter } from "@auth/upstash-redis-adapter";
-import type { AuthOptions, DefaultSession } from "next-auth";
-import EmailProvider from "next-auth/providers/email";
 
 if (!process.env.AUTH_SECRET) {
 	throw new Error("AUTH_SECRET 环境变量未设置");

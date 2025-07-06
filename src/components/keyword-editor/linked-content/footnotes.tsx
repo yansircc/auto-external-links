@@ -13,7 +13,7 @@ export function Footnotes({ footnotes, messages }: FootnotesProps) {
 
 	return (
 		<div className="mt-8 border-t pt-6">
-			<h3 className="mb-4 text-sm font-medium">{messages.footnotes}</h3>
+			<h3 className="mb-4 font-medium text-sm">{messages.footnotes}</h3>
 			<div className="space-y-3 text-sm">
 				{footnotes.map((footnote, index) => {
 					const footnoteNumber = index + 1;

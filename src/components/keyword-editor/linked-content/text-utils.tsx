@@ -1,5 +1,5 @@
-import { createKeywordId } from "@/lib/keywords";
 import type { JSX } from "react";
+import { createKeywordId } from "@/lib/keywords";
 import type { Footnote, RenderOptions } from "../core/types";
 import { LinkSwitcher } from "./link-switcher";
 
@@ -65,7 +65,7 @@ export function renderLinkedText({
 				</LinkSwitcher>
 				<a
 					href={`#footnote-${footnoteIndex}`}
-					className="ml-0.5 text-xs text-muted-foreground no-underline group-hover:text-primary"
+					className="ml-0.5 text-muted-foreground text-xs no-underline group-hover:text-primary"
 					aria-label={`See footnote ${footnoteIndex}`}
 				>
 					[{footnoteIndex}]

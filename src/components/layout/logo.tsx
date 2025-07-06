@@ -1,10 +1,10 @@
 "use client";
 
+import { motion } from "framer-motion";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import SiteLogo from "@/images/site-logo.png";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
-import { motion } from "framer-motion";
-import Image from "next/image";
 
 export default function Logo() {
 	const { handleNewAnalysis, shouldAnimateLogo } = useKeywordEditorStore();

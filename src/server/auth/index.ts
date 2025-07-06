@@ -1,6 +1,10 @@
-import { config } from "@/server/auth/config";
+import type {
+	GetServerSidePropsContext,
+	NextApiRequest,
+	NextApiResponse,
+} from "next";
 import { getServerSession } from "next-auth/next";
-import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next";
+import { config } from "@/server/auth/config";
 
 /**
  * 认证实例
@@ -11,13 +15,16 @@ import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 
 
 // Wrapper for getServerSession with our config
 export async function auth(
-  ...args: [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]] | [NextApiRequest, NextApiResponse] | []
+	...args:
+		| [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
+		| [NextApiRequest, NextApiResponse]
+		| []
 ) {
-  return getServerSession(...args, config);
+	return getServerSession(...args, config);
 }
 
 // Re-export config for use in route handlers
 export { config };
 
-// Note: signIn and signOut need to be implemented differently for App Router
-// They are typically used as Server Actions
+// Export server actions
+export { signIn } from "./actions";

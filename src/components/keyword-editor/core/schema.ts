@@ -3,8 +3,8 @@
  * @path src/ai/tools/keywords/schema.ts
  */
 
-import type { SerperResponse } from "@/lib/serper/schema";
 import { z } from "zod";
+import type { SerperResponse } from "@/lib/serper/schema";
 import { MAX_LENGTH } from "./config";
 
 // 表单模式

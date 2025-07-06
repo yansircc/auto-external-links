@@ -2,18 +2,16 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 // Public paths that don't require authentication
-const PUBLIC_PATHS = ["/", "/about", "/privacy", "/terms", "/api/auth"];
+const _PUBLIC_PATHS = ["/", "/about", "/privacy", "/terms", "/api/auth"];
 
 /**
  * Middleware function
  * Currently simplified to avoid auth issues with Edge Runtime
  */
-export async function middleware(request: NextRequest) {
-	const { pathname } = request.nextUrl;
-	
+export async function middleware(_request: NextRequest) {
 	// For now, allow all requests to proceed
 	// TODO: Re-implement auth check once Edge Runtime issues are resolved
-	
+
 	// Add security headers
 	const response = NextResponse.next();
 	response.headers.set(
@@ -27,7 +25,7 @@ export async function middleware(request: NextRequest) {
 		"Permissions-Policy",
 		"camera=(), microphone=(), geolocation=()",
 	);
-	
+
 	return response;
 }
 

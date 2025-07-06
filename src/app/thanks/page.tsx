@@ -1,8 +1,8 @@
+import { CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { CheckCircle2 } from "lucide-react";
-import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 
 export default async function ThanksPage() {
 	const t = await getTranslations("thanks");
@@ -14,10 +14,10 @@ export default async function ThanksPage() {
 					<div className="flex flex-col items-center gap-4 text-center">
 						<CheckCircle2 className="h-12 w-12 text-green-500" />
 						<div className="space-y-2">
-							<h1 className="text-2xl font-semibold tracking-tight">
+							<h1 className="font-semibold text-2xl tracking-tight">
 								{t("title")}
 							</h1>
-							<p className="text-sm text-muted-foreground">
+							<p className="text-muted-foreground text-sm">
 								{t("description")}
 							</p>
 						</div>

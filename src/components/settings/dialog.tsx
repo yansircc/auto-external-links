@@ -1,3 +1,4 @@
+import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -8,7 +9,6 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings } from "lucide-react";
 import { BlacklistManager } from "./blacklist-manager";
 import { getSettingsMessages } from "./messages";
 import { PreferredSitesManager } from "./preferred-manager";

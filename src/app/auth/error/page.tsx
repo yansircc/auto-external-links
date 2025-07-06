@@ -1,8 +1,8 @@
+import { AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
-import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 
 interface ErrorPageProps {
 	searchParams: Promise<{
@@ -35,7 +35,7 @@ export default async function ErrorPage({ searchParams }: ErrorPageProps) {
 					</div>
 
 					{/* 错误标题 */}
-					<h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+					<h1 className="font-bold text-2xl tracking-tight">{t("title")}</h1>
 
 					{/* 错误信息 */}
 					<p className="text-muted-foreground">{errorMessage}</p>
