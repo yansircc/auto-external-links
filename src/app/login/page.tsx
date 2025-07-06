@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
 import { signInWithEmail } from "@/actions/auth";
+import { auth } from "@/auth";
 import { LoginForm } from "@/components/auth/login-form";
 import {
 	Card,
@@ -10,6 +12,12 @@ import {
 } from "@/components/ui/card";
 
 export default async function SignIn() {
+	// 检查用户是否已登录
+	const session = await auth();
+	if (session?.user) {
+		redirect("/");
+	}
+
 	const t = await getTranslations("auth.loginPage");
 
 	return (
