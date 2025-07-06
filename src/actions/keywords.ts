@@ -1,6 +1,5 @@
 "use server";
 
-// import { deepseek } from "@ai-sdk/deepseek";
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
@@ -113,7 +112,6 @@ export async function getKeywords(
 	// 4. 继续原有的关键词分析逻辑
 	const [error, result] = await catchError(
 		generateObject({
-			// model: deepseek("deepseek-chat"),
 			model: openai("gpt-4o-mini"),
 			system: `
     You are a SEO expert, you need to:

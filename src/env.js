@@ -12,7 +12,6 @@ export const env = createEnv({
 			.default("development"),
 		// AI Configuration
 		OPENAI_API_KEY: z.string(),
-		DEEPSEEK_API_KEY: z.string(),
 		// Tools Configuration
 		SERPER_API_KEY: z.string(),
 		// Auth Configuration
@@ -44,7 +43,6 @@ export const env = createEnv({
 	runtimeEnv: {
 		NODE_ENV: process.env.NODE_ENV,
 		OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-		DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
 		SERPER_API_KEY: process.env.SERPER_API_KEY,
 		AUTH_SECRET: process.env.AUTH_SECRET,
 		AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,

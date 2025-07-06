@@ -22,7 +22,6 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@ai-sdk/deepseek": "^0.2.14",
 		"@ai-sdk/openai": "^1.3.22",
 		"@auth/drizzle-adapter": "^1.10.0",
 		"@auth/upstash-redis-adapter": "^2.10.0",
