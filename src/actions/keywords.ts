@@ -8,32 +8,26 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { searchGoogle } from "@/lib/serper";
 import type { SerperResponse } from "@/lib/serper/schema";
 import { catchError } from "@/utils";
-import { keywordSchema } from "./schema";
+import {
+	type AIGeneratedKeyword,
+	type CompleteKeyword,
+	aiGeneratedKeywordSchema,
+} from "./schema";
 
-interface KeywordsResponse {
+/**
+ * 关键词分析响应
+ */
+interface KeywordsAnalysisResponse {
 	error?: {
 		code: "RATE_LIMITED" | "AI_ERROR";
 		message: string;
 	};
 	data?: {
-		object: {
-			keywords: Array<{
-				keyword: string;
-				query: string;
-				reason: string;
-				link: null;
-				title: null;
-				alternatives: {
-					preferred: SerperResponse["organic"];
-					regular: SerperResponse["organic"];
-				};
-			}>;
-		};
-		finishReason: string;
+		keywords: CompleteKeyword[];
 		usage: {
-			prompt_tokens: number;
-			completion_tokens: number;
-			total_tokens: number;
+			promptTokens: number;
+			completionTokens: number;
+			totalTokens: number;
 		};
 	};
 }
@@ -41,10 +35,10 @@ interface KeywordsResponse {
 /**
  * 创建动态的关键词数组模式
  */
-function createDynamicWrapperSchema(keywordCount: number) {
+function createDynamicKeywordsSchema(keywordCount: number) {
 	return z.object({
 		keywords: z
-			.array(keywordSchema)
+			.array(aiGeneratedKeywordSchema)
 			.min(Math.min(keywordCount, 2))
 			.max(keywordCount)
 			.describe(
@@ -71,7 +65,7 @@ export async function getKeywords(
 	text: string,
 	fingerprint?: string,
 	existingKeywordCount = 0,
-): Promise<KeywordsResponse> {
+): Promise<KeywordsAnalysisResponse> {
 	// 1. 检查用户是否已登录
 	const session = await auth();
 	const isAuthenticated = !!session?.user;
@@ -107,7 +101,7 @@ export async function getKeywords(
 		};
 	}
 
-	const dynamicSchema = createDynamicWrapperSchema(recommendedKeywordCount);
+	const dynamicSchema = createDynamicKeywordsSchema(recommendedKeywordCount);
 
 	// 4. 继续原有的关键词分析逻辑
 	const [error, result] = await catchError(
@@ -134,6 +128,7 @@ export async function getKeywords(
 	}
 
 	if (error) {
+		console.error("关键词分析失败:", error);
 		return {
 			error: {
 				code: "AI_ERROR",
@@ -142,35 +137,31 @@ export async function getKeywords(
 		};
 	}
 
+	// 将 AI 生成的关键词转换为完整格式
+	const completeKeywords: CompleteKeyword[] = result.object.keywords.map(
+		(keyword) => ({
+			...keyword,
+			link: null,
+			title: null,
+		}),
+	);
+
 	return {
 		data: {
-			object: {
-				keywords: result.object.keywords.map((item) => ({
-					...item,
-					link: null,
-					title: null,
-					alternatives: {
-						preferred: [],
-						regular: [],
-					},
-				})),
-			},
-			finishReason: result.finishReason,
+			keywords: completeKeywords,
 			usage: {
-				prompt_tokens: result.usage.promptTokens,
-				completion_tokens: result.usage.completionTokens,
-				total_tokens: result.usage.totalTokens,
+				promptTokens: result.usage.promptTokens,
+				completionTokens: result.usage.completionTokens,
+				totalTokens: result.usage.totalTokens,
 			},
 		},
 	};
 }
 
-interface KeywordSearchResult {
-	keyword: string;
-	query: string;
-}
-
-interface LinkResult {
+/**
+ * 链接搜索结果
+ */
+interface LinkSearchResult {
 	link: string;
 	title: string;
 	alternatives: {
@@ -181,17 +172,17 @@ interface LinkResult {
 
 /**
  * 为关键词获取外部链接
- * @param keywords 关键词列表
+ * @param keywords 关键词列表（需包含 keyword 和 query）
  * @param blacklist 黑名单域名列表
  * @param preferredSites 偏好站点列表
  * @returns 关键词到链接的映射
  */
 export async function fetchLinksForKeywords(
-	keywords: KeywordSearchResult[],
+	keywords: Array<Pick<CompleteKeyword, "keyword" | "query">>,
 	blacklist: string[],
 	preferredSites: string[],
-): Promise<Record<string, LinkResult>> {
-	const linkMap: Record<string, LinkResult> = {};
+): Promise<Record<string, LinkSearchResult>> {
+	const linkMap: Record<string, LinkSearchResult> = {};
 
 	// 并行搜索所有关键词
 	await Promise.all(

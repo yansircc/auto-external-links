@@ -81,7 +81,7 @@ export function useKeywordAnalysis() {
 
 				// Process the result to get matches
 				const { findKeywordsInText } = await import("@/lib/keywords");
-				const newKeywords = result.data.object.keywords.map((k) => k.keyword);
+				const newKeywords = result.data.keywords.map((k) => k.keyword);
 
 				// 合并现有关键词和新关键词
 				const existingKeywords = Object.keys(keywordMetadata);
@@ -90,14 +90,14 @@ export function useKeywordAnalysis() {
 
 				// Build metadata - 保留现有的元数据并添加新的
 				const metadata: Record<string, any> = { ...keywordMetadata };
-				for (const keyword of result.data.object.keywords) {
+				for (const keyword of result.data.keywords) {
 					// 只添加新的关键词元数据，不覆盖已有的
 					if (!metadata[keyword.keyword]) {
 						metadata[keyword.keyword] = {
 							query: keyword.query,
 							reason: keyword.reason,
-							link: null,
-							title: null,
+							link: keyword.link,
+							title: keyword.title,
 							alternatives: { preferred: [], regular: [] },
 						};
 					}

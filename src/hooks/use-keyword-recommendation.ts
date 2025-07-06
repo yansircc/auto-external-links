@@ -87,6 +87,7 @@ export function useKeywordRecommendation() {
 			// 创建元数据 - 使用找到的第一个实际关键词作为 key
 			const actualKeyword = newMatches[0]?.keyword || keyword;
 			const newMetadata: KeywordMetadata = {
+				keyword: actualKeyword,
 				query,
 				reason,
 				link: null,

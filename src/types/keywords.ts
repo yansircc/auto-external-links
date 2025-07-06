@@ -1,13 +1,10 @@
+import type { CompleteKeyword } from "@/actions/schema";
 import type { SerperResponse } from "@/lib/serper/schema";
 
 /**
- * AI 返回的关键词元数据
+ * 关键词元数据（扩展版，包含搜索结果）
  */
-export interface KeywordMetadata {
-	query: string;
-	reason: string;
-	link: string | null;
-	title: string | null;
+export interface KeywordMetadata extends CompleteKeyword {
 	alternatives: {
 		preferred: SerperResponse["organic"];
 		regular: SerperResponse["organic"];

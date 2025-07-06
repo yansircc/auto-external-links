@@ -1,7 +1,7 @@
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
-import { keywordSchema } from "@/actions/schema";
+import { aiGeneratedKeywordSchema } from "@/actions/schema";
 import { AppError, Errors } from "@/lib/errors/types";
 import { BaseService } from "@/services/base/base.service";
 import type { KeywordAnalysisResult, KeywordMetadata } from "@/types/keywords";
@@ -18,7 +18,7 @@ export class KeywordAnalysisService extends BaseService {
 	 */
 	private readonly keywordResponseSchema = z.object({
 		keywords: z
-			.array(keywordSchema)
+			.array(aiGeneratedKeywordSchema)
 			.min(1)
 			.max(3)
 			.describe(
@@ -95,7 +95,7 @@ You are a SEO expert, you need to:
 	 * 转换 AI 响应为统一格式
 	 */
 	private transformAIResult(aiResult: {
-		object: { keywords: z.infer<typeof keywordSchema>[] };
+		object: { keywords: z.infer<typeof aiGeneratedKeywordSchema>[] };
 		finishReason: string;
 		usage: {
 			promptTokens: number;
@@ -108,6 +108,7 @@ You are a SEO expert, you need to:
 		const metadata: Record<string, KeywordMetadata> = {};
 		aiResult.object.keywords.forEach((item) => {
 			metadata[item.keyword] = {
+				keyword: item.keyword,
 				query: item.query,
 				reason: item.reason,
 				link: null,
