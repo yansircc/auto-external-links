@@ -82,6 +82,8 @@
 		"backHome": "返回首页"
 	},
 	"settings": {
+		"title": "设置",
+		"description": "管理您的应用程序设置和偏好",
 		"dialog": {
 			"title": "设置",
 			"searchTitle": "搜索设置",

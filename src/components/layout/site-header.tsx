@@ -1,7 +1,7 @@
 import LoginLogoutBtn from "@/components/auth/login-logout-btn";
 import FeedbackDialog from "@/components/feedback/dialog";
 import LocaleSwitcher from "@/components/locale/swither";
-import BlacklistDialog from "@/components/settings/dialog";
+import SettingsButton from "@/components/settings/settings-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Logo from "./logo";
 
@@ -15,7 +15,7 @@ export default function SiteHeader() {
 				{/* Navigation */}
 				<nav className="flex items-center gap-2">
 					<FeedbackDialog />
-					<BlacklistDialog />
+					<SettingsButton />
 					<ThemeToggle />
 					<LocaleSwitcher />
 					<LoginLogoutBtn />

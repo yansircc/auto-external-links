@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { generateRecommendation } from "@/actions/recommendation";
+import { useAPISettingsStore } from "@/stores/api-settings";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 import type { KeywordMatch, KeywordMetadata } from "@/types/keywords";
 
@@ -15,6 +16,7 @@ export function useKeywordRecommendation() {
 		setKeywordMetadata,
 		setSelectedKeywordIds,
 	} = useKeywordEditorStore();
+	const { apiKey, baseUrl, model } = useAPISettingsStore();
 
 	/**
 	 * Add a keyword with context-aware metadata
@@ -71,7 +73,13 @@ export function useKeywordRecommendation() {
 			if (newMatches.length === 0) return false;
 
 			// 使用 AI 生成上下文感知的推荐语
-			const recommendationResult = await generateRecommendation(text, keyword);
+			const recommendationResult = await generateRecommendation(
+				text,
+				keyword,
+				apiKey || undefined,
+				baseUrl || undefined,
+				model || undefined,
+			);
 
 			if (recommendationResult.error || !recommendationResult.data) {
 				// 如果 AI 生成失败，返回失败

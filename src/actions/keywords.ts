@@ -1,18 +1,15 @@
 "use server";
 
-import { openai } from "@ai-sdk/openai";
-import { generateObject } from "ai";
+import { createOpenAI, openai } from "@ai-sdk/openai";
+import { generateObject, type LanguageModel } from "ai";
 import { z } from "zod";
 import { auth } from "@/auth";
+import { env } from "@/env";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { searchGoogle } from "@/lib/serper";
 import type { SerperResponse } from "@/lib/serper/schema";
 import { catchError } from "@/utils";
-import {
-	type AIGeneratedKeyword,
-	type CompleteKeyword,
-	aiGeneratedKeywordSchema,
-} from "./schema";
+import { aiGeneratedKeywordSchema, type CompleteKeyword } from "./schema";
 
 /**
  * 关键词分析响应
@@ -65,19 +62,23 @@ export async function getKeywords(
 	text: string,
 	fingerprint?: string,
 	existingKeywordCount = 0,
+	userApiKey?: string,
+	userBaseUrl?: string,
+	userModel?: string,
 ): Promise<KeywordsAnalysisResponse> {
 	// 1. 检查用户是否已登录
 	const session = await auth();
 	const isAuthenticated = !!session?.user;
 
-	// 2. 如果未登录，检查是否超出访问限制
-	if (!isAuthenticated) {
+	// 2. 如果未登录且没有提供用户 API key，检查是否超出访问限制
+	if (!isAuthenticated && !userApiKey) {
 		const { remaining } = await checkRateLimit(fingerprint, false);
 		if (remaining <= 0) {
 			return {
 				error: {
 					code: "RATE_LIMITED",
-					message: "未注册用户每日使用次数有限，请登录后继续使用",
+					message:
+						"未注册用户每日使用次数有限，请登录后继续使用或设置您自己的 API Key",
 				},
 			};
 		}
@@ -103,10 +104,32 @@ export async function getKeywords(
 
 	const dynamicSchema = createDynamicKeywordsSchema(recommendedKeywordCount);
 
-	// 4. 继续原有的关键词分析逻辑
+	// 4. 配置 AI 模型
+	let aiModel: LanguageModel;
+	if (userApiKey) {
+		// 使用用户提供的 API key
+		const customOpenAI = createOpenAI({
+			apiKey: userApiKey,
+			baseURL: userBaseUrl,
+		});
+		aiModel = customOpenAI(userModel || "gpt-4o-mini");
+	} else if (env.OPENAI_API_KEY) {
+		// 使用服务器端的 API key
+		aiModel = openai(userModel || "gpt-4o-mini");
+	} else {
+		// 没有可用的 API key
+		return {
+			error: {
+				code: "AI_ERROR",
+				message: "请先设置您的 OpenAI API Key",
+			},
+		};
+	}
+
+	// 5. 继续原有的关键词分析逻辑
 	const [error, result] = await catchError(
 		generateObject({
-			model: openai("gpt-4o-mini"),
+			model: aiModel,
 			system: `
     You are a SEO expert, you need to:
     1. Select exactly ${recommendedKeywordCount} most valuable keywords/phrases from the text (never select from the heading or title)
@@ -122,8 +145,9 @@ export async function getKeywords(
 		(error) => new Error("分析文本失败", { cause: error }),
 	);
 
-	// 5. 如果分析成功且用户未登录，增加使用次数
-	if (!error && !isAuthenticated) {
+	// 6. 如果分析成功且用户未登录，增加使用次数
+	if (!error && !isAuthenticated && !userApiKey) {
+		// 只有在使用服务器端 API key 时才计算使用次数
 		await checkRateLimit(fingerprint, true);
 	}
 
@@ -132,7 +156,7 @@ export async function getKeywords(
 		return {
 			error: {
 				code: "AI_ERROR",
-				message: "分析文本失败，请稍后重试",
+				message: `关键词分析失败: ${error.cause || "未知错误"}`,
 			},
 		};
 	}

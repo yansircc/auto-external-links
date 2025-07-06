@@ -6,6 +6,7 @@ import { getUsageStats } from "@/actions/usage";
 import type { FormData } from "@/components/keyword-editor/core/schema";
 import { useToast } from "@/hooks/use-toast";
 import { ErrorHandler } from "@/lib/errors/handler";
+import { useAPISettingsStore } from "@/stores/api-settings";
 import {
 	keywordEditorSelectors,
 	useKeywordEditorStore,
@@ -18,6 +19,7 @@ import { useSitePreferencesStore } from "@/stores/site-preferences";
  */
 export function useKeywordAnalysis() {
 	const { toast } = useToast();
+	const { apiKey, baseUrl, model, hasAPIKey } = useAPISettingsStore();
 
 	// Store 状态和方法
 	const store = useKeywordEditorStore();
@@ -55,14 +57,32 @@ export function useKeywordAnalysis() {
 			setIsLoading(true);
 
 			try {
+				// 检查是否有 API key
+				if (!hasAPIKey() && !process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+					toast({
+						title: "请设置 API Key",
+						description: "点击前往设置页面配置您的 OpenAI API Key",
+						variant: "destructive",
+					});
+					// 延迟跳转，让用户看到提示
+					setTimeout(() => {
+						window.location.href = "/settings";
+					}, 1500);
+					setIsLoading(false);
+					return;
+				}
+
 				// 获取当前已有的关键词数量
 				const currentKeywordCount = Object.keys(keywordMetadata).length;
 
-				// Call server action with existing keyword count
+				// Call server action with existing keyword count and API settings
 				const result = await getKeywords(
 					data.text,
 					fingerprint,
 					currentKeywordCount,
+					apiKey || undefined,
+					baseUrl || undefined,
+					model || undefined,
 				);
 
 				if (result.error) {

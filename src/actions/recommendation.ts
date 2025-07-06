@@ -1,8 +1,9 @@
 "use server";
 
-import { openai } from "@ai-sdk/openai";
-import { generateObject } from "ai";
+import { createOpenAI, openai } from "@ai-sdk/openai";
+import { generateObject, type LanguageModel } from "ai";
 import { z } from "zod";
+import { env } from "@/env";
 import { catchError } from "@/utils";
 
 const recommendationSchema = z.object({
@@ -25,6 +26,9 @@ const recommendationSchema = z.object({
 export async function generateRecommendation(
 	text: string,
 	keyword: string,
+	userApiKey?: string,
+	userBaseUrl?: string,
+	userModel?: string,
 ): Promise<{
 	error?: string;
 	data?: {
@@ -32,9 +36,24 @@ export async function generateRecommendation(
 		reason: string;
 	};
 }> {
+	// 配置 AI 模型
+	let aiModel: LanguageModel;
+	if (userApiKey) {
+		const customOpenAI = createOpenAI({
+			apiKey: userApiKey,
+			baseURL: userBaseUrl,
+		});
+		aiModel = customOpenAI(userModel || "gpt-4o-mini");
+	} else if (env.OPENAI_API_KEY) {
+		aiModel = openai(userModel || "gpt-4o-mini");
+	} else {
+		return {
+			error: "请先设置您的 OpenAI API Key",
+		};
+	}
 	const [error, result] = await catchError(
 		generateObject({
-			model: openai("gpt-4o-mini"),
+			model: aiModel,
 			system: `You are a SEO expert. Given a text and a selected keyword/phrase from that text, you need to:
 1. Generate a search query in question form to find the best external link for this keyword
 2. Provide a brief convincing reason for the reader why they should explore the resource link

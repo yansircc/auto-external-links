@@ -82,6 +82,8 @@
 		"backHome": "Back to Home"
 	},
 	"settings": {
+		"title": "Settings",
+		"description": "Manage your application settings and preferences",
 		"dialog": {
 			"title": "Settings",
 			"searchTitle": "Search Settings",
