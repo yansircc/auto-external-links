@@ -31,6 +31,49 @@ export function getUniqueSelectedKeywords(selectedIds: Set<string>): string[] {
 }
 
 /**
+ * 检查位置是否在Markdown图片语法的alt或title中
+ * @param text - 完整文本
+ * @param position - 要检查的位置
+ * @returns 是否在Markdown图片中
+ */
+function isInsideMarkdownImage(text: string, position: number): boolean {
+	// 向前查找最近的图片起始标记
+	const beforeText = text.slice(0, position);
+	const lastImageStart = beforeText.lastIndexOf('![');
+
+	if (lastImageStart === -1) return false;
+
+	// 查找对应的图片结束标记
+	const afterImageStart = text.slice(lastImageStart + 2);
+	const linkStart = afterImageStart.indexOf('](');
+
+	if (linkStart === -1) return false;
+
+	const imageAltEnd = lastImageStart + 2 + linkStart;
+	const linkEnd = afterImageStart.indexOf(')', linkStart + 2);
+
+	if (linkEnd === -1) return false;
+
+	const imageEnd = lastImageStart + 2 + linkEnd + 1;
+
+	// 检查当前位置是否在图片范围内
+	// 特别检查是否在alt文本或title中
+	if (position >= imageAltEnd && position <= imageEnd) {
+		// 在链接部分，检查是否在title引号内
+		const linkText = text.slice(imageAltEnd, imageEnd - 1);
+		const titleMatch = linkText.match(/"([^"]*)"/);
+		if (titleMatch) {
+			const titleStart = imageAltEnd + linkText.indexOf('"') + 1;
+			const titleEnd = titleStart + titleMatch[1].length;
+			return position >= titleStart && position <= titleEnd;
+		}
+		return true; // 在链接URL中
+	}
+
+	return position >= lastImageStart && position < imageAltEnd; // 在alt文本中
+}
+
+/**
  * 在文本中查找关键词的位置
  * @param text - 原始文本
  * @param keywords - 要查找的关键词列表
@@ -51,6 +94,18 @@ export function findKeywordsInText(
 			// 从当前位置开始查找关键词
 			const foundIndex = text.indexOf(keyword, searchIndex);
 			if (foundIndex === -1) break;
+
+			// 检查找到的关键词是否在Markdown图片的alt或title中
+			const keywordEnd = foundIndex + keyword.length;
+			const isInsideImage = Array.from({ length: keywordEnd - foundIndex }, (_, i) =>
+				isInsideMarkdownImage(text, foundIndex + i)
+			).some(Boolean);
+
+			// 如果关键词在Markdown图片中，跳过这个匹配
+			if (isInsideImage) {
+				searchIndex = foundIndex + keyword.length;
+				continue;
+			}
 
 			// 添加匹配信息，符合新的类型定义
 			matches.push({
