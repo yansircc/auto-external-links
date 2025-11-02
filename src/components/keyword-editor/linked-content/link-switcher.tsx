@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import * as React from "react";
 import {
 	Popover,
@@ -19,6 +19,7 @@ interface LinkSwitcherProps {
 		regular: SerperResponse["organic"];
 	};
 	onLinkChange: (link: string, title: string) => void;
+	onLinkRemove?: () => void;
 	children: React.ReactNode;
 	messages: EditorMessages["linkedContent"];
 }
@@ -28,6 +29,7 @@ export function LinkSwitcher({
 	title,
 	alternatives,
 	onLinkChange,
+	onLinkRemove,
 	children,
 	messages,
 }: LinkSwitcherProps) {
@@ -151,6 +153,22 @@ export function LinkSwitcher({
 							</button>
 						);
 					})}
+
+					{onLinkRemove && (
+						<div className="border-t pt-2">
+							<button
+								type="button"
+								onClick={() => {
+									onLinkRemove();
+									setOpen(false);
+								}}
+								className="flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-2 text-sm text-destructive hover:bg-destructive/10"
+							>
+								<X className="h-4 w-4" />
+								{messages.removeLink}
+							</button>
+						</div>
+					)}
 				</div>
 			</PopoverContent>
 		</Popover>

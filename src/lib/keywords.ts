@@ -64,7 +64,7 @@ function isInsideMarkdownImage(text: string, position: number): boolean {
 		const titleMatch = linkText.match(/"([^"]*)"/);
 		if (titleMatch) {
 			const titleStart = imageAltEnd + linkText.indexOf('"') + 1;
-			const titleEnd = titleStart + titleMatch[1].length;
+			const titleEnd = titleStart + (titleMatch[1]?.length ?? 0);
 			return position >= titleStart && position <= titleEnd;
 		}
 		return true; // 在链接URL中
@@ -96,8 +96,7 @@ export function findKeywordsInText(
 			if (foundIndex === -1) break;
 
 			// 检查找到的关键词是否在Markdown图片的alt或title中
-			const keywordEnd = foundIndex + keyword.length;
-			const isInsideImage = Array.from({ length: keywordEnd - foundIndex }, (_, i) =>
+			const isInsideImage = Array.from({ length: keyword.length }, (_, i) =>
 				isInsideMarkdownImage(text, foundIndex + i)
 			).some(Boolean);
 

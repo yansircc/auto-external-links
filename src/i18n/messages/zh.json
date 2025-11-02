@@ -23,7 +23,9 @@
 			"copyMarkdownWithFootnotes": "复制 Markdown+脚注",
 			"copied": "已复制",
 			"footnotes": "推荐理由",
-			"preferred": "首选"
+			"preferred": "首选",
+			"removeLink": "移除链接",
+			"linkRemoved": "已移除链接"
 		},
 		"features": {
 			"ai": {

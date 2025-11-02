@@ -23,7 +23,9 @@
 			"copyMarkdownWithFootnotes": "Copy Markdown+Footnotes",
 			"copied": "Copied",
 			"footnotes": "Recommendations",
-			"preferred": "Preferred"
+			"preferred": "Preferred",
+			"removeLink": "Remove Link",
+			"linkRemoved": "Link removed"
 		},
 		"features": {
 			"ai": {

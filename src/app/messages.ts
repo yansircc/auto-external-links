@@ -35,6 +35,7 @@ export async function getMessages() {
 			copied: linkedContentT("copied"),
 			footnotes: linkedContentT("footnotes"),
 			preferred: linkedContentT("preferred"),
+			removeLink: linkedContentT("removeLink"),
 		},
 		features: {
 			ai: {

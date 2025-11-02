@@ -38,6 +38,7 @@ interface KeywordEditorState {
 	selectAllKeywords: () => void;
 	deselectAllKeywords: () => void;
 	updateKeywordLink: (keyword: string, link: string, title: string) => void;
+	removeKeywordLink: (keyword: string) => void;
 	updateKeywordMetadata: (
 		keyword: string,
 		metadata: Partial<KeywordMetadata>,
@@ -121,6 +122,24 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
 						...metadata,
 						link,
 						title,
+					},
+				},
+			};
+		});
+	},
+
+	removeKeywordLink: (keyword) => {
+		set((state) => {
+			const metadata = state.keywordMetadata[keyword];
+			if (!metadata) return state;
+
+			return {
+				keywordMetadata: {
+					...state.keywordMetadata,
+					[keyword]: {
+						...metadata,
+						link: null,
+						title: null,
 					},
 				},
 			};

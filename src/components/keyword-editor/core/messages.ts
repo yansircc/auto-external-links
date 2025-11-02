@@ -22,6 +22,7 @@ export interface EditorMessages {
 		copied: string;
 		footnotes: string;
 		preferred: string;
+		removeLink: string;
 	};
 	features: {
 		ai: {

@@ -21,7 +21,7 @@ export function LinkedContent({ messages }: LinkedContentProps) {
 		useKeywordEditorStore();
 
 	// Use hook for business logic
-	const { switchKeywordLink } = useKeywordSelection();
+	const { switchKeywordLink, removeKeywordLink } = useKeywordSelection();
 
 	const { footnotes, footnoteIndexMap } = useFootnotes(
 		matches,
@@ -47,6 +47,12 @@ export function LinkedContent({ messages }: LinkedContentProps) {
 		switchKeywordLink(keyword, link, title);
 	}
 
+	// 处理链接删除
+	function handleLinkRemove(id: string) {
+		const keyword = id.slice(0, id.lastIndexOf("-"));
+		removeKeywordLink(keyword);
+	}
+
 	return (
 		<div className="space-y-8">
 			<EditorLayout>
@@ -58,6 +64,7 @@ export function LinkedContent({ messages }: LinkedContentProps) {
 						selectedKeywordIds,
 						footnoteIndexMap,
 						onLinkChange: handleLinkChange,
+						onLinkRemove: handleLinkRemove,
 						messages,
 					})}
 				</div>

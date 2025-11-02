@@ -19,6 +19,7 @@ export function useKeywordSelection() {
 		selectAllKeywords,
 		deselectAllKeywords,
 		updateKeywordLink,
+		removeKeywordLink,
 	} = useKeywordEditorStore();
 
 	/**
@@ -92,6 +93,20 @@ export function useKeywordSelection() {
 	);
 
 	/**
+	 * 移除关键词的链接
+	 */
+	const removeKeywordLinkHandler = useCallback(
+		(keyword: string) => {
+			removeKeywordLink(keyword);
+
+			toast({
+				description: `已移除 "${keyword}" 的链接`,
+			});
+		},
+		[removeKeywordLink, toast],
+	);
+
+	/**
 	 * 获取关键词的可用链接选项
 	 */
 	const getKeywordLinkOptions = useCallback(
@@ -139,6 +154,7 @@ export function useKeywordSelection() {
 		handleToggleKeyword,
 		isKeywordSelected,
 		switchKeywordLink,
+		removeKeywordLink: removeKeywordLinkHandler,
 		getKeywordLinkOptions,
 		getKeywordLinkInfo,
 	};
