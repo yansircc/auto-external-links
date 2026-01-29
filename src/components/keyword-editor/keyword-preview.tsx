@@ -10,7 +10,10 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useKeywordAnalysis, useKeywordSelection } from "@/hooks/keyword";
-import { useKeywordEditorStore } from "@/stores/keyword-editor";
+import {
+	keywordEditorSelectors,
+	useKeywordEditorStore,
+} from "@/stores/keyword-editor";
 import { AddKeyword } from "./add-keyword";
 import { EditorActions, EditorLayout } from "./core/editor-layout";
 import type { EditorMessages } from "./core/messages";
@@ -22,8 +25,12 @@ interface KeywordPreviewProps {
 
 export function KeywordPreview({ messages }: KeywordPreviewProps) {
 	// Use store for pure state
-	const { text, matches, keywordMetadata, selectedKeywordIds } =
-		useKeywordEditorStore();
+	const store = useKeywordEditorStore();
+	const { text, matches, keywordMetadata, selectedKeywordIds } = store;
+
+	// Get selected keywords count
+	const selectedKeywordsCount =
+		keywordEditorSelectors.getSelectedKeywords(store).length;
 
 	// Use hooks for business logic
 	const { fetchLinks, isLoading } = useKeywordAnalysis();
@@ -118,7 +125,7 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 					</div>
 					<div className="text-sm">
 						<span className="text-muted-foreground">
-							已选择关键词 ({Object.keys(keywordMetadata).length}/20)
+							已选择关键词 ({selectedKeywordsCount}/20)
 						</span>
 						<p className="text-muted-foreground/70 text-xs">
 							鼠标选择文本可快速添加新关键词
