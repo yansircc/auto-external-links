@@ -19,7 +19,6 @@ export function useKeywordRecommendation() {
 		setKeywordMetadata,
 		setSelectedKeywordIds,
 	} = useKeywordEditorStore();
-	const { apiKey, baseUrl, model } = useAPISettingsStore();
 
 	/**
 	 * Add a keyword with context-aware metadata
@@ -144,12 +143,14 @@ export function useKeywordRecommendation() {
 			}));
 
 			// 使用 AI 生成上下文感知的推荐语
+			// 获取最新的 API settings，确保使用 hydrated 后的值
+			const currentSettings = useAPISettingsStore.getState();
 			const recommendationResult = await generateRecommendation(
 				text,
 				keyword,
-				apiKey || undefined,
-				baseUrl || undefined,
-				model || undefined,
+				currentSettings.apiKey || undefined,
+				currentSettings.baseUrl || undefined,
+				currentSettings.model || undefined,
 			);
 
 			if (recommendationResult.error || !recommendationResult.data) {
@@ -204,9 +205,6 @@ export function useKeywordRecommendation() {
 			setMatches,
 			setKeywordMetadata,
 			setSelectedKeywordIds,
-			apiKey,
-			baseUrl,
-			model,
 		],
 	);
 

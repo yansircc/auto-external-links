@@ -19,7 +19,6 @@ import { useSitePreferencesStore } from "@/stores/site-preferences";
  */
 export function useKeywordAnalysis() {
 	const { toast } = useToast();
-	const { apiKey, baseUrl, model, hasAPIKey } = useAPISettingsStore();
 
 	// Store 状态和方法
 	const store = useKeywordEditorStore();
@@ -57,8 +56,16 @@ export function useKeywordAnalysis() {
 			setIsLoading(true);
 
 			try {
+				// 等待 hydration 完成后，获取最新的 API settings
+				// 使用 getState() 确保获取到已 hydrated 的值
+				const currentSettings = useAPISettingsStore.getState();
+				const currentApiKey = currentSettings.apiKey;
+				const currentBaseUrl = currentSettings.baseUrl;
+				const currentModel = currentSettings.model;
+				const currentHasAPIKey = !!currentApiKey;
+
 				// 检查是否有 API key
-				if (!hasAPIKey() && !process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+				if (!currentHasAPIKey && !process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
 					toast({
 						title: "请设置 API Key",
 						description: "点击前往设置页面配置您的 OpenAI API Key",
@@ -76,13 +83,14 @@ export function useKeywordAnalysis() {
 				const currentKeywordCount = Object.keys(keywordMetadata).length;
 
 				// Call server action with existing keyword count and API settings
+				// 使用最新获取的 API key，确保是 hydrated 后的值
 				const result = await getKeywords(
 					data.text,
 					fingerprint,
 					currentKeywordCount,
-					apiKey || undefined,
-					baseUrl || undefined,
-					model || undefined,
+					currentApiKey || undefined,
+					currentBaseUrl || undefined,
+					currentModel || undefined,
 				);
 
 				if (result.error) {
@@ -179,7 +187,7 @@ export function useKeywordAnalysis() {
 				setIsLoading(false);
 			}
 		},
-		[setIsLoading, updateAnalysisResult, toast],
+		[setIsLoading, updateAnalysisResult, toast, keywordMetadata],
 	);
 
 	/**
