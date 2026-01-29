@@ -5,7 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useKeywordRecommendation } from "@/hooks/use-keyword-recommendation";
 import { useToast } from "@/hooks/use-toast";
-import { useKeywordEditorStore } from "@/stores/keyword-editor";
+import {
+	keywordEditorSelectors,
+	useKeywordEditorStore,
+} from "@/stores/keyword-editor";
 
 export function TextSelectionPopover() {
 	const [selectedText, setSelectedText] = useState("");
@@ -14,7 +17,8 @@ export function TextSelectionPopover() {
 	const [isLoading, setIsLoading] = useState(false);
 	const popoverRef = useRef<HTMLDivElement>(null);
 	const { toast } = useToast();
-	const { keywordMetadata } = useKeywordEditorStore();
+	const store = useKeywordEditorStore();
+	const { keywordMetadata } = store;
 	const { addKeywordWithRecommendation } = useKeywordRecommendation();
 
 	useEffect(() => {
@@ -64,38 +68,30 @@ export function TextSelectionPopover() {
 	}, [showPopover]);
 
 	const handleAddKeyword = async () => {
-		// 检查是否已存在
+		// 检查关键词总数是否已达到上限（只在关键词不存在时检查）
 		const existingKeyword = Object.keys(keywordMetadata).find(
 			(k) => k.toLowerCase() === selectedText.toLowerCase(),
 		);
 
-		if (existingKeyword) {
-			toast({
-				title: "关键词已存在",
-				description: `"${existingKeyword}" 已经在列表中了`,
-				variant: "destructive",
-			});
-			setShowPopover(false);
-			window.getSelection()?.removeAllRanges();
-			return;
-		}
-
-		// 检查关键词总数是否已达到上限
-		if (Object.keys(keywordMetadata).length >= 20) {
-			toast({
-				title: "已达到关键词数量上限",
-				description: "每篇文章最多只能有20个关键词",
-				variant: "destructive",
-			});
-			setShowPopover(false);
-			window.getSelection()?.removeAllRanges();
-			return;
+		if (!existingKeyword) {
+			const selectedKeywordsCount =
+				keywordEditorSelectors.getSelectedKeywords(store).length;
+			if (selectedKeywordsCount >= 20) {
+				toast({
+					title: "已达到关键词数量上限",
+					description: "每篇文章最多只能有20个关键词",
+					variant: "destructive",
+				});
+				setShowPopover(false);
+				window.getSelection()?.removeAllRanges();
+				return;
+			}
 		}
 
 		// 设置加载状态
 		setIsLoading(true);
 
-		// 添加关键词
+		// 添加关键词（会自动处理新增匹配项或选中未选中的匹配项）
 		const success = await addKeywordWithRecommendation(selectedText);
 
 		if (success) {

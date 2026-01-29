@@ -1,7 +1,10 @@
 import { useCallback } from "react";
 import { generateRecommendation } from "@/actions/recommendation";
 import { useAPISettingsStore } from "@/stores/api-settings";
-import { useKeywordEditorStore } from "@/stores/keyword-editor";
+import {
+	keywordEditorSelectors,
+	useKeywordEditorStore,
+} from "@/stores/keyword-editor";
 import type { KeywordMatch, KeywordMetadata } from "@/types/keywords";
 
 /**
@@ -29,20 +32,11 @@ export function useKeywordRecommendation() {
 			const existingKeyword = Object.keys(keywordMetadata).find(
 				(k) => k.toLowerCase() === keyword.toLowerCase(),
 			);
-			if (existingKeyword) return false;
-
-			// 检查关键词总数是否已达到上限（20个）
-			if (Object.keys(keywordMetadata).length >= 20) {
-				console.warn("已达到关键词数量上限（20个）");
-				return false;
-			}
 
 			// 在文本中查找关键词的所有位置
-			const newMatches: KeywordMatch[] = [];
+			const allPositions: Array<{ start: number; end: number; text: string }> =
+				[];
 			let searchIndex = 0;
-			let instanceIndex = matches.filter(
-				(m) => m.keyword.toLowerCase() === keyword.toLowerCase(),
-			).length;
 
 			while (true) {
 				const foundIndex = text
@@ -56,21 +50,98 @@ export function useKeywordRecommendation() {
 					foundIndex + keyword.length,
 				);
 
-				// 创建新的匹配项
-				const id = `${actualKeyword}-${instanceIndex}`;
-				newMatches.push({
-					id,
-					keyword: actualKeyword,
+				allPositions.push({
 					start: foundIndex,
 					end: foundIndex + keyword.length,
+					text: actualKeyword,
 				});
 
 				searchIndex = foundIndex + keyword.length;
-				instanceIndex++;
 			}
 
-			// 如果没有找到匹配项，不添加
-			if (newMatches.length === 0) return false;
+			// 如果文本中没有找到匹配项
+			if (allPositions.length === 0) return false;
+
+			if (existingKeyword) {
+				// 关键词已存在，检查是否有新的匹配位置或未选中的匹配项
+
+				// 找出现有的匹配项
+				const existingMatches = matches.filter(
+					(m) => m.keyword.toLowerCase() === keyword.toLowerCase(),
+				);
+				const existingPositions = new Set(
+					existingMatches.map((m) => `${m.start}-${m.end}`),
+				);
+
+				// 找出新的位置（在文本中找到但不在 matches 中）
+				const newPositions = allPositions.filter(
+					(pos) => !existingPositions.has(`${pos.start}-${pos.end}`),
+				);
+
+				// 找出未选中的匹配项
+				const currentSelectedIds =
+					useKeywordEditorStore.getState().selectedKeywordIds;
+				const unselectedMatches = existingMatches.filter(
+					(m) => !currentSelectedIds.has(m.id),
+				);
+
+				// 如果既没有新位置，也没有未选中的匹配项，返回失败
+				if (newPositions.length === 0 && unselectedMatches.length === 0) {
+					return false;
+				}
+
+				// 添加新的匹配项
+				const newMatches: KeywordMatch[] = [];
+				let instanceIndex = existingMatches.length;
+
+				for (const pos of newPositions) {
+					const id = `${pos.text}-${instanceIndex}`;
+					newMatches.push({
+						id,
+						keyword: pos.text,
+						start: pos.start,
+						end: pos.end,
+					});
+					instanceIndex++;
+				}
+
+				// 更新状态
+				const updatedMatches =
+					newMatches.length > 0
+						? [...matches, ...newMatches].sort((a, b) => a.start - b.start)
+						: matches;
+
+				// 选中所有新添加的和之前未选中的匹配项
+				const selectedIds = new Set([
+					...Array.from(currentSelectedIds),
+					...newMatches.map((m) => m.id),
+					...unselectedMatches.map((m) => m.id),
+				]);
+
+				setMatches(updatedMatches);
+				setSelectedKeywordIds(selectedIds);
+
+				return true;
+			}
+
+			// 关键词不存在，执行完整的添加流程
+
+			// 检查关键词总数是否已达到上限（20个）
+			const selectedKeywordsCount = keywordEditorSelectors.getSelectedKeywords(
+				useKeywordEditorStore.getState(),
+			).length;
+			if (selectedKeywordsCount >= 20) {
+				console.warn("已达到关键词数量上限（20个）");
+				return false;
+			}
+
+			// 创建所有匹配项
+			const newMatches: KeywordMatch[] = allPositions.map((pos, index) => ({
+				id: `${pos.text}-${index}`,
+				keyword: pos.text,
+				start: pos.start,
+				end: pos.end,
+			}));
 
 			// 使用 AI 生成上下文感知的推荐语
 			const recommendationResult = await generateRecommendation(
@@ -133,6 +204,9 @@ export function useKeywordRecommendation() {
 			setMatches,
 			setKeywordMetadata,
 			setSelectedKeywordIds,
+			apiKey,
+			baseUrl,
+			model,
 		],
 	);
 

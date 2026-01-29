@@ -162,7 +162,7 @@ export function LinkSwitcher({
 									onLinkRemove();
 									setOpen(false);
 								}}
-								className="flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-2 text-sm text-destructive hover:bg-destructive/10"
+								className="flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-2 text-destructive text-sm hover:bg-destructive/10"
 							>
 								<X className="h-4 w-4" />
 								{messages.removeLink}

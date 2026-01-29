@@ -197,15 +197,19 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
 export const keywordEditorSelectors = {
 	// 获取选中的关键词
 	getSelectedKeywords: (state: KeywordEditorState) => {
-		const uniqueKeywords = new Set<string>();
+		const keywordMap = new Map<string, string>(); // lowercase -> original
 
 		state.matches.forEach((match) => {
 			if (state.selectedKeywordIds.has(match.id)) {
-				uniqueKeywords.add(match.keyword);
+				const lower = match.keyword.toLowerCase();
+				// 如果同一个小写形式还没记录，就记录第一个出现的原始大小写形式
+				if (!keywordMap.has(lower)) {
+					keywordMap.set(lower, match.keyword);
+				}
 			}
 		});
 
-		return Array.from(uniqueKeywords);
+		return Array.from(keywordMap.values());
 	},
 
 	// 获取带元数据的选中关键词

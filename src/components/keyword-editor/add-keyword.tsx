@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useKeywordRecommendation } from "@/hooks/use-keyword-recommendation";
 import { useToast } from "@/hooks/use-toast";
-import { useKeywordEditorStore } from "@/stores/keyword-editor";
+import {
+	keywordEditorSelectors,
+	useKeywordEditorStore,
+} from "@/stores/keyword-editor";
 
 interface AddKeywordProps {
 	onAdd?: () => void;
@@ -16,7 +19,8 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 	const [keyword, setKeyword] = useState("");
 	const [isAdding, setIsAdding] = useState(false);
 	const { toast } = useToast();
-	const { text, keywordMetadata } = useKeywordEditorStore();
+	const store = useKeywordEditorStore();
+	const { text, keywordMetadata } = store;
 	const { addKeywordWithRecommendation } = useKeywordRecommendation();
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -24,26 +28,6 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 
 		const trimmedKeyword = keyword.trim();
 		if (!trimmedKeyword) return;
-
-		// 检查是否已存在
-		if (keywordMetadata[trimmedKeyword]) {
-			toast({
-				title: "关键词已存在",
-				description: "该关键词已经在列表中了",
-				variant: "destructive",
-			});
-			return;
-		}
-
-		// 检查关键词总数是否已达到上限
-		if (Object.keys(keywordMetadata).length >= 20) {
-			toast({
-				title: "已达到关键词数量上限",
-				description: "每篇文章最多只能有20个关键词",
-				variant: "destructive",
-			});
-			return;
-		}
 
 		// 检查关键词是否在文本中存在
 		if (!text.toLowerCase().includes(trimmedKeyword.toLowerCase())) {
@@ -55,7 +39,21 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 			return;
 		}
 
-		// 添加关键词
+		// 检查关键词总数是否已达到上限（只在关键词不存在时检查）
+		if (!keywordMetadata[trimmedKeyword]) {
+			const selectedKeywordsCount =
+				keywordEditorSelectors.getSelectedKeywords(store).length;
+			if (selectedKeywordsCount >= 20) {
+				toast({
+					title: "已达到关键词数量上限",
+					description: "每篇文章最多只能有20个关键词",
+					variant: "destructive",
+				});
+				return;
+			}
+		}
+
+		// 添加关键词（会自动处理新增匹配项或选中未选中的匹配项）
 		const success = await addKeywordWithRecommendation(trimmedKeyword);
 
 		if (success) {
@@ -74,7 +72,7 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 		} else {
 			toast({
 				title: "添加失败",
-				description: "无法添加该关键词",
+				description: "该关键词的所有匹配项都已选中",
 				variant: "destructive",
 			});
 		}

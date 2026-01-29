@@ -123,6 +123,10 @@ export function useKeywordAnalysis() {
 					}
 				}
 
+				// 记录更新前的唯一关键词数（忽略大小写）
+				const beforeCount =
+					keywordEditorSelectors.getSelectedKeywords(store).length;
+
 				// 更新 Store
 				updateAnalysisResult({
 					text: data.text,
@@ -130,12 +134,23 @@ export function useKeywordAnalysis() {
 					metadata,
 				});
 
+				// 获取更新后的状态
+				const updatedStore = useKeywordEditorStore.getState();
+
+				// 记录更新后的唯一关键词数（忽略大小写）
+				const afterKeywordCount =
+					keywordEditorSelectors.getSelectedKeywords(updatedStore).length;
+
+				// 记录更新后的总匹配项数
+				const totalMatchCount = updatedStore.selectedKeywordIds.size;
+
+				// 计算实际新增的唯一关键词数
+				const newKeywordCount = afterKeywordCount - beforeCount;
+
 				// 显示成功提示
-				const newKeywordCount = newKeywords.length;
-				const totalKeywordCount = Object.keys(metadata).length;
 				toast({
 					title: "分析完成",
-					description: `新增 ${newKeywordCount} 个关键词，共 ${totalKeywordCount} 个关键词`,
+					description: `新增 ${newKeywordCount} 个关键词，共 ${totalMatchCount} 处匹配`,
 				});
 			} catch (error) {
 				const errorMessage = ErrorHandler.getMessage(error);

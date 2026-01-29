@@ -129,7 +129,8 @@ export function generateMarkdown({
 		if (metadata?.link) {
 			// 有关键词链接，添加链接格式
 			const markdown = `[${linkText}](${metadata.link})`;
-			result = result.slice(0, match.start) + markdown + result.slice(match.end);
+			result =
+				result.slice(0, match.start) + markdown + result.slice(match.end);
 		}
 		// 如果没有链接，保持为普通文本，不需要修改
 	}
@@ -159,11 +160,13 @@ export function generateMarkdownWithFootnotes({
 		if (metadata?.link && footnoteIndex) {
 			// 有关键词链接和脚注
 			const markdown = `[${linkText}](${metadata.link})[^${footnoteIndex}]`;
-			result = result.slice(0, match.start) + markdown + result.slice(match.end);
+			result =
+				result.slice(0, match.start) + markdown + result.slice(match.end);
 		} else if (footnoteIndex) {
 			// 没有链接但有脚注，保持为普通文本但添加脚注
 			const markdown = `${linkText}[^${footnoteIndex}]`;
-			result = result.slice(0, match.start) + markdown + result.slice(match.end);
+			result =
+				result.slice(0, match.start) + markdown + result.slice(match.end);
 		}
 		// 如果既没有链接也没有脚注，保持为普通文本，不需要修改
 	}
