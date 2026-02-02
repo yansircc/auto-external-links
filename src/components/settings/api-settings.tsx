@@ -103,6 +103,8 @@ export function APISettings() {
 		setProvider(value);
 		if (value === "openai") {
 			setLocalBaseUrl("https://api.openai.com/v1");
+		} else {
+			setLocalBaseUrl("https://aihubmix.com/v1");
 		}
 	};
 

@@ -19,6 +19,7 @@ interface APISettingsStore extends APISettings {
 }
 
 const DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1";
+const DEFAULT_AIHUBMIX_BASE_URL = "https://aihubmix.com/v1";
 const DEFAULT_MODEL = "gpt-4o-mini";
 
 export const useAPISettingsStore = create<APISettingsStore>()(
@@ -26,9 +27,9 @@ export const useAPISettingsStore = create<APISettingsStore>()(
 		(set, get) => ({
 			// Initial state
 			apiKey: null,
-			baseUrl: DEFAULT_OPENAI_BASE_URL,
+			baseUrl: DEFAULT_AIHUBMIX_BASE_URL,
 			model: DEFAULT_MODEL,
-			provider: "openai",
+			provider: "custom",
 
 			// Actions
 			setAPIKey: (key) => set({ apiKey: key }),
@@ -48,9 +49,9 @@ export const useAPISettingsStore = create<APISettingsStore>()(
 			clearSettings: () =>
 				set({
 					apiKey: null,
-					baseUrl: DEFAULT_OPENAI_BASE_URL,
+					baseUrl: DEFAULT_AIHUBMIX_BASE_URL,
 					model: DEFAULT_MODEL,
-					provider: "openai",
+					provider: "custom",
 				}),
 			hasAPIKey: () => !!get().apiKey,
 		}),
