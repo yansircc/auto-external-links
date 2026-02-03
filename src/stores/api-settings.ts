@@ -9,6 +9,10 @@ export interface APISettings {
 }
 
 interface APISettingsStore extends APISettings {
+	// Hydration state
+	_hasHydrated: boolean;
+	setHasHydrated: (state: boolean) => void;
+
 	// Actions
 	setAPIKey: (key: string | null) => void;
 	setBaseUrl: (url: string) => void;
@@ -30,6 +34,12 @@ export const useAPISettingsStore = create<APISettingsStore>()(
 			baseUrl: DEFAULT_AIHUBMIX_BASE_URL,
 			model: DEFAULT_MODEL,
 			provider: "custom",
+			_hasHydrated: false,
+
+			// Hydration
+			setHasHydrated: (state) => {
+				set({ _hasHydrated: state });
+			},
 
 			// Actions
 			setAPIKey: (key) => set({ apiKey: key }),
@@ -63,6 +73,9 @@ export const useAPISettingsStore = create<APISettingsStore>()(
 				model: state.model,
 				provider: state.provider,
 			}),
+			onRehydrateStorage: () => (state) => {
+				state?.setHasHydrated(true);
+			},
 		},
 	),
 );

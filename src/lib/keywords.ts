@@ -39,18 +39,18 @@ export function getUniqueSelectedKeywords(selectedIds: Set<string>): string[] {
 function isInsideMarkdownImage(text: string, position: number): boolean {
 	// 向前查找最近的图片起始标记
 	const beforeText = text.slice(0, position);
-	const lastImageStart = beforeText.lastIndexOf('![');
+	const lastImageStart = beforeText.lastIndexOf("![");
 
 	if (lastImageStart === -1) return false;
 
 	// 查找对应的图片结束标记
 	const afterImageStart = text.slice(lastImageStart + 2);
-	const linkStart = afterImageStart.indexOf('](');
+	const linkStart = afterImageStart.indexOf("](");
 
 	if (linkStart === -1) return false;
 
 	const imageAltEnd = lastImageStart + 2 + linkStart;
-	const linkEnd = afterImageStart.indexOf(')', linkStart + 2);
+	const linkEnd = afterImageStart.indexOf(")", linkStart + 2);
 
 	if (linkEnd === -1) return false;
 
@@ -97,7 +97,7 @@ export function findKeywordsInText(
 
 			// 检查找到的关键词是否在Markdown图片的alt或title中
 			const isInsideImage = Array.from({ length: keyword.length }, (_, i) =>
-				isInsideMarkdownImage(text, foundIndex + i)
+				isInsideMarkdownImage(text, foundIndex + i),
 			).some(Boolean);
 
 			// 如果关键词在Markdown图片中，跳过这个匹配
