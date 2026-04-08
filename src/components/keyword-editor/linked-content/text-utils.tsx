@@ -122,7 +122,11 @@ export function generateMarkdown({
 		.sort((a, b) => b.start - a.start); // Process from end to start
 
 	// Add links or keep as plain text
+	let lastProcessedStart = Number.POSITIVE_INFINITY;
 	for (const match of sortedMatches) {
+		// Skip matches that overlap with an already-processed (higher-start) match
+		if (match.end > lastProcessedStart) continue;
+
 		const metadata = keywordMetadata[match.keyword];
 		const linkText = text.slice(match.start, match.end);
 
@@ -133,6 +137,7 @@ export function generateMarkdown({
 				result.slice(0, match.start) + markdown + result.slice(match.end);
 		}
 		// 如果没有链接，保持为普通文本，不需要修改
+		lastProcessedStart = match.start;
 	}
 
 	return result;
@@ -151,7 +156,11 @@ export function generateMarkdownWithFootnotes({
 		.sort((a, b) => b.start - a.start); // Process from end to start
 
 	// Add links or plain text with footnote references
+	let lastProcessedStart = Number.POSITIVE_INFINITY;
 	for (const match of sortedMatches) {
+		// Skip matches that overlap with an already-processed (higher-start) match
+		if (match.end > lastProcessedStart) continue;
+
 		const id = match.id;
 		const metadata = keywordMetadata[match.keyword];
 		const footnoteIndex = footnoteIndexMap.get(id);
@@ -169,6 +178,7 @@ export function generateMarkdownWithFootnotes({
 				result.slice(0, match.start) + markdown + result.slice(match.end);
 		}
 		// 如果既没有链接也没有脚注，保持为普通文本，不需要修改
+		lastProcessedStart = match.start;
 	}
 
 	return result;
