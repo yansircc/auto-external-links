@@ -13,15 +13,17 @@
 			"analyzing": "分析中..."
 		},
 		"preview": {
-			"description": "点击证据目标可以选择是否添加支持链接",
-			"confirm": "确认选择",
-			"gettingLinks": "获取链接中..."
+			"description": "先检查观点和锚点；继续后才会实际搜索支持来源。",
+			"confirm": "查找支持来源",
+			"gettingLinks": "查找支持来源中..."
 		},
 		"linked-content": {
-			"description": "点击链接可以预览，复制后可直接使用",
+			"description": "支持来源已添加。点击链接可预览或切换来源。",
 			"copyMarkdown": "复制 Markdown",
 			"copyMarkdownWithFootnotes": "复制 Markdown+脚注",
 			"copied": "已复制",
+			"copyFailed": "复制失败",
+			"copyManually": "浏览器拒绝了剪贴板权限。请手动选中生成的 Markdown 后复制。",
 			"footnotes": "推荐理由",
 			"preferred": "首选",
 			"removeLink": "移除链接",

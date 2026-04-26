@@ -13,15 +13,17 @@
 			"analyzing": "Analyzing..."
 		},
 		"preview": {
-			"description": "Click evidence targets to choose where support links should be added",
-			"confirm": "Confirm Selection",
-			"gettingLinks": "Getting links..."
+			"description": "Review the claims and anchors. No sources are searched until you continue.",
+			"confirm": "Find Support Sources",
+			"gettingLinks": "Searching support sources..."
 		},
 		"linked-content": {
-			"description": "Click the link to preview, copy to use directly",
+			"description": "Support sources are attached. Click a link to preview or switch sources.",
 			"copyMarkdown": "Copy Markdown",
 			"copyMarkdownWithFootnotes": "Copy Markdown+Footnotes",
 			"copied": "Copied",
+			"copyFailed": "Copy failed",
+			"copyManually": "Browser clipboard permission was denied. Select the generated Markdown and copy it manually.",
 			"footnotes": "Recommendations",
 			"preferred": "Preferred",
 			"removeLink": "Remove Link",

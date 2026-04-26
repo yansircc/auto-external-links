@@ -33,6 +33,8 @@ export async function getMessages() {
 			copyMarkdown: linkedContentT("copyMarkdown"),
 			copyMarkdownWithFootnotes: linkedContentT("copyMarkdownWithFootnotes"),
 			copied: linkedContentT("copied"),
+			copyFailed: linkedContentT("copyFailed"),
+			copyManually: linkedContentT("copyManually"),
 			footnotes: linkedContentT("footnotes"),
 			preferred: linkedContentT("preferred"),
 			removeLink: linkedContentT("removeLink"),

@@ -20,6 +20,8 @@ export interface EditorMessages {
 		copyMarkdown: string;
 		copyMarkdownWithFootnotes: string;
 		copied: string;
+		copyFailed: string;
+		copyManually: string;
 		footnotes: string;
 		preferred: string;
 		removeLink: string;
