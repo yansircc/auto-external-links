@@ -1,0 +1,2 @@
+export const AUTO_EVIDENCE_TARGET_LIMIT = 12;
+export const MANUAL_EVIDENCE_TARGET_LIMIT = 50;

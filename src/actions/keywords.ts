@@ -5,6 +5,7 @@ import { generateObject, type LanguageModel } from "ai";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { env } from "@/env";
+import { AUTO_EVIDENCE_TARGET_LIMIT } from "@/lib/evidence-targets";
 import { createEvidenceTargetId } from "@/lib/keywords";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { searchGoogle } from "@/lib/serper";
@@ -70,12 +71,12 @@ function createDynamicEvidenceSchema(targetCount: number) {
 }
 
 /**
- * 每 1000 字符推荐 2 个证据目标，最少 2 个，最多 12 个
+ * 每 1000 字符推荐 2 个证据目标，最少 2 个，最多自动上限
  */
 function calculateTargetCount(text: string): number {
 	const charCount = text.length;
 	const calculatedCount = Math.floor(charCount / 1000) * 2;
-	return Math.max(2, Math.min(12, calculatedCount));
+	return Math.max(2, Math.min(AUTO_EVIDENCE_TARGET_LIMIT, calculatedCount));
 }
 
 function createAIModel(
@@ -219,7 +220,10 @@ export async function analyzeEvidenceTargets(
 		}
 	}
 
-	const availableSlots = Math.max(0, 12 - existingTargetCount);
+	const availableSlots = Math.max(
+		0,
+		AUTO_EVIDENCE_TARGET_LIMIT - existingTargetCount,
+	);
 	const recommendedTargetCount = Math.min(
 		calculateTargetCount(text),
 		availableSlots,
@@ -229,7 +233,7 @@ export async function analyzeEvidenceTargets(
 		return {
 			error: {
 				code: "AI_ERROR",
-				message: "已达到证据目标数量上限（12个），无法添加更多目标",
+				message: `已达到自动证据目标数量上限（${AUTO_EVIDENCE_TARGET_LIMIT}个），请手动添加更多目标`,
 			},
 		};
 	}

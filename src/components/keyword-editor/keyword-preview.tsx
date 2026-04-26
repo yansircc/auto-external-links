@@ -11,6 +11,10 @@ import {
 } from "@/components/ui/tooltip";
 import { useKeywordAnalysis, useKeywordSelection } from "@/hooks/keyword";
 import {
+	AUTO_EVIDENCE_TARGET_LIMIT,
+	MANUAL_EVIDENCE_TARGET_LIMIT,
+} from "@/lib/evidence-targets";
+import {
 	keywordEditorSelectors,
 	useKeywordEditorStore,
 } from "@/stores/keyword-editor";
@@ -127,10 +131,12 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 					</div>
 					<div className="text-sm">
 						<span className="text-muted-foreground">
-							已选择证据目标 ({selectedTargetsCount}/12)
+							已选择证据目标 ({selectedTargetsCount}/
+							{MANUAL_EVIDENCE_TARGET_LIMIT})
 						</span>
 						<p className="text-muted-foreground/70 text-xs">
-							鼠标选择文本可快速添加证据目标
+							自动最多 {AUTO_EVIDENCE_TARGET_LIMIT}{" "}
+							条，鼠标选择文本可继续手动添加
 						</p>
 					</div>
 				</div>

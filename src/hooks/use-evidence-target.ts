@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { generateEvidenceTarget } from "@/actions/citation";
+import { MANUAL_EVIDENCE_TARGET_LIMIT } from "@/lib/evidence-targets";
 import {
 	createEvidenceTargetId,
 	findEvidenceTargetsInText,
@@ -28,7 +29,7 @@ export function useEvidenceTarget() {
 			if (!text.includes(trimmedAnchor)) return false;
 
 			const currentTargetCount = Object.keys(targetMetadata).length;
-			if (currentTargetCount >= 12) return false;
+			if (currentTargetCount >= MANUAL_EVIDENCE_TARGET_LIMIT) return false;
 
 			const currentSettings = useAPISettingsStore.getState();
 			const result = await generateEvidenceTarget(

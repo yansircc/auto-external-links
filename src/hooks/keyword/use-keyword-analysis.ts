@@ -56,19 +56,6 @@ export function useKeywordAnalysis() {
 				const currentBaseUrl = currentSettings.baseUrl;
 				const currentModel = currentSettings.model;
 
-				if (!currentApiKey && !process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-					toast({
-						title: "请设置 API Key",
-						description: "点击前往设置页面配置您的 OpenAI API Key",
-						variant: "destructive",
-					});
-					setTimeout(() => {
-						window.location.href = "/settings";
-					}, 1500);
-					setIsLoading(false);
-					return;
-				}
-
 				const result = await analyzeEvidenceTargets(
 					data.text,
 					fingerprint,

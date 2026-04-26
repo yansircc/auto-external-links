@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useEvidenceTarget } from "@/hooks/use-evidence-target";
 import { useToast } from "@/hooks/use-toast";
+import { MANUAL_EVIDENCE_TARGET_LIMIT } from "@/lib/evidence-targets";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
 export function TextSelectionPopover() {
@@ -65,10 +66,10 @@ export function TextSelectionPopover() {
 	}, [showPopover]);
 
 	const handleAddKeyword = async () => {
-		if (Object.keys(targetMetadata).length >= 12) {
+		if (Object.keys(targetMetadata).length >= MANUAL_EVIDENCE_TARGET_LIMIT) {
 			toast({
 				title: "已达到证据目标数量上限",
-				description: "每篇文章最多只能有12个证据目标",
+				description: `每篇文章最多只能有${MANUAL_EVIDENCE_TARGET_LIMIT}个证据目标`,
 				variant: "destructive",
 			});
 			setShowPopover(false);
