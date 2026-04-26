@@ -39,8 +39,8 @@ export const citationNoteSchema = z.object({
 		),
 	limitation: z
 		.string()
-		.optional()
-		.describe("Optional caveat about the scope of the support."),
+		.nullable()
+		.describe("Caveat about the scope of the support, or null if none."),
 });
 
 /**
