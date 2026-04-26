@@ -6,6 +6,17 @@ interface FootnotesResult {
 	footnoteIndexMap: Map<string, number>;
 }
 
+function formatCitationNote(metadata: EvidenceTargetMetadata): string {
+	const { citationNote, title, link } = metadata;
+	const sourceLabel = title ? `"${title}"` : "The linked source";
+	const sourceRef = link ? `${sourceLabel}, ${link}` : sourceLabel;
+	const limitation = citationNote.limitation
+		? ` Scope note: ${citationNote.limitation}`
+		: "";
+
+	return `${sourceRef}. ${citationNote.citationText} Evidence role: ${citationNote.evidenceRole}; source type: ${citationNote.sourceType}. Supports: ${citationNote.supportsClaim}.${limitation}`;
+}
+
 export function useFootnotes(
 	matches: EvidenceMatch[],
 	selectedTargetIds: Set<string>,
@@ -16,7 +27,7 @@ export function useFootnotes(
 			if (!selectedTargetIds.has(match.targetId)) return map;
 
 			const metadata = targetMetadata[match.targetId];
-			if (!metadata?.link || !metadata.reason) return map;
+			if (!metadata?.link || !metadata.citationNote) return map;
 
 			const existing = map.get(match.targetId);
 			if (existing) {
@@ -26,7 +37,7 @@ export function useFootnotes(
 
 			map.set(match.targetId, {
 				label: match.anchorText,
-				reason: metadata.reason,
+				citation: formatCitationNote(metadata),
 				referenceIds: [match.id],
 			});
 			return map;

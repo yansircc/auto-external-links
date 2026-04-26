@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { generateEvidenceRecommendation } from "@/actions/recommendation";
+import { generateEvidenceTarget } from "@/actions/citation";
 import {
 	createEvidenceTargetId,
 	findEvidenceTargetsInText,
@@ -11,7 +11,7 @@ import type { EvidenceTargetMetadata } from "@/types/keywords";
 /**
  * Hook for adding a manually selected evidence target
  */
-export function useKeywordRecommendation() {
+export function useEvidenceTarget() {
 	const {
 		text,
 		targetMetadata,
@@ -20,7 +20,7 @@ export function useKeywordRecommendation() {
 		setSelectedTargetIds,
 	} = useKeywordEditorStore();
 
-	const addKeywordWithRecommendation = useCallback(
+	const addEvidenceTarget = useCallback(
 		async (anchorText: string) => {
 			const trimmedAnchor = anchorText.trim();
 			if (!trimmedAnchor) return false;
@@ -31,7 +31,7 @@ export function useKeywordRecommendation() {
 			if (currentTargetCount >= 12) return false;
 
 			const currentSettings = useAPISettingsStore.getState();
-			const recommendationResult = await generateEvidenceRecommendation(
+			const result = await generateEvidenceTarget(
 				text,
 				trimmedAnchor,
 				currentSettings.apiKey || undefined,
@@ -39,11 +39,8 @@ export function useKeywordRecommendation() {
 				currentSettings.model || undefined,
 			);
 
-			if (recommendationResult.error || !recommendationResult.data) {
-				console.error(
-					"Failed to generate evidence target:",
-					recommendationResult.error,
-				);
+			if (result.error || !result.data) {
+				console.error("Failed to generate evidence target:", result.error);
 				return false;
 			}
 
@@ -54,11 +51,11 @@ export function useKeywordRecommendation() {
 			const target: EvidenceTargetMetadata = {
 				id: targetId,
 				anchorText: trimmedAnchor,
-				claim: recommendationResult.data.claim,
-				evidenceGap: recommendationResult.data.evidenceGap,
-				queries: recommendationResult.data.queries,
-				query: recommendationResult.data.queries[0] ?? trimmedAnchor,
-				reason: recommendationResult.data.reason,
+				claim: result.data.claim,
+				evidenceGap: result.data.evidenceGap,
+				queries: result.data.queries,
+				query: result.data.queries[0] ?? trimmedAnchor,
+				citationNote: result.data.citationNote,
 				link: null,
 				title: null,
 				alternatives: { neutral: [], preferred: [], regular: [] },
@@ -85,6 +82,6 @@ export function useKeywordRecommendation() {
 	);
 
 	return {
-		addKeywordWithRecommendation,
+		addEvidenceTarget,
 	};
 }

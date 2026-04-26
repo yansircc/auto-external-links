@@ -3,7 +3,7 @@
 import { Check, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useKeywordRecommendation } from "@/hooks/use-keyword-recommendation";
+import { useEvidenceTarget } from "@/hooks/use-evidence-target";
 import { useToast } from "@/hooks/use-toast";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
@@ -16,7 +16,7 @@ export function TextSelectionPopover() {
 	const { toast } = useToast();
 	const store = useKeywordEditorStore();
 	const { targetMetadata } = store;
-	const { addKeywordWithRecommendation } = useKeywordRecommendation();
+	const { addEvidenceTarget } = useEvidenceTarget();
 
 	useEffect(() => {
 		const handleMouseUp = () => {
@@ -78,7 +78,7 @@ export function TextSelectionPopover() {
 
 		setIsLoading(true);
 
-		const success = await addKeywordWithRecommendation(selectedText);
+		const success = await addEvidenceTarget(selectedText);
 
 		if (success) {
 			toast({

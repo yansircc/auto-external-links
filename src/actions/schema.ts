@@ -4,6 +4,45 @@
 
 import { z } from "zod";
 
+export const citationNoteSchema = z.object({
+	sourceType: z
+		.enum([
+			"paper",
+			"encyclopedia",
+			"government",
+			"education",
+			"research",
+			"institution",
+			"other",
+		])
+		.describe("The type of source expected to support this claim."),
+	evidenceRole: z
+		.enum([
+			"definition",
+			"statistic",
+			"mechanism",
+			"historical_context",
+			"expert_consensus",
+			"case_reference",
+			"general_support",
+		])
+		.describe("How the evidence should support the claim."),
+	supportsClaim: z
+		.string()
+		.min(1)
+		.describe("The exact claim this note is intended to support."),
+	citationText: z
+		.string()
+		.min(1)
+		.describe(
+			"A concise scholarly footnote sentence explaining how the source supports the claim.",
+		),
+	limitation: z
+		.string()
+		.optional()
+		.describe("Optional caveat about the scope of the support."),
+});
+
 /**
  * AI 生成证据目标时的基础字段
  */
@@ -29,11 +68,7 @@ export const aiGeneratedEvidenceTargetSchema = z.object({
 		.describe(
 			"English Google queries that can find neutral supporting evidence for the claim.",
 		),
-	reason: z
-		.string()
-		.describe(
-			"Short citation note explaining how the source supports the claim.",
-		),
+	citationNote: citationNoteSchema,
 });
 
 /**
@@ -54,3 +89,4 @@ export type AIGeneratedEvidenceTarget = z.infer<
 export type CompleteEvidenceTarget = z.infer<
 	typeof completeEvidenceTargetSchema
 >;
+export type CitationNote = z.infer<typeof citationNoteSchema>;

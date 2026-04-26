@@ -29,6 +29,6 @@ export interface RenderOptions {
 
 export interface Footnote {
 	label: string;
-	reason: string;
+	citation: string;
 	referenceIds: string[];
 }

@@ -176,6 +176,6 @@ export function generateFootnotesSection(footnotes: Footnote[]) {
 	if (footnotes.length === 0) return "";
 
 	return `\n\n---\n\n${footnotes
-		.map((footnote, index) => `[^${index + 1}]: ${footnote.reason}`)
+		.map((footnote, index) => `[^${index + 1}]: ${footnote.citation}`)
 		.join("\n")}\n`;
 }

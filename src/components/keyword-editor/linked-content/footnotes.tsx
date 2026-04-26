@@ -30,7 +30,7 @@ export function Footnotes({ footnotes, messages }: FootnotesProps) {
 							>
 								[{footnoteNumber}]
 							</a>
-							<p>{footnote.reason}</p>
+							<p>{footnote.citation}</p>
 						</div>
 					);
 				})}

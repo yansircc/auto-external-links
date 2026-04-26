@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useKeywordRecommendation } from "@/hooks/use-keyword-recommendation";
+import { useEvidenceTarget } from "@/hooks/use-evidence-target";
 import { useToast } from "@/hooks/use-toast";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
@@ -18,7 +18,7 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 	const { toast } = useToast();
 	const store = useKeywordEditorStore();
 	const { text, targetMetadata } = store;
-	const { addKeywordWithRecommendation } = useKeywordRecommendation();
+	const { addEvidenceTarget } = useEvidenceTarget();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -44,7 +44,7 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 			return;
 		}
 
-		const success = await addKeywordWithRecommendation(trimmedAnchor);
+		const success = await addEvidenceTarget(trimmedAnchor);
 
 		if (success) {
 			setAnchorText("");

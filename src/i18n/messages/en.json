@@ -24,7 +24,7 @@
 			"copied": "Copied",
 			"copyFailed": "Copy failed",
 			"copyManually": "Browser clipboard permission was denied. Select the generated Markdown and copy it manually.",
-			"footnotes": "Recommendations",
+			"footnotes": "Evidence Footnotes",
 			"preferred": "Preferred",
 			"removeLink": "Remove Link",
 			"linkRemoved": "Link removed"

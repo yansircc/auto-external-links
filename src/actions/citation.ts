@@ -5,8 +5,9 @@ import { generateObject, type LanguageModel } from "ai";
 import { z } from "zod";
 import { env } from "@/env";
 import { catchError } from "@/utils";
+import { citationNoteSchema } from "./schema";
 
-const evidenceRecommendationSchema = z.object({
+const evidenceTargetSchema = z.object({
 	claim: z
 		.string()
 		.describe("The claim supported by the selected anchor text."),
@@ -18,9 +19,7 @@ const evidenceRecommendationSchema = z.object({
 		.min(1)
 		.max(3)
 		.describe("English Google queries for neutral supporting evidence."),
-	reason: z
-		.string()
-		.describe("Short citation note explaining why the source is useful."),
+	citationNote: citationNoteSchema,
 });
 
 function createAIModel(
@@ -46,7 +45,7 @@ function createAIModel(
 /**
  * 为手动选择的证据锚点生成目标元数据
  */
-export async function generateEvidenceRecommendation(
+export async function generateEvidenceTarget(
 	text: string,
 	anchorText: string,
 	userApiKey?: string,
@@ -54,12 +53,7 @@ export async function generateEvidenceRecommendation(
 	userModel?: string,
 ): Promise<{
 	error?: string;
-	data?: {
-		claim: string;
-		evidenceGap: string;
-		queries: string[];
-		reason: string;
-	};
+	data?: z.infer<typeof evidenceTargetSchema>;
 }> {
 	const aiModel = createAIModel(userApiKey, userBaseUrl, userModel);
 	if (!aiModel) {
@@ -71,9 +65,9 @@ export async function generateEvidenceRecommendation(
 	const [error, result] = await catchError(
 		generateObject({
 			model: aiModel,
-			system: `You are an evidence editor. Given an English article and a selected exact anchor text, identify the claim it belongs to and generate English Google queries for neutral support. Prefer Wikipedia, papers, research labs, universities, government, and international institutions. Avoid competitor/vendor resources unless they are directly relevant.`,
+			system: `You are an evidence editor. Given an English article and a selected exact anchor text, identify the claim it belongs to and generate English Google queries for neutral support. Prefer Wikipedia, papers, research labs, universities, government, and international institutions. Avoid competitor/vendor resources unless they are directly relevant. Write citationNote as a scholarly footnote, not a recommendation.`,
 			prompt: `Article:\n${text}\n\nSelected anchor text: "${anchorText}"`,
-			schema: evidenceRecommendationSchema,
+			schema: evidenceTargetSchema,
 		}),
 		(error) => new Error("生成证据目标失败", { cause: error }),
 	);

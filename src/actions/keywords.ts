@@ -257,7 +257,7 @@ For each evidence target:
 2. Choose the exact anchorText from the article where a citation should be inserted.
 3. Explain the evidenceGap.
 4. Write 1-3 English Google queries that can find neutral support, preferring Wikipedia, papers, research labs, universities, government, and international institutions.
-5. Write a short citation note in reason.
+5. Write a structured citationNote, not a recommendation. The citationText must read like a scholarly footnote: state what the source supports, avoid promotional language, and include a limitation when the support is contextual rather than direct proof.
 
 Avoid competitor/vendor resources unless the article directly discusses that entity.
 Return exactly ${recommendedTargetCount} targets.`,
