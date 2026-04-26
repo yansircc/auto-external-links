@@ -26,15 +26,14 @@ interface KeywordPreviewProps {
 export function KeywordPreview({ messages }: KeywordPreviewProps) {
 	// Use store for pure state
 	const store = useKeywordEditorStore();
-	const { text, matches, keywordMetadata, selectedKeywordIds } = store;
+	const { text, matches, targetMetadata, selectedTargetIds } = store;
 
-	// Get selected keywords count
-	const selectedKeywordsCount =
-		keywordEditorSelectors.getSelectedKeywords(store).length;
+	const selectedTargetsCount =
+		keywordEditorSelectors.getSelectedTargets(store).length;
 
 	// Use hooks for business logic
 	const { fetchLinks, isLoading } = useKeywordAnalysis();
-	const { handleToggleKeyword, isKeywordSelected } = useKeywordSelection();
+	const { handleToggleTarget, isTargetSelected } = useKeywordSelection();
 
 	// 渲染高亮文本
 	function renderHighlightedText() {
@@ -51,8 +50,8 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 				);
 			}
 
-			// 添加关键词
-			const metadata = keywordMetadata[match.keyword];
+			// 添加证据目标
+			const metadata = targetMetadata[match.targetId];
 			if (!metadata) continue;
 
 			elements.push(
@@ -62,7 +61,7 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 							type="button"
 							onClick={(e) => {
 								e.preventDefault();
-								handleToggleKeyword(match.id);
+								handleToggleTarget(match.targetId);
 							}}
 							onMouseDown={(e) => {
 								// 防止按钮点击清除文本选择
@@ -71,7 +70,7 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 								}
 							}}
 							className={`rounded-md px-1.5 py-0.5 transition-all duration-200 ${
-								isKeywordSelected(match.id)
+								isTargetSelected(match.targetId)
 									? "bg-green-100 text-green-700 ring-2 ring-green-300/50 ring-offset-1 hover:bg-green-200"
 									: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 hover:ring-2 hover:ring-yellow-300/50 hover:ring-offset-1"
 							}`}
@@ -81,8 +80,11 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 					</TooltipTrigger>
 					<TooltipContent side="top" align="start">
 						<div className="space-y-1">
-							<p className="font-medium">{metadata.query}</p>
-							<p className="text-muted-foreground text-xs">{metadata.reason}</p>
+							<p className="font-medium">{metadata.claim}</p>
+							<p className="text-muted-foreground text-xs">
+								{metadata.evidenceGap}
+							</p>
+							<p className="text-muted-foreground text-xs">{metadata.query}</p>
 						</div>
 					</TooltipContent>
 				</Tooltip>,
@@ -120,15 +122,15 @@ export function KeywordPreview({ messages }: KeywordPreviewProps) {
 				<div className="flex items-center gap-3">
 					<div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
 						<span className="font-semibold text-primary text-sm">
-							{selectedKeywordIds.size}
+							{selectedTargetIds.size}
 						</span>
 					</div>
 					<div className="text-sm">
 						<span className="text-muted-foreground">
-							已选择关键词 ({selectedKeywordsCount}/20)
+							已选择证据目标 ({selectedTargetsCount}/12)
 						</span>
 						<p className="text-muted-foreground/70 text-xs">
-							鼠标选择文本可快速添加新关键词
+							鼠标选择文本可快速添加证据目标
 						</p>
 					</div>
 				</div>

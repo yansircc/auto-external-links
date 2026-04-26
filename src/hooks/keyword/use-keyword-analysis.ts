@@ -1,11 +1,15 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { fetchLinksForKeywords, getKeywords } from "@/actions/keywords";
+import {
+	analyzeEvidenceTargets,
+	fetchLinksForEvidenceTargets,
+} from "@/actions/keywords";
 import { getUsageStats } from "@/actions/usage";
 import type { FormData } from "@/components/keyword-editor/core/schema";
 import { useToast } from "@/hooks/use-toast";
 import { ErrorHandler } from "@/lib/errors/handler";
+import { findEvidenceTargetsInText } from "@/lib/keywords";
 import { useAPISettingsStore } from "@/stores/api-settings";
 import {
 	keywordEditorSelectors,
@@ -14,64 +18,50 @@ import {
 import { useSitePreferencesStore } from "@/stores/site-preferences";
 
 /**
- * 关键词分析业务逻辑 Hook
- * 处理关键词分析和链接生成的完整流程
+ * 证据目标分析业务逻辑 Hook
  */
 export function useKeywordAnalysis() {
 	const { toast } = useToast();
-
-	// Store 状态和方法
 	const store = useKeywordEditorStore();
 	const {
 		isLoading,
 		mode,
-		selectedKeywordIds,
-		keywordMetadata,
+		selectedTargetIds,
+		targetMetadata,
 		setIsLoading,
 		updateAnalysisResult,
 		updateLinksResult,
 		setMode,
 		resetToInitialState,
 	} = store;
-
-	// 站点偏好设置
 	const { blacklist, preferredSites } = useSitePreferencesStore();
 
-	// 选中的关键词
-	const selectedKeywords = useMemo(
-		() => keywordEditorSelectors.getSelectedKeywords(store),
+	const selectedTargets = useMemo(
+		() => keywordEditorSelectors.getSelectedTargets(store),
 		[store],
 	);
 
-	const linkableKeywords = useMemo(
-		() => keywordEditorSelectors.getLinkableKeywords(store),
+	const linkableTargets = useMemo(
+		() => keywordEditorSelectors.getLinkableTargets(store),
 		[store],
 	);
 
-	/**
-	 * 分析文本
-	 */
 	const analyzeText = useCallback(
 		async (data: FormData, fingerprint?: string) => {
 			setIsLoading(true);
 
 			try {
-				// 等待 hydration 完成后，获取最新的 API settings
-				// 使用 getState() 确保获取到已 hydrated 的值
 				const currentSettings = useAPISettingsStore.getState();
 				const currentApiKey = currentSettings.apiKey;
 				const currentBaseUrl = currentSettings.baseUrl;
 				const currentModel = currentSettings.model;
-				const currentHasAPIKey = !!currentApiKey;
 
-				// 检查是否有 API key
-				if (!currentHasAPIKey && !process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+				if (!currentApiKey && !process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
 					toast({
 						title: "请设置 API Key",
 						description: "点击前往设置页面配置您的 OpenAI API Key",
 						variant: "destructive",
 					});
-					// 延迟跳转，让用户看到提示
 					setTimeout(() => {
 						window.location.href = "/settings";
 					}, 1500);
@@ -79,25 +69,19 @@ export function useKeywordAnalysis() {
 					return;
 				}
 
-				// 获取当前已有的关键词数量
-				const currentKeywordCount = Object.keys(keywordMetadata).length;
-
-				// Call server action with existing keyword count and API settings
-				// 使用最新获取的 API key，确保是 hydrated 后的值
-				const result = await getKeywords(
+				const result = await analyzeEvidenceTargets(
 					data.text,
 					fingerprint,
-					currentKeywordCount,
+					Object.keys(targetMetadata).length,
 					currentApiKey || undefined,
 					currentBaseUrl || undefined,
 					currentModel || undefined,
 				);
 
 				if (result.error) {
-					const errorMessage = result.error.message || "分析失败，请稍后重试";
 					toast({
 						title: "分析失败",
-						description: errorMessage,
+						description: result.error.message || "分析失败，请稍后重试",
 						variant: "destructive",
 					});
 					return;
@@ -107,77 +91,44 @@ export function useKeywordAnalysis() {
 					throw new Error("分析失败：未返回数据");
 				}
 
-				// Process the result to get matches
-				const { findKeywordsInText } = await import("@/lib/keywords");
-				const newKeywords = result.data.keywords.map((k) => k.keyword);
-
-				// 合并现有关键词和新关键词
-				const existingKeywords = Object.keys(keywordMetadata);
-				const allKeywords = [...new Set([...existingKeywords, ...newKeywords])];
-				const matches = findKeywordsInText(data.text, allKeywords);
-
-				// Build metadata - 保留现有的元数据并添加新的
-				const metadata: Record<string, any> = { ...keywordMetadata };
-				for (const keyword of result.data.keywords) {
-					// 只添加新的关键词元数据，不覆盖已有的
-					if (!metadata[keyword.keyword]) {
-						metadata[keyword.keyword] = {
-							query: keyword.query,
-							reason: keyword.reason,
-							link: keyword.link,
-							title: keyword.title,
-							alternatives: { preferred: [], regular: [] },
-						};
-					}
+				const metadata = { ...targetMetadata };
+				for (const target of result.data.targets) {
+					metadata[target.id] = {
+						...target,
+						alternatives: { neutral: [], preferred: [], regular: [] },
+					};
 				}
 
-				// 记录更新前的唯一关键词数（忽略大小写）
 				const beforeCount =
-					keywordEditorSelectors.getSelectedKeywords(store).length;
+					keywordEditorSelectors.getSelectedTargets(store).length;
+				const matches = findEvidenceTargetsInText(
+					data.text,
+					Object.values(metadata),
+				);
 
-				// 更新 Store
 				updateAnalysisResult({
 					text: data.text,
 					matches,
 					metadata,
 				});
 
-				// 获取更新后的状态
 				const updatedStore = useKeywordEditorStore.getState();
+				const afterCount =
+					keywordEditorSelectors.getSelectedTargets(updatedStore).length;
 
-				// 记录更新后的唯一关键词数（忽略大小写）
-				const afterKeywordCount =
-					keywordEditorSelectors.getSelectedKeywords(updatedStore).length;
-
-				// 记录更新后的总匹配项数
-				const totalMatchCount = updatedStore.selectedKeywordIds.size;
-
-				// 计算实际新增的唯一关键词数
-				const newKeywordCount = afterKeywordCount - beforeCount;
-
-				// 显示成功提示
 				toast({
 					title: "分析完成",
-					description: `新增 ${newKeywordCount} 个关键词，共 ${totalMatchCount} 处匹配`,
+					description: `新增 ${afterCount - beforeCount} 个证据目标，共 ${updatedStore.selectedTargetIds.size} 处匹配`,
 				});
 			} catch (error) {
 				const errorMessage = ErrorHandler.getMessage(error);
 				const errorCode = ErrorHandler.normalize(error).code;
 
-				// 特殊处理限流错误
-				if (errorCode === "RATE_LIMITED") {
-					toast({
-						title: "使用次数限制",
-						description: errorMessage,
-						variant: "destructive",
-					});
-				} else {
-					toast({
-						title: "分析失败",
-						description: errorMessage,
-						variant: "destructive",
-					});
-				}
+				toast({
+					title: errorCode === "RATE_LIMITED" ? "使用次数限制" : "分析失败",
+					description: errorMessage,
+					variant: "destructive",
+				});
 
 				ErrorHandler.log(error, {
 					action: "analyzeText",
@@ -187,17 +138,14 @@ export function useKeywordAnalysis() {
 				setIsLoading(false);
 			}
 		},
-		[setIsLoading, updateAnalysisResult, toast, keywordMetadata],
+		[setIsLoading, updateAnalysisResult, toast, targetMetadata],
 	);
 
-	/**
-	 * 为选中的关键词获取链接
-	 */
 	const fetchLinks = useCallback(async () => {
-		if (linkableKeywords.length === 0) {
+		if (linkableTargets.length === 0) {
 			toast({
-				title: "请选择关键词",
-				description: "至少需要选择一个关键词来生成链接",
+				title: "请选择证据目标",
+				description: "至少需要选择一个证据目标来生成链接",
 				variant: "destructive",
 			});
 			return;
@@ -206,50 +154,42 @@ export function useKeywordAnalysis() {
 		setIsLoading(true);
 
 		try {
-			const keywordsForSearch = linkableKeywords
-				.map(({ keyword, metadata }) => ({
-					keyword,
-					query: metadata?.query || "",
+			const targetsForSearch = linkableTargets
+				.map(({ match, metadata }) => ({
+					id: match.targetId,
+					queries: metadata?.queries || [],
 				}))
-				.filter((item) => item.query);
+				.filter((item) => item.queries.length > 0);
 
-			const searchOptions = {
-				blacklist: blacklist.map((entry) => entry.domain),
-				preferredSites: preferredSites.map((site) => site.domain),
-			};
-
-			const linkMap = await fetchLinksForKeywords(
-				keywordsForSearch,
-				searchOptions.blacklist,
-				searchOptions.preferredSites,
+			const linkMap = await fetchLinksForEvidenceTargets(
+				targetsForSearch,
+				blacklist.map((entry) => entry.domain),
+				preferredSites.map((site) => site.domain),
 			);
 
-			// 合并链接结果到现有元数据
-			const updatedMetadata = { ...keywordMetadata };
+			const updatedMetadata = { ...targetMetadata };
 
-			Object.entries(linkMap).forEach(([keyword, linkResult]) => {
-				if (updatedMetadata[keyword]) {
-					updatedMetadata[keyword] = {
-						...updatedMetadata[keyword],
+			Object.entries(linkMap).forEach(([targetId, linkResult]) => {
+				if (updatedMetadata[targetId]) {
+					updatedMetadata[targetId] = {
+						...updatedMetadata[targetId],
 						...linkResult,
 					};
 				}
 			});
 
-			// 更新 Store
 			updateLinksResult(updatedMetadata);
 
-			// 显示结果
 			const foundCount = Object.keys(linkMap).length;
 			if (foundCount > 0) {
 				toast({
 					title: "链接生成完成",
-					description: `成功为 ${foundCount} 个关键词找到链接`,
+					description: `成功为 ${foundCount} 个证据目标找到链接`,
 				});
 			} else {
 				toast({
 					title: "未找到合适的链接",
-					description: "请尝试调整关键词或搜索设置",
+					description: "请尝试调整证据目标或搜索设置",
 					variant: "destructive",
 				});
 			}
@@ -264,14 +204,14 @@ export function useKeywordAnalysis() {
 
 			ErrorHandler.log(error, {
 				action: "fetchLinks",
-				keywordCount: linkableKeywords.length,
+				targetCount: linkableTargets.length,
 			});
 		} finally {
 			setIsLoading(false);
 		}
 	}, [
-		linkableKeywords,
-		keywordMetadata,
+		linkableTargets,
+		targetMetadata,
 		blacklist,
 		preferredSites,
 		setIsLoading,
@@ -279,29 +219,20 @@ export function useKeywordAnalysis() {
 		toast,
 	]);
 
-	/**
-	 * 返回编辑模式
-	 */
 	const backToEdit = useCallback(() => {
 		setMode("editing");
 	}, [setMode]);
 
-	/**
-	 * 开始新的分析
-	 */
 	const startNewAnalysis = useCallback(() => {
 		resetToInitialState();
 	}, [resetToInitialState]);
 
 	return {
-		// 状态
 		isLoading,
 		mode,
-		selectedKeywords,
-		hasSelectedKeywords: selectedKeywordIds.size > 0,
-		canFetchLinks: linkableKeywords.length > 0,
-
-		// 方法
+		selectedTargets,
+		hasSelectedTargets: selectedTargetIds.size > 0,
+		canFetchLinks: linkableTargets.length > 0,
 		analyzeText,
 		fetchLinks,
 		backToEdit,

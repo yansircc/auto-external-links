@@ -5,157 +5,126 @@ import { useToast } from "@/hooks/use-toast";
 import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
 /**
- * 关键词选择管理 Hook
- * 处理关键词的选择、切换链接等操作
+ * 证据目标选择管理 Hook
  */
 export function useKeywordSelection() {
 	const { toast } = useToast();
 
 	const {
 		matches,
-		selectedKeywordIds,
-		keywordMetadata,
-		toggleKeyword,
-		selectAllKeywords,
-		deselectAllKeywords,
-		updateKeywordLink,
-		removeKeywordLink,
+		selectedTargetIds,
+		targetMetadata,
+		toggleTarget,
+		selectAllTargets,
+		deselectAllTargets,
+		updateTargetLink,
+		removeTargetLink,
 	} = useKeywordEditorStore();
 
-	/**
-	 * 计算选中状态
-	 */
 	const selectionStats = useMemo(() => {
-		const totalKeywords = new Set(matches.map((m) => m.keyword)).size;
-		const selectedCount = selectedKeywordIds.size;
-		const isAllSelected =
-			selectedCount === matches.length && matches.length > 0;
+		const totalTargets = matches.length;
+		const selectedCount = selectedTargetIds.size;
+		const isAllSelected = selectedCount === totalTargets && totalTargets > 0;
 		const isPartiallySelected =
-			selectedCount > 0 && selectedCount < matches.length;
+			selectedCount > 0 && selectedCount < totalTargets;
 
 		return {
-			totalKeywords,
+			totalTargets,
 			selectedCount,
 			isAllSelected,
 			isPartiallySelected,
 		};
-	}, [matches, selectedKeywordIds]);
+	}, [matches, selectedTargetIds]);
 
-	/**
-	 * 切换全选状态
-	 */
 	const toggleSelectAll = useCallback(() => {
 		if (selectionStats.isAllSelected) {
-			deselectAllKeywords();
+			deselectAllTargets();
 			toast({
 				description: "已取消所有选择",
 			});
 		} else {
-			selectAllKeywords();
+			selectAllTargets();
 			toast({
-				description: `已选择所有 ${selectionStats.totalKeywords} 个关键词`,
+				description: `已选择所有 ${selectionStats.totalTargets} 个证据目标`,
 			});
 		}
-	}, [selectionStats, selectAllKeywords, deselectAllKeywords, toast]);
+	}, [selectionStats, selectAllTargets, deselectAllTargets, toast]);
 
-	/**
-	 * 切换单个关键词的选择状态
-	 */
-	const handleToggleKeyword = useCallback(
+	const handleToggleTarget = useCallback(
 		(id: string) => {
-			toggleKeyword(id);
+			toggleTarget(id);
 		},
-		[toggleKeyword],
+		[toggleTarget],
 	);
 
-	/**
-	 * 检查关键词是否被选中
-	 */
-	const isKeywordSelected = useCallback(
-		(id: string) => {
-			return selectedKeywordIds.has(id);
-		},
-		[selectedKeywordIds],
+	const isTargetSelected = useCallback(
+		(id: string) => selectedTargetIds.has(id),
+		[selectedTargetIds],
 	);
 
-	/**
-	 * 切换关键词的链接
-	 */
-	const switchKeywordLink = useCallback(
-		(keyword: string, link: string, title: string) => {
-			updateKeywordLink(keyword, link, title);
+	const switchTargetLink = useCallback(
+		(targetId: string, link: string, title: string) => {
+			updateTargetLink(targetId, link, title);
 
 			toast({
-				description: `已切换 "${keyword}" 的链接`,
+				description: "已切换证据目标链接",
 			});
 		},
-		[updateKeywordLink, toast],
+		[updateTargetLink, toast],
 	);
 
-	/**
-	 * 移除关键词的链接
-	 */
-	const removeKeywordLinkHandler = useCallback(
-		(keyword: string) => {
-			removeKeywordLink(keyword);
+	const removeTargetLinkHandler = useCallback(
+		(targetId: string) => {
+			removeTargetLink(targetId);
 
 			toast({
-				description: `已移除 "${keyword}" 的链接`,
+				description: "已移除证据目标链接",
 			});
 		},
-		[removeKeywordLink, toast],
+		[removeTargetLink, toast],
 	);
 
-	/**
-	 * 获取关键词的可用链接选项
-	 */
-	const getKeywordLinkOptions = useCallback(
-		(keyword: string) => {
-			const metadata = keywordMetadata[keyword];
+	const getTargetLinkOptions = useCallback(
+		(targetId: string) => {
+			const metadata = targetMetadata[targetId];
 			if (!metadata?.alternatives) return [];
 
-			const { preferred, regular } = metadata.alternatives;
-			const allOptions = [...preferred, ...regular];
+			const { neutral, preferred, regular } = metadata.alternatives;
+			const allOptions = [...neutral, ...preferred, ...regular];
 
-			// 过滤掉当前选中的链接
 			return allOptions.filter((option) => option.link !== metadata.link);
 		},
-		[keywordMetadata],
+		[targetMetadata],
 	);
 
-	/**
-	 * 获取关键词的当前链接信息
-	 */
-	const getKeywordLinkInfo = useCallback(
-		(keyword: string) => {
-			const metadata = keywordMetadata[keyword];
+	const getTargetLinkInfo = useCallback(
+		(targetId: string) => {
+			const metadata = targetMetadata[targetId];
 			if (!metadata?.link || !metadata?.title) return null;
 
 			return {
 				link: metadata.link,
 				title: metadata.title,
 				hasAlternatives:
-					(metadata.alternatives?.preferred?.length ?? 0) +
+					(metadata.alternatives?.neutral?.length ?? 0) +
+						(metadata.alternatives?.preferred?.length ?? 0) +
 						(metadata.alternatives?.regular?.length ?? 0) >
 					1,
 			};
 		},
-		[keywordMetadata],
+		[targetMetadata],
 	);
 
 	return {
-		// 状态
 		matches,
-		selectedKeywordIds,
+		selectedTargetIds,
 		selectionStats,
-
-		// 方法
 		toggleSelectAll,
-		handleToggleKeyword,
-		isKeywordSelected,
-		switchKeywordLink,
-		removeKeywordLink: removeKeywordLinkHandler,
-		getKeywordLinkOptions,
-		getKeywordLinkInfo,
+		handleToggleTarget,
+		isTargetSelected,
+		switchTargetLink,
+		removeTargetLink: removeTargetLinkHandler,
+		getTargetLinkOptions,
+		getTargetLinkInfo,
 	};
 }

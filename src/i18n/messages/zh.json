@@ -1,19 +1,19 @@
 {
 	"keyword-editor": {
 		"header": {
-			"title": "外链优化",
-			"description": "AI驱动的文章外链优化工具"
+			"title": "证据外链优化",
+			"description": "识别薄弱观点并添加中立支持来源"
 		},
 		"form": {
 			"title": "文本编辑器",
 			"description": "请输入要分析的英文文本",
 			"placeholder": "请输入要分析的英文文本...",
 			"characterCount": "{count} / {max}",
-			"analyze": "分析关键词",
+			"analyze": "查找证据目标",
 			"analyzing": "分析中..."
 		},
 		"preview": {
-			"description": "点击关键词可以选择是否添加外链",
+			"description": "点击证据目标可以选择是否添加支持链接",
 			"confirm": "确认选择",
 			"gettingLinks": "获取链接中..."
 		},
@@ -29,16 +29,16 @@
 		},
 		"features": {
 			"ai": {
-				"title": "智能分析",
-				"description": "AI驱动的关键词识别，准确把握文章重点"
+				"title": "观点分析",
+				"description": "识别文章中需要外部证据支持的观点"
 			},
 			"links": {
-				"title": "优质外链",
-				"description": "自动匹配高质量相关链接，提升文章价值"
+				"title": "中立来源",
+				"description": "优先使用百科、论文、教育机构和公共机构资源"
 			},
 			"optimization": {
-				"title": "一键优化",
-				"description": "快速生成优化后的Markdown文本，随时复制使用"
+				"title": "Markdown 输出",
+				"description": "生成可直接使用的带证据链接文章"
 			}
 		},
 		"errors": {

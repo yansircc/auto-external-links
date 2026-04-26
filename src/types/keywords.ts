@@ -1,70 +1,45 @@
-import type { CompleteKeyword } from "@/actions/schema";
+import type { CompleteEvidenceTarget } from "@/actions/schema";
 import type { SerperResponse } from "@/lib/serper/schema";
 
+export type SourceCategory = "neutral" | "preferred" | "regular";
+export type OrganicSearchResult = SerperResponse["organic"][number];
+
+export interface EvidenceCandidate extends OrganicSearchResult {
+	domain: string;
+	sourceCategory: SourceCategory;
+}
+
 /**
- * 关键词元数据（扩展版，包含搜索结果）
+ * 证据目标元数据（包含搜索结果）
  */
-export interface KeywordMetadata extends CompleteKeyword {
+export interface EvidenceTargetMetadata extends CompleteEvidenceTarget {
 	alternatives: {
-		preferred: SerperResponse["organic"];
-		regular: SerperResponse["organic"];
+		neutral: EvidenceCandidate[];
+		preferred: EvidenceCandidate[];
+		regular: EvidenceCandidate[];
 	};
 }
 
 /**
- * 关键词在文本中的匹配信息
+ * 证据目标在文本中的匹配信息
  */
-export interface KeywordMatch {
+export interface EvidenceMatch {
 	id: string;
-	keyword: string;
+	targetId: string;
+	anchorText: string;
 	start: number;
 	end: number;
 }
 
 /**
- * 关键词分析结果
+ * 证据目标分析结果
  */
-export interface KeywordAnalysisResult {
-	keywords: string[];
-	metadata: Record<string, KeywordMetadata>;
+export interface EvidenceAnalysisResult {
+	targets: EvidenceTargetMetadata[];
+	metadata: Record<string, EvidenceTargetMetadata>;
 	usage: {
 		promptTokens: number;
 		completionTokens: number;
 		totalTokens: number;
 	};
-}
-
-/**
- * 处理后的关键词结果（包含文本和匹配信息）
- */
-export interface ProcessedKeywordResult {
-	success: boolean;
-	error?: {
-		code: string;
-		message: string;
-	};
-	data?: {
-		text: string;
-		matches: KeywordMatch[];
-		keywords: string[];
-		metadata: Record<string, KeywordMetadata>;
-		usage: KeywordAnalysisResult["usage"];
-	};
-}
-
-/**
- * 关键词搜索请求
- */
-export interface KeywordSearchRequest {
-	keyword: string;
-	query: string;
-}
-
-/**
- * 选中的关键词信息
- */
-export interface SelectedKeyword {
-	id: string;
-	keyword: string;
-	metadata: KeywordMetadata;
 }

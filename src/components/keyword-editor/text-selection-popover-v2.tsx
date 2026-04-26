@@ -5,10 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useKeywordRecommendation } from "@/hooks/use-keyword-recommendation";
 import { useToast } from "@/hooks/use-toast";
-import {
-	keywordEditorSelectors,
-	useKeywordEditorStore,
-} from "@/stores/keyword-editor";
+import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
 export function TextSelectionPopover() {
 	const [selectedText, setSelectedText] = useState("");
@@ -18,7 +15,7 @@ export function TextSelectionPopover() {
 	const popoverRef = useRef<HTMLDivElement>(null);
 	const { toast } = useToast();
 	const store = useKeywordEditorStore();
-	const { keywordMetadata } = store;
+	const { targetMetadata } = store;
 	const { addKeywordWithRecommendation } = useKeywordRecommendation();
 
 	useEffect(() => {
@@ -68,35 +65,24 @@ export function TextSelectionPopover() {
 	}, [showPopover]);
 
 	const handleAddKeyword = async () => {
-		// 检查关键词总数是否已达到上限（只在关键词不存在时检查）
-		const existingKeyword = Object.keys(keywordMetadata).find(
-			(k) => k.toLowerCase() === selectedText.toLowerCase(),
-		);
-
-		if (!existingKeyword) {
-			const selectedKeywordsCount =
-				keywordEditorSelectors.getSelectedKeywords(store).length;
-			if (selectedKeywordsCount >= 20) {
-				toast({
-					title: "已达到关键词数量上限",
-					description: "每篇文章最多只能有20个关键词",
-					variant: "destructive",
-				});
-				setShowPopover(false);
-				window.getSelection()?.removeAllRanges();
-				return;
-			}
+		if (Object.keys(targetMetadata).length >= 12) {
+			toast({
+				title: "已达到证据目标数量上限",
+				description: "每篇文章最多只能有12个证据目标",
+				variant: "destructive",
+			});
+			setShowPopover(false);
+			window.getSelection()?.removeAllRanges();
+			return;
 		}
 
-		// 设置加载状态
 		setIsLoading(true);
 
-		// 添加关键词（会自动处理新增匹配项或选中未选中的匹配项）
 		const success = await addKeywordWithRecommendation(selectedText);
 
 		if (success) {
 			toast({
-				title: "关键词已添加",
+				title: "证据目标已添加",
 				description: `"${selectedText}" 已成功添加到列表中`,
 			});
 		} else {
@@ -107,7 +93,6 @@ export function TextSelectionPopover() {
 			});
 		}
 
-		// 清除选择
 		setIsLoading(false);
 		window.getSelection()?.removeAllRanges();
 		setShowPopover(false);
@@ -127,7 +112,7 @@ export function TextSelectionPopover() {
 		>
 			<div className="rounded-lg border bg-popover/95 p-3 shadow-xl backdrop-blur-sm">
 				<div className="mb-3 max-w-[200px] text-center">
-					<p className="mb-1 text-muted-foreground text-xs">添加关键词</p>
+					<p className="mb-1 text-muted-foreground text-xs">添加证据目标</p>
 					<p className="truncate font-medium text-sm">"{selectedText}"</p>
 				</div>
 				<div className="flex justify-center gap-2">

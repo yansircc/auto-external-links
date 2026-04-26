@@ -17,24 +17,24 @@ interface LinkedContentProps {
 
 export function LinkedContent({ messages }: LinkedContentProps) {
 	// Use store for pure state
-	const { text, matches, keywordMetadata, selectedKeywordIds } =
+	const { text, matches, targetMetadata, selectedTargetIds } =
 		useKeywordEditorStore();
 
 	// Use hook for business logic
-	const { switchKeywordLink, removeKeywordLink } = useKeywordSelection();
+	const { switchTargetLink, removeTargetLink } = useKeywordSelection();
 
 	const { footnotes, footnoteIndexMap } = useFootnotes(
 		matches,
-		selectedKeywordIds,
-		keywordMetadata,
+		selectedTargetIds,
+		targetMetadata,
 	);
 
 	const [{ copiedSimple, copiedWithFootnotes }, { copyToClipboard }] = useCopy(
 		{
 			text,
 			matches,
-			keywordMetadata,
-			selectedKeywordIds,
+			targetMetadata,
+			selectedTargetIds,
 			footnoteIndexMap,
 			messages,
 		},
@@ -43,14 +43,12 @@ export function LinkedContent({ messages }: LinkedContentProps) {
 
 	// 处理链接切换
 	function handleLinkChange(id: string, link: string, title: string) {
-		const keyword = id.slice(0, id.lastIndexOf("-"));
-		switchKeywordLink(keyword, link, title);
+		switchTargetLink(id, link, title);
 	}
 
 	// 处理链接删除
 	function handleLinkRemove(id: string) {
-		const keyword = id.slice(0, id.lastIndexOf("-"));
-		removeKeywordLink(keyword);
+		removeTargetLink(id);
 	}
 
 	return (
@@ -60,8 +58,8 @@ export function LinkedContent({ messages }: LinkedContentProps) {
 					{renderLinkedText({
 						text,
 						matches,
-						keywordMetadata,
-						selectedKeywordIds,
+						targetMetadata,
+						selectedTargetIds,
 						footnoteIndexMap,
 						onLinkChange: handleLinkChange,
 						onLinkRemove: handleLinkRemove,

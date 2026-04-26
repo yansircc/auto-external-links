@@ -1,67 +1,56 @@
 import { create } from "zustand";
-import type { KeywordMatch, KeywordMetadata } from "@/types/keywords";
+import type { EvidenceMatch, EvidenceTargetMetadata } from "@/types/keywords";
 
 /**
  * 编辑器模式
  */
 export type EditorMode = "editing" | "preview" | "linked";
 
-/**
- * 关键词编辑器状态
- */
 interface KeywordEditorState {
-	// ========== 纯状态数据 ==========
 	text: string;
-	matches: KeywordMatch[];
-	keywordMetadata: Record<string, KeywordMetadata>;
-	selectedKeywordIds: Set<string>;
+	matches: EvidenceMatch[];
+	targetMetadata: Record<string, EvidenceTargetMetadata>;
+	selectedTargetIds: Set<string>;
 	isLoading: boolean;
 	mode: EditorMode;
 	hasLinks: boolean;
 	preferredSites: string[];
 	shouldAnimateLogo: boolean;
 
-	// ========== 纯状态更新方法 ==========
-	// 基础 setters
 	setText: (text: string) => void;
-	setMatches: (matches: KeywordMatch[]) => void;
-	setKeywordMetadata: (metadata: Record<string, KeywordMetadata>) => void;
-	setSelectedKeywordIds: (ids: Set<string>) => void;
+	setMatches: (matches: EvidenceMatch[]) => void;
+	setTargetMetadata: (metadata: Record<string, EvidenceTargetMetadata>) => void;
+	setSelectedTargetIds: (ids: Set<string>) => void;
 	setIsLoading: (isLoading: boolean) => void;
 	setMode: (mode: EditorMode) => void;
 	setHasLinks: (hasLinks: boolean) => void;
 	setPreferredSites: (sites: string[]) => void;
 	setShouldAnimateLogo: (should: boolean) => void;
 
-	// 状态操作方法
-	toggleKeyword: (id: string) => void;
-	selectAllKeywords: () => void;
-	deselectAllKeywords: () => void;
-	updateKeywordLink: (keyword: string, link: string, title: string) => void;
-	removeKeywordLink: (keyword: string) => void;
-	updateKeywordMetadata: (
-		keyword: string,
-		metadata: Partial<KeywordMetadata>,
+	toggleTarget: (id: string) => void;
+	selectAllTargets: () => void;
+	deselectAllTargets: () => void;
+	updateTargetLink: (targetId: string, link: string, title: string) => void;
+	removeTargetLink: (targetId: string) => void;
+	updateTargetMetadata: (
+		targetId: string,
+		metadata: Partial<EvidenceTargetMetadata>,
 	) => void;
 
-	// 批量更新方法
 	resetToInitialState: () => void;
 	updateAnalysisResult: (params: {
 		text: string;
-		matches: KeywordMatch[];
-		metadata: Record<string, KeywordMetadata>;
+		matches: EvidenceMatch[];
+		metadata: Record<string, EvidenceTargetMetadata>;
 	}) => void;
-	updateLinksResult: (metadata: Record<string, KeywordMetadata>) => void;
+	updateLinksResult: (metadata: Record<string, EvidenceTargetMetadata>) => void;
 }
 
-/**
- * 初始状态
- */
 const initialState = {
 	text: "",
 	matches: [],
-	keywordMetadata: {},
-	selectedKeywordIds: new Set<string>(),
+	targetMetadata: {},
+	selectedTargetIds: new Set<string>(),
 	isLoading: false,
 	mode: "editing" as EditorMode,
 	hasLinks: false,
@@ -69,56 +58,49 @@ const initialState = {
 	shouldAnimateLogo: false,
 };
 
-/**
- * 关键词编辑器 Store（纯状态管理版本）
- */
 export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
-	// ========== 初始状态 ==========
 	...initialState,
 
-	// ========== 基础 Setters ==========
 	setText: (text) => set({ text }),
 	setMatches: (matches) => set({ matches }),
-	setKeywordMetadata: (metadata) => set({ keywordMetadata: metadata }),
-	setSelectedKeywordIds: (ids) => set({ selectedKeywordIds: ids }),
+	setTargetMetadata: (metadata) => set({ targetMetadata: metadata }),
+	setSelectedTargetIds: (ids) => set({ selectedTargetIds: ids }),
 	setIsLoading: (isLoading) => set({ isLoading }),
 	setMode: (mode) => set({ mode }),
 	setHasLinks: (hasLinks) => set({ hasLinks }),
 	setPreferredSites: (sites) => set({ preferredSites: sites }),
 	setShouldAnimateLogo: (should) => set({ shouldAnimateLogo: should }),
 
-	// ========== 状态操作方法 ==========
-	toggleKeyword: (id) => {
+	toggleTarget: (id) => {
 		set((state) => {
-			const next = new Set(state.selectedKeywordIds);
+			const next = new Set(state.selectedTargetIds);
 			if (next.has(id)) {
 				next.delete(id);
 			} else {
 				next.add(id);
 			}
-			return { selectedKeywordIds: next };
+			return { selectedTargetIds: next };
 		});
 	},
 
-	selectAllKeywords: () => {
+	selectAllTargets: () => {
 		const { matches } = get();
-		const allIds = new Set(matches.map((m) => m.id));
-		set({ selectedKeywordIds: allIds });
+		set({ selectedTargetIds: new Set(matches.map((match) => match.targetId)) });
 	},
 
-	deselectAllKeywords: () => {
-		set({ selectedKeywordIds: new Set() });
+	deselectAllTargets: () => {
+		set({ selectedTargetIds: new Set() });
 	},
 
-	updateKeywordLink: (keyword, link, title) => {
+	updateTargetLink: (targetId, link, title) => {
 		set((state) => {
-			const metadata = state.keywordMetadata[keyword];
+			const metadata = state.targetMetadata[targetId];
 			if (!metadata) return state;
 
 			return {
-				keywordMetadata: {
-					...state.keywordMetadata,
-					[keyword]: {
+				targetMetadata: {
+					...state.targetMetadata,
+					[targetId]: {
 						...metadata,
 						link,
 						title,
@@ -128,15 +110,15 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
 		});
 	},
 
-	removeKeywordLink: (keyword) => {
+	removeTargetLink: (targetId) => {
 		set((state) => {
-			const metadata = state.keywordMetadata[keyword];
+			const metadata = state.targetMetadata[targetId];
 			if (!metadata) return state;
 
 			return {
-				keywordMetadata: {
-					...state.keywordMetadata,
-					[keyword]: {
+				targetMetadata: {
+					...state.targetMetadata,
+					[targetId]: {
 						...metadata,
 						link: null,
 						title: null,
@@ -146,15 +128,15 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
 		});
 	},
 
-	updateKeywordMetadata: (keyword, partialMetadata) => {
+	updateTargetMetadata: (targetId, partialMetadata) => {
 		set((state) => {
-			const metadata = state.keywordMetadata[keyword];
+			const metadata = state.targetMetadata[targetId];
 			if (!metadata) return state;
 
 			return {
-				keywordMetadata: {
-					...state.keywordMetadata,
-					[keyword]: {
+				targetMetadata: {
+					...state.targetMetadata,
+					[targetId]: {
 						...metadata,
 						...partialMetadata,
 					},
@@ -163,20 +145,16 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
 		});
 	},
 
-	// ========== 批量更新方法 ==========
 	resetToInitialState: () => {
 		set(initialState);
 	},
 
 	updateAnalysisResult: ({ text, matches, metadata }) => {
-		// 自动选中所有找到的关键词
-		const allIds = new Set(matches.map((m) => m.id));
-
 		set({
 			text,
 			matches,
-			keywordMetadata: metadata,
-			selectedKeywordIds: allIds,
+			targetMetadata: metadata,
+			selectedTargetIds: new Set(matches.map((match) => match.targetId)),
 			mode: "preview",
 			isLoading: false,
 		});
@@ -184,7 +162,7 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
 
 	updateLinksResult: (metadata) => {
 		set({
-			keywordMetadata: metadata,
+			targetMetadata: metadata,
 			hasLinks: true,
 			mode: "linked",
 			shouldAnimateLogo: true,
@@ -193,46 +171,26 @@ export const useKeywordEditorStore = create<KeywordEditorState>((set, get) => ({
 	},
 }));
 
-// ========== Store Selectors ==========
 export const keywordEditorSelectors = {
-	// 获取选中的关键词
-	getSelectedKeywords: (state: KeywordEditorState) => {
-		const keywordMap = new Map<string, string>(); // lowercase -> original
+	getSelectedTargets: (state: KeywordEditorState) =>
+		state.matches.filter((match) =>
+			state.selectedTargetIds.has(match.targetId),
+		),
 
-		state.matches.forEach((match) => {
-			if (state.selectedKeywordIds.has(match.id)) {
-				const lower = match.keyword.toLowerCase();
-				// 如果同一个小写形式还没记录，就记录第一个出现的原始大小写形式
-				if (!keywordMap.has(lower)) {
-					keywordMap.set(lower, match.keyword);
-				}
-			}
-		});
-
-		return Array.from(keywordMap.values());
-	},
-
-	// 获取带元数据的选中关键词
-	getSelectedKeywordsWithMetadata: (state: KeywordEditorState) => {
-		const selectedKeywords = keywordEditorSelectors.getSelectedKeywords(state);
-
-		return selectedKeywords
-			.map((keyword) => ({
-				keyword,
-				metadata: state.keywordMetadata[keyword],
+	getSelectedTargetsWithMetadata: (state: KeywordEditorState) =>
+		keywordEditorSelectors
+			.getSelectedTargets(state)
+			.map((match) => ({
+				match,
+				metadata: state.targetMetadata[match.targetId],
 			}))
-			.filter((item) => item.metadata);
-	},
+			.filter((item) => item.metadata),
 
-	// 检查是否有选中的关键词
-	hasSelectedKeywords: (state: KeywordEditorState) => {
-		return state.selectedKeywordIds.size > 0;
-	},
+	hasSelectedTargets: (state: KeywordEditorState) =>
+		state.selectedTargetIds.size > 0,
 
-	// 获取可以生成链接的关键词
-	getLinkableKeywords: (state: KeywordEditorState) => {
-		return keywordEditorSelectors
-			.getSelectedKeywordsWithMetadata(state)
-			.filter((item) => item.metadata?.query);
-	},
+	getLinkableTargets: (state: KeywordEditorState) =>
+		keywordEditorSelectors
+			.getSelectedTargetsWithMetadata(state)
+			.filter((item) => (item.metadata?.queries.length ?? 0) > 0),
 };

@@ -6,73 +6,60 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useKeywordRecommendation } from "@/hooks/use-keyword-recommendation";
 import { useToast } from "@/hooks/use-toast";
-import {
-	keywordEditorSelectors,
-	useKeywordEditorStore,
-} from "@/stores/keyword-editor";
+import { useKeywordEditorStore } from "@/stores/keyword-editor";
 
 interface AddKeywordProps {
 	onAdd?: () => void;
 }
 
 export function AddKeyword({ onAdd }: AddKeywordProps) {
-	const [keyword, setKeyword] = useState("");
+	const [anchorText, setAnchorText] = useState("");
 	const [isAdding, setIsAdding] = useState(false);
 	const { toast } = useToast();
 	const store = useKeywordEditorStore();
-	const { text, keywordMetadata } = store;
+	const { text, targetMetadata } = store;
 	const { addKeywordWithRecommendation } = useKeywordRecommendation();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		const trimmedKeyword = keyword.trim();
-		if (!trimmedKeyword) return;
+		const trimmedAnchor = anchorText.trim();
+		if (!trimmedAnchor) return;
 
-		// 检查关键词是否在文本中存在
-		if (!text.toLowerCase().includes(trimmedKeyword.toLowerCase())) {
+		if (!text.includes(trimmedAnchor)) {
 			toast({
-				title: "关键词未找到",
-				description: "该关键词在文本中不存在",
+				title: "锚点未找到",
+				description: "该锚点文本在文章中不存在",
 				variant: "destructive",
 			});
 			return;
 		}
 
-		// 检查关键词总数是否已达到上限（只在关键词不存在时检查）
-		if (!keywordMetadata[trimmedKeyword]) {
-			const selectedKeywordsCount =
-				keywordEditorSelectors.getSelectedKeywords(store).length;
-			if (selectedKeywordsCount >= 20) {
-				toast({
-					title: "已达到关键词数量上限",
-					description: "每篇文章最多只能有20个关键词",
-					variant: "destructive",
-				});
-				return;
-			}
+		if (Object.keys(targetMetadata).length >= 12) {
+			toast({
+				title: "已达到证据目标数量上限",
+				description: "每篇文章最多只能有12个证据目标",
+				variant: "destructive",
+			});
+			return;
 		}
 
-		// 添加关键词（会自动处理新增匹配项或选中未选中的匹配项）
-		const success = await addKeywordWithRecommendation(trimmedKeyword);
+		const success = await addKeywordWithRecommendation(trimmedAnchor);
 
 		if (success) {
-			// 重置输入
-			setKeyword("");
+			setAnchorText("");
 			setIsAdding(false);
 
-			// 显示成功消息
 			toast({
-				title: "关键词已添加",
-				description: `"${trimmedKeyword}" 已成功添加到列表中`,
+				title: "证据目标已添加",
+				description: `"${trimmedAnchor}" 已成功添加到列表中`,
 			});
 
-			// 调用回调
 			onAdd?.();
 		} else {
 			toast({
 				title: "添加失败",
-				description: "该关键词的所有匹配项都已选中",
+				description: "无法添加该证据目标",
 				variant: "destructive",
 			});
 		}
@@ -97,19 +84,19 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 		<form onSubmit={handleSubmit} className="flex gap-2">
 			<Input
 				type="text"
-				value={keyword}
-				onChange={(e) => setKeyword(e.target.value)}
-				placeholder="输入关键词..."
+				value={anchorText}
+				onChange={(e) => setAnchorText(e.target.value)}
+				placeholder="输入锚点文本..."
 				className="h-8 text-sm"
 				autoFocus
 				onBlur={() => {
-					if (!keyword.trim()) {
+					if (!anchorText.trim()) {
 						setIsAdding(false);
 					}
 				}}
 				onKeyDown={(e) => {
 					if (e.key === "Escape") {
-						setKeyword("");
+						setAnchorText("");
 						setIsAdding(false);
 					}
 				}}
@@ -123,7 +110,7 @@ export function AddKeyword({ onAdd }: AddKeywordProps) {
 				size="sm"
 				className="h-8"
 				onClick={() => {
-					setKeyword("");
+					setAnchorText("");
 					setIsAdding(false);
 				}}
 			>

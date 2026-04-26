@@ -7,17 +7,14 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import type { SerperResponse } from "@/lib/serper/schema";
 import { cn } from "@/lib/utils";
+import type { EvidenceTargetMetadata } from "@/types/keywords";
 import type { EditorMessages } from "../core/messages";
 
 interface LinkSwitcherProps {
 	link: string;
 	title: string | null;
-	alternatives: {
-		preferred: SerperResponse["organic"];
-		regular: SerperResponse["organic"];
-	};
+	alternatives: EvidenceTargetMetadata["alternatives"];
 	onLinkChange: (link: string, title: string) => void;
 	onLinkRemove?: () => void;
 	children: React.ReactNode;
@@ -36,9 +33,10 @@ export function LinkSwitcher({
 	const [open, setOpen] = React.useState(false);
 	const [showSuccess, setShowSuccess] = React.useState(false);
 
-	// Get one link per preferred site
+	const neutralLinks = alternatives.neutral.slice(0, 3);
+
 	const preferredLinks = alternatives.preferred.reduce<
-		SerperResponse["organic"]
+		EvidenceTargetMetadata["alternatives"]["preferred"]
 	>((acc, link) => {
 		const domain = new URL(link.link).hostname;
 		const existingLink = acc.find(
@@ -50,11 +48,9 @@ export function LinkSwitcher({
 		return acc;
 	}, []);
 
-	// Get top 3 regular links
 	const regularLinks = alternatives.regular.slice(0, 3);
 
-	// Combine all alternative links
-	const allAlternatives = [...preferredLinks, ...regularLinks];
+	const allAlternatives = [...neutralLinks, ...preferredLinks, ...regularLinks];
 
 	const hasAlternatives = allAlternatives.length > 0;
 
@@ -116,6 +112,9 @@ export function LinkSwitcher({
 			>
 				<div className="space-y-2">
 					{allAlternatives.map((result) => {
+						const isNeutral = alternatives.neutral.some(
+							(p) => p.link === result.link,
+						);
 						const isPreferred = alternatives.preferred.some(
 							(p) => p.link === result.link,
 						);
@@ -144,7 +143,12 @@ export function LinkSwitcher({
 											{result.link}
 										</p>
 									</div>
-									{isPreferred && (
+									{isNeutral && (
+										<span className="ml-2 shrink-0 text-primary text-xs">
+											Neutral
+										</span>
+									)}
+									{!isNeutral && isPreferred && (
 										<span className="ml-2 shrink-0 text-primary text-xs">
 											{messages.preferred}
 										</span>

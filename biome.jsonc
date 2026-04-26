@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -50,7 +50,6 @@
 				"noForEach": "off"
 			},
 			"nursery": {
-				"useUniqueElementIds": "off",
 				"useSortedClasses": {
 					"level": "warn",
 					"fix": "safe",

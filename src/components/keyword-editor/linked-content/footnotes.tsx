@@ -19,7 +19,7 @@ export function Footnotes({ footnotes, messages }: FootnotesProps) {
 					const footnoteNumber = index + 1;
 					return (
 						<div
-							key={footnote.keyword}
+							key={footnote.label}
 							id={`footnote-${footnoteNumber}`}
 							className="flex gap-2 text-muted-foreground"
 						>

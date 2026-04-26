@@ -20,4 +20,4 @@ export const formSchema = z.object({
 export type FormData = z.infer<typeof formSchema>;
 
 // Re-export types from centralized location
-export type { KeywordMatch, KeywordMetadata } from "@/types/keywords";
+export type { EvidenceMatch, EvidenceTargetMetadata } from "@/types/keywords";

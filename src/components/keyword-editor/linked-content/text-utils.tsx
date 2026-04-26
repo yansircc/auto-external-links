@@ -5,8 +5,8 @@ import { LinkSwitcher } from "./link-switcher";
 export function renderLinkedText({
 	text,
 	matches,
-	keywordMetadata,
-	selectedKeywordIds,
+	targetMetadata,
+	selectedTargetIds,
 	footnoteIndexMap,
 	onLinkChange,
 	onLinkRemove,
@@ -20,8 +20,7 @@ export function renderLinkedText({
 
 	for (const match of matches) {
 		const id = match.id;
-		// Only process selected keywords
-		if (!selectedKeywordIds.has(id)) {
+		if (!selectedTargetIds.has(match.targetId)) {
 			if (match.start > lastIndex) {
 				elements.push(
 					<span key={`text-skip-${match.start}`}>
@@ -42,8 +41,7 @@ export function renderLinkedText({
 			);
 		}
 
-		// Add keyword with or without link
-		const metadata = keywordMetadata[match.keyword];
+		const metadata = targetMetadata[match.targetId];
 		const hasLink = !!metadata?.link;
 
 		const footnoteIndex = footnoteIndexMap.get(id);
@@ -113,17 +111,17 @@ export function renderLinkedText({
 export function generateMarkdown({
 	text,
 	matches,
-	keywordMetadata,
-	selectedKeywordIds,
+	targetMetadata,
+	selectedTargetIds,
 }: Omit<RenderOptions, "footnoteIndexMap" | "messages">) {
 	let result = text;
 	const sortedMatches = [...matches]
-		.filter((match) => selectedKeywordIds.has(match.id))
+		.filter((match) => selectedTargetIds.has(match.targetId))
 		.sort((a, b) => b.start - a.start); // Process from end to start
 
 	// Add links or keep as plain text
 	for (const match of sortedMatches) {
-		const metadata = keywordMetadata[match.keyword];
+		const metadata = targetMetadata[match.targetId];
 		const linkText = text.slice(match.start, match.end);
 
 		if (metadata?.link) {
@@ -141,19 +139,19 @@ export function generateMarkdown({
 export function generateMarkdownWithFootnotes({
 	text,
 	matches,
-	keywordMetadata,
-	selectedKeywordIds,
+	targetMetadata,
+	selectedTargetIds,
 	footnoteIndexMap,
 }: Omit<RenderOptions, "messages">) {
 	let result = text;
 	const sortedMatches = [...matches]
-		.filter((match) => selectedKeywordIds.has(match.id))
+		.filter((match) => selectedTargetIds.has(match.targetId))
 		.sort((a, b) => b.start - a.start); // Process from end to start
 
 	// Add links or plain text with footnote references
 	for (const match of sortedMatches) {
 		const id = match.id;
-		const metadata = keywordMetadata[match.keyword];
+		const metadata = targetMetadata[match.targetId];
 		const footnoteIndex = footnoteIndexMap.get(id);
 		const linkText = text.slice(match.start, match.end);
 
